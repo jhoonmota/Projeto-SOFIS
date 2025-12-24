@@ -86,7 +86,6 @@
             <div class="form-group">
                 <label for="username"><i class="fa-solid fa-user"></i> Usuário</label>
                 <input type="text" id="username" required placeholder="Digite seu usuário"
-                    pattern="[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\\|,.<>\/?]*"
                     title="Apenas letras, números e caracteres especiais permitidos">
             </div>
 
@@ -111,7 +110,9 @@
 
     <div id="toast" class="toast hidden"></div>
 
-    <script>
+    <script type="module">
+        import { supabase } from './supabaseClient.js';
+
         document.addEventListener('DOMContentLoaded', () => {
             const loginForm = document.getElementById('loginForm');
             const usernameInput = document.getElementById('username');
@@ -134,30 +135,53 @@
                 }
             });
 
-            // Prevent spaces in username and validate
+            // Validar para não ter espaços
             usernameInput.addEventListener('input', (e) => {
-                // Regex: Allow letters, numbers, and special characters. NO spaces.
                 const regex = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/;
-
                 if (!regex.test(e.target.value)) {
-                    // Remove the last character if it invalidates the pattern
                     e.target.value = e.target.value.replace(/[^a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/g, '');
-                    showToast('Espaços e acentos não são permitidos no usuário.', 'error');
+                    showToast('Espaços e acentos não são permitidos.', 'error');
                 }
             });
 
-            loginForm.addEventListener('submit', (e) => {
+            loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const username = usernameInput.value;
+                let username = usernameInput.value.trim();
                 const password = passwordInput.value;
 
-                if (username && password) {
-                    // Fake login success
-                    // In a real app, this would validate against a backend
-                    // For now, redirect to the main app
-                    window.location.href = 'index.html';
-                } else {
-                    showToast('Preencha todos os campos.', 'error');
+                if (!username || !password) {
+                    showToast('Preencha usuário e senha.', 'error');
+                    return;
+                }
+
+                // Transformar usuário em "email falso" para o Supabase
+                // Ex: "sofis" vira "sofis@sofis.com"
+                const emailFake = `${username}@sofis.com`;
+
+                loginForm.querySelector('button[type="submit"]').textContent = 'Entrando...';
+                loginForm.querySelector('button[type="submit"]').disabled = true;
+
+                try {
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email: emailFake,
+                        password: password,
+                    })
+
+                    if (error) throw error;
+
+                    showToast('Login realizado! Redirecionando...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+
+                } catch (error) {
+                    console.error('Erro de login:', error);
+                    let msg = error.message;
+                    if (msg === 'Invalid login credentials') msg = 'Usuário ou senha incorretos';
+                    showToast('Erro ao entrar: ' + msg, 'error');
+
+                    loginForm.querySelector('button[type="submit"]').textContent = 'Entrar';
+                    loginForm.querySelector('button[type="submit"]').disabled = false;
                 }
             });
 
