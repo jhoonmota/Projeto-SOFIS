@@ -740,6 +740,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
+    window.togglePassword = (btn) => {
+        const row = btn.closest('.credential-row');
+        const valueSpan = row.querySelector('.credential-value');
+        const icon = btn.querySelector('i');
+        const isMasked = valueSpan.textContent === '••••••';
+
+        if (isMasked) {
+            valueSpan.textContent = valueSpan.dataset.raw;
+            icon.className = 'fa-solid fa-eye-slash';
+            btn.title = 'Ocultar Senha';
+        } else {
+            valueSpan.textContent = '••••••';
+            icon.className = 'fa-solid fa-eye';
+            btn.title = 'Visualizar Senha';
+        }
+    };
+
     // --- Server Data Functions ---
 
     window.openServerData = (clientId) => {
