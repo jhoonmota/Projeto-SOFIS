@@ -193,6 +193,8 @@
     font-size: 0.85rem;
     color: var(--text-secondary);
     line-height: 1.5;
+    word-break: break-word;
+    white-space: pre-wrap;
 }
 
 .servers-grid-empty {

@@ -22,14 +22,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Server Modal Elements
     const serverModal = document.getElementById('serverModal');
+    const serverEntryModal = document.getElementById('serverEntryModal');
     const serverForm = document.getElementById('serverForm');
     const closeServerBtn = document.getElementById('closeServerModal');
-    const cancelServerBtn = document.getElementById('cancelServerBtn');
+    const closeServerEntryBtn = document.getElementById('closeServerEntryModal');
+    const cancelServerEntryBtn = document.getElementById('cancelServerEntryBtn');
+    const addServerEntryBtn = document.getElementById('addServerEntryBtn');
     const serverClientIdInput = document.getElementById('serverClientId');
     const sqlServerInput = document.getElementById('sqlServerInput');
     const credentialList = document.getElementById('credentialList');
     const addCredentialBtn = document.getElementById('addCredentialBtn');
     const serverNotesInput = document.getElementById('serverNotesInput');
+    const serverEntryModalTitle = document.getElementById('serverEntryModalTitle');
 
     // Client Notes Modal Elements
     const notesModal = document.getElementById('notesModal');
@@ -73,9 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Server Modal Listeners
     if (serverForm) serverForm.addEventListener('submit', handleServerSubmit);
     if (closeServerBtn) closeServerBtn.addEventListener('click', closeServerModal);
-
-    const cancelServerFormBtn = document.getElementById('cancelServerFormBtn');
-    if (cancelServerFormBtn) cancelServerFormBtn.addEventListener('click', clearServerForm);
+    if (closeServerEntryBtn) closeServerEntryBtn.addEventListener('click', closeServerEntryModal);
+    if (cancelServerEntryBtn) cancelServerEntryBtn.addEventListener('click', closeServerEntryModal);
+    if (addServerEntryBtn) addServerEntryBtn.addEventListener('click', openServerEntry);
 
     const closeServerModalBtn = document.getElementById('closeServerModalBtn');
     if (closeServerModalBtn) closeServerModalBtn.addEventListener('click', closeServerModal);
@@ -171,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <button class="btn-icon" onclick="addNewContact('${client.id}')" title="Adicionar Contato">
                             <i class="fa-solid fa-user-plus"></i>
                         </button>
-                        <button class="btn-icon" onclick="openServerData('${client.id}')" title="Dados do Servidor">
+                        <button class="btn-icon" onclick="openServerData('${client.id}')" title="Dados de Acesso ao SQL">
                             <i class="fa-solid fa-database"></i>
                         </button>
                         <button class="btn-icon btn-danger" onclick="deleteClient('${client.id}')" title="Excluir">
@@ -769,6 +773,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function closeServerModal() {
         serverModal.classList.add('hidden');
+    }
+
+    function openServerEntry() {
+        clearServerForm();
+        serverEntryModalTitle.textContent = 'Novo Acesso SQL';
+        const editingServerIndex = document.getElementById('editingServerIndex');
+        if (editingServerIndex) editingServerIndex.value = '';
+        serverEntryModal.classList.remove('hidden');
+    }
+
+    function closeServerEntryModal() {
+        serverEntryModal.classList.add('hidden');
         clearServerForm();
     }
 
@@ -938,7 +954,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         saveToLocal();
         renderServersList(client);
-        clearServerForm();
+        closeServerEntryModal();
     }
 
     window.editServerRecord = (clientId, index) => {
@@ -963,9 +979,8 @@ document.addEventListener('DOMContentLoaded', () => {
             addCredentialField();
         }
 
-        // Scroll to top of modal
-        const modalContent = document.querySelector('#serverModal .modal-content');
-        if (modalContent) modalContent.scrollTop = 0;
+        serverEntryModalTitle.textContent = 'Editar Acesso SQL';
+        serverEntryModal.classList.remove('hidden');
     };
 
     window.deleteServerRecord = (clientId, index) => {

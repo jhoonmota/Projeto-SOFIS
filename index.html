@@ -128,13 +128,40 @@
             <div class="modal-content modal-content-large">
                 <div class="modal-header">
                     <div class="modal-header-left">
-                        <h2>Dados do Servidor</h2>
+                        <h2>Dados de Acesso ao SQL</h2>
                     </div>
-                    <button id="closeServerModal" type="button" class="btn-icon"><i
-                            class="fa-solid fa-xmark"></i></button>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button id="addServerEntryBtn" class="btn-primary" style="margin-right: 15px;">
+                            <i class="fa-solid fa-plus"></i> Adicionar
+                        </button>
+                        <button id="closeServerModal" type="button" class="btn-icon"><i
+                                class="fa-solid fa-xmark"></i></button>
+                    </div>
                 </div>
 
-                <!-- Form for adding new server records -->
+                <!-- Saved servers grid -->
+                <div class="servers-section" style="border-top: none; margin-top: 0; padding-top: 0;">
+                    <h3><i class="fa-solid fa-database"></i> Dados de Acesso Cadastrados</h3>
+                    <div id="serversList" class="servers-grid">
+                        <!-- Server records will be displayed here -->
+                    </div>
+                </div>
+
+                <div class="modal-actions"
+                    style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+                    <button type="button" id="closeServerModalBtn" class="btn-primary">Fechar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Server Entry Modal -->
+        <div id="serverEntryModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="serverEntryModalTitle">Novo Acesso SQL</h2>
+                    <button id="closeServerEntryModal" type="button" class="btn-icon"><i
+                            class="fa-solid fa-xmark"></i></button>
+                </div>
                 <form id="serverForm">
                     <input type="hidden" id="serverClientId">
                     <input type="hidden" id="editingServerIndex">
@@ -177,25 +204,12 @@
                     </div>
 
                     <div class="modal-actions">
-                        <button type="button" id="cancelServerFormBtn" class="btn-secondary">Limpar</button>
+                        <button type="button" id="cancelServerEntryBtn" class="btn-secondary">Cancelar</button>
                         <button type="submit" class="btn-primary">
-                            <i class="fa-solid fa-plus"></i> Incluir
+                            <i class="fa-solid fa-plus"></i> Salvar
                         </button>
                     </div>
                 </form>
-
-                <!-- Saved servers grid -->
-                <div class="servers-section">
-                    <h3><i class="fa-solid fa-database"></i> Servidores Cadastrados</h3>
-                    <div id="serversList" class="servers-grid">
-                        <!-- Server records will be displayed here -->
-                    </div>
-                </div>
-
-                <div class="modal-actions"
-                    style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
-                    <button type="button" id="closeServerModalBtn" class="btn-primary">Fechar</button>
-                </div>
             </div>
         </div>
 
