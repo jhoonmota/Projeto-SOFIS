@@ -1,7 +1,6 @@
-
 import { supabase } from './supabaseClient.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // State
     let clients = [];
     let editingId = null;
@@ -43,6 +42,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const notesModalTitle = document.getElementById('notesModalTitle');
 
 
+    // --- Auth Protection ---
+    const { data: { session } } = await supabase.auth.getSession(); // Destructure session
+    if (!session) { // Check if session is null
+        window.location.href = 'login.html';
+        return; // Stop execution
+    }
+
+    // Logout Functionality
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            console.log('Saindo...');
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        });
+    }
+
     // Initial Render
     console.log('App.js inicializado. Buscando clientes...');
     fetchClients();
@@ -50,11 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event Listeners
     if (addBtn) {
         addBtn.addEventListener('click', (e) => {
-            e.preventDefault(); // Evitar comportamento padrão se houver
+            e.preventDefault();
             openAddModal();
         });
-    } else {
-        console.error('Botão Novo Cliente #addClientBtn não encontrado no DOM!');
     }
     cancelBtn.addEventListener('click', closeModal);
     closeBtn.addEventListener('click', closeModal);

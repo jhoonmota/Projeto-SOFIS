@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Gerenciador de Clientes SOFIS</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .login-container {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .login-logo {
+            width: 200px;
+            margin-bottom: 0;
+            margin-top: -40px;
+        }
+
+        .login-title {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 75px;
+            margin-top: -25px;
+            font-weight: 300;
+            line-height: 1.4;
+        }
+
+        .login-form .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .login-btn {
+            width: 100%;
+            justify-content: center;
+            margin-top: 50px;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        .corner-logo {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 120px;
+            opacity: 0.9;
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <img src="logo.png" alt="Sofis Logo" class="login-logo">
+        <p class="login-subtitle">Gerenciamento de Senhas e Contatos de Clientes</p>
+        <h1 class="login-title">Acesso ao Sistema</h1>
+
+        <form id="loginForm" class="login-form">
+            <div class="form-group">
+                <label for="username"><i class="fa-solid fa-user"></i> Usuário</label>
+                <input type="text" id="username" required placeholder="Digite seu usuário"
+                    title="Apenas letras, números e caracteres especiais permitidos">
+            </div>
+
+            <div class="form-group">
+                <label for="password"><i class="fa-solid fa-lock"></i> Senha</label>
+                <div style="position: relative;">
+                    <input type="password" id="password" required placeholder="Digite sua senha"
+                        style="padding-right: 40px;">
+                    <button type="button" id="togglePasswordBtn" class="btn-icon"
+                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);" tabindex="-1">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary login-btn">Entrar</button>
+        </form>
+    </div>
+
+    <!-- Bottom Right Logo -->
+    <img src="logo_corner.png" alt="Logo Canto" class="corner-logo">
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script type="module">
+        import { supabase } from './supabaseClient.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+            const toast = document.getElementById('toast');
+
+            // Toggle Password Visibility
+            togglePasswordBtn.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+
+                const icon = togglePasswordBtn.querySelector('i');
+                if (type === 'text') {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+
+            // Validar para não ter espaços
+            usernameInput.addEventListener('input', (e) => {
+                const regex = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/;
+                if (!regex.test(e.target.value)) {
+                    e.target.value = e.target.value.replace(/[^a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/g, '');
+                    showToast('Espaços e acentos não são permitidos.', 'error');
+                }
+            });
+
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                let username = usernameInput.value.trim();
+                const password = passwordInput.value;
+
+                if (!username || !password) {
+                    showToast('Preencha usuário e senha.', 'error');
+                    return;
+                }
+
+                // Transformar usuário em "email falso" para o Supabase
+                // Ex: "sofis" vira "sofis@sofis.com"
+                const emailFake = `${username}@sofis.com`;
+
+                loginForm.querySelector('button[type="submit"]').textContent = 'Entrando...';
+                loginForm.querySelector('button[type="submit"]').disabled = true;
+
+                try {
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email: emailFake,
+                        password: password,
+                    })
+
+                    if (error) throw error;
+
+                    showToast('Login realizado! Redirecionando...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+
+                } catch (error) {
+                    console.error('Erro de login:', error);
+                    let msg = error.message;
+                    if (msg === 'Invalid login credentials') msg = 'Usuário ou senha incorretos';
+                    showToast('Erro ao entrar: ' + msg, 'error');
+
+                    loginForm.querySelector('button[type="submit"]').textContent = 'Entrar';
+                    loginForm.querySelector('button[type="submit"]').disabled = false;
+                }
+            });
+
+            function showToast(msg, type = 'success') {
+                toast.textContent = msg;
+                toast.className = 'toast';
+
+                if (type === 'error') {
+                    toast.classList.add('toast-error');
+                    toast.style.backgroundColor = 'var(--danger)';
+                } else {
+                    toast.classList.add('toast-success');
+                }
+
+                toast.classList.remove('hidden');
+                setTimeout(() => toast.classList.add('hidden'), 3000);
+            }
+        });
+    </script>
+</body>
+
+</html>
