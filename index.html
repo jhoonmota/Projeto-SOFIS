@@ -18,7 +18,11 @@
             <div class="logo-container">
                 <img src="logo.png" alt="Sofis Logo" class="logo-img">
             </div>
-            <button id="addClientBtn" class="btn-primary">
+            <button id="logoutBtn" class="btn-secondary"
+                style="margin-right: 10px; background-color: transparent; border: 1px solid var(--border);">
+                <i class="fa-solid fa-right-from-bracket"></i> Sair
+            </button>
+            <button id="addClientBtn" class="btn-primary" onclick="window.openAddModal()">
                 <i class="fa-solid fa-plus"></i> Novo Cliente
             </button>
         </header>
@@ -224,7 +228,7 @@
 
     <div id="toast" class="toast hidden">Notificação</div>
 
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 
 </html>
