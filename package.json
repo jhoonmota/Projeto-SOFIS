@@ -1,0 +1,23 @@
+{
+  "name": "projeto-sofis",
+  "version": "1.0.0",
+  "description": "Gerenciador de Clientes - SOFIS",
+  "scripts": {
+    "dev": "lite-server",
+    "build": "echo 'Nenhum build necessario para site estatico'",
+    "start": "serve ."
+  },
+  "keywords": [
+    "sofis",
+    "gerenciador",
+    "clientes"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "serve": "^14.2.0"
+  },
+  "devDependencies": {
+    "lite-server": "^2.6.1"
+  }
+}
