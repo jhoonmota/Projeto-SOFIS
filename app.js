@@ -50,6 +50,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         return; // Stop execution
     }
 
+    // Auth successful, show UI
+    const appContainer = document.querySelector('.app-container');
+    if (appContainer) appContainer.style.display = 'block';
+
     // Logout Functionality
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
@@ -73,7 +77,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
         console.error('Botão Novo Cliente #addClientBtn não encontrado no DOM!');
     }
-    // The instruction removed cancelBtn.addEventListener, so it's omitted here.
     closeBtn.addEventListener('click', closeModal);
     form.addEventListener('submit', handleFormSubmit);
 
@@ -122,16 +125,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const { data, error } = await supabase
                 .from('clients')
-                .select('*')
+                .select('*, contacts(*)')
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
 
             clients = data || [];
+            // Sort contacts locally if needed, e.g., by created_at, or assume DB order
             renderClients(clients);
         } catch (error) {
             console.error('Erro ao buscar clientes:', error);
             showToast('Erro ao carregar clientes.', 'error');
+
             clients = [];
             renderClients(clients);
         }
@@ -234,84 +239,136 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function handleFormSubmit(e) {
         e.preventDefault();
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Salvando...';
+
         const mode = form.dataset.mode;
-
-        // Validate Client Name
-        if (!clientNameInput.value.trim()) {
-            showToast('⚠️ O nome do cliente é obrigatório.', 'error');
-            clientNameInput.focus();
-            return;
-        }
-
-        // Collect contacts
-        const contactGroups = contactList.querySelectorAll('.contact-group');
-        const contacts = Array.from(contactGroups).map(group => {
-            const name = group.querySelector('.contact-name-input').value.trim();
-
-            const phoneInputs = group.querySelectorAll('.phone-input');
-            const phones = Array.from(phoneInputs)
-                .map(input => input.value.trim())
-                .filter(val => val !== '');
-
-            const emailInputs = group.querySelectorAll('.email-input');
-            const emails = Array.from(emailInputs)
-                .map(input => input.value.trim())
-                .filter(val => val !== '');
-
-            return { name, phones, emails };
-        }).filter(contact => contact.phones.length > 0 || contact.emails.length > 0);
-
-        if (contacts.length === 0) {
-            showToast('⚠️ Preencha pelo menos um telefone ou e-mail.', 'error');
-            return;
-        }
-
-        const clientData = {
-            name: clientNameInput.value,
-            contacts: contacts
-        };
+        const editingContactIndex = contactList.dataset.editingContactIndex;
 
         try {
-            if (editingId && mode !== 'addContact') {
-                // Update existing client
-                const { error } = await supabase
-                    .from('clients')
-                    .update(clientData)
-                    .eq('id', editingId);
-
-                if (error) throw error;
-                showToast('✅ Cliente atualizado com sucesso!', 'success');
-            } else if (editingId && mode === 'addContact') {
-                const client = clients.find(c => c.id === editingId);
-                if (client) {
-                    const existingContacts = client.contacts || [];
-                    const newContacts = [...existingContacts, ...contacts];
-
-                    const { error } = await supabase
-                        .from('clients')
-                        .update({ contacts: newContacts })
-                        .eq('id', editingId);
-
-                    if (error) throw error;
-                    showToast('✅ Contato adicionado com sucesso!', 'success');
-                }
-            } else {
-                // Insert new client
-                const { error } = await supabase
-                    .from('clients')
-                    .insert([clientData]);
-
-                if (error) throw error;
-                showToast('✅ Cliente adicionado com sucesso!', 'success');
+            // --- 1. Validation ---
+            // Basic Client Name Validation (Needed for Client creation/update, but maybe not for purely adding contact if client exists?)
+            // Actually, clientNameInput is present in all modals.
+            if (!clientNameInput.value.trim()) {
+                showToast('⚠️ O nome do cliente é obrigatório.', 'error');
+                clientNameInput.focus();
+                throw new Error('Validation failed'); // Jump to finally
             }
 
-            // Refresh data
+            // Collect Form Data (Contacts)
+            const contactGroups = contactList.querySelectorAll('.contact-group');
+            const extractedContacts = Array.from(contactGroups).map(group => {
+                const name = group.querySelector('.contact-name-input').value.trim();
+                const phones = Array.from(group.querySelectorAll('.phone-input'))
+                    .map(i => i.value.trim()).filter(v => v !== '');
+                const emails = Array.from(group.querySelectorAll('.email-input'))
+                    .map(i => i.value.trim()).filter(v => v !== '');
+                return { name, phones, emails };
+            }).filter(c => c.name || c.phones.length > 0 || c.emails.length > 0);
+
+            if (extractedContacts.length === 0 && !mode) {
+                // For main client creation, require at least one contact? 
+                // Existing logic required it. Let's keep it.
+                showToast('⚠️ Preencha pelo menos um telefone ou e-mail.', 'error');
+                throw new Error('Validation failed');
+            }
+
+            // --- 2. Processing based on Mode ---
+
+            // A. Single Contact ADD
+            if (mode === 'addContact' && editingId) {
+                // extractedContacts should have 1 item
+                const newContact = extractedContacts[0];
+                if (!newContact) throw new Error("Contact info missing");
+
+                const { error } = await supabase.from('contacts').insert({
+                    client_id: editingId,
+                    name: newContact.name,
+                    phones: newContact.phones,
+                    emails: newContact.emails
+                });
+                if (error) throw error;
+                showToast('✅ Contato adicionado!', 'success');
+            }
+
+            // B. Single Contact EDIT
+            else if (mode === 'editContact' && editingId && editingContactIndex !== undefined) {
+                // We need the Contact ID. 
+                // Since we rely on index currently, let's find the ID from the local 'clients' state
+                const client = clients.find(c => c.id === editingId);
+                const contactId = client.contacts[parseInt(editingContactIndex)].id;
+
+                const updatedContact = extractedContacts[0];
+
+                const { error } = await supabase.from('contacts').update({
+                    name: updatedContact.name,
+                    phones: updatedContact.phones,
+                    emails: updatedContact.emails
+                }).eq('id', contactId);
+
+                if (error) throw error;
+                showToast('✅ Contato atualizado!', 'success');
+            }
+
+            // C. Full Client Create / Update
+            else {
+                let currentClientId = editingId;
+
+                // 1. Client Table Upsert
+                const clientPayload = { name: clientNameInput.value.trim() };
+
+                if (currentClientId) {
+                    // Update
+                    const { error } = await supabase.from('clients').update(clientPayload).eq('id', currentClientId);
+                    if (error) throw error;
+                    showToast('✅ Cliente atualizado!', 'success');
+                } else {
+                    // Insert
+                    const { data, error } = await supabase.from('clients').insert(clientPayload).select().single();
+                    if (error) throw error;
+                    currentClientId = data.id;
+                    showToast('✅ Cliente criado!', 'success');
+                }
+
+                // 2. Sync Contacts (Delete All + Insert)
+                // Only if we are in "Full Edit" mode (which populates the whole list). 
+                // If we were in a mode that hides contacts, we shouldn't do this. 
+                // But "else" block covers specific "editClient" or "newClient" flows which show all contacts.
+
+                if (currentClientId) {
+                    // Delete existing
+                    const { error: delError } = await supabase.from('contacts').delete().eq('client_id', currentClientId);
+                    if (delError) throw delError;
+
+                    // Insert new ones
+                    if (extractedContacts.length > 0) {
+                        const contactsToInsert = extractedContacts.map(c => ({
+                            client_id: currentClientId,
+                            name: c.name,
+                            phones: c.phones,
+                            emails: c.emails
+                        }));
+                        const { error: insError } = await supabase.from('contacts').insert(contactsToInsert);
+                        if (insError) throw insError;
+                    }
+                }
+            }
+
+            // --- 3. Finish ---
             await fetchClients();
             closeModal();
 
         } catch (error) {
-            console.error('Erro ao salvar cliente:', error);
-            showToast('Erro ao salvar no banco de dados: ' + error.message, 'error');
+            if (error.message !== 'Validation failed') {
+                console.error('Erro ao salvar:', error);
+                showToast('Erro ao processar requisição: ' + error.message, 'error');
+            }
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
         }
     };
 
@@ -501,6 +558,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         openModal();
     }
 
+    // Expose needed functions to global scope
+    window.openAddModal = openAddModal;
+    window.closeModal = closeModal;
+
     function openModal() {
         modal.classList.remove('hidden');
     }
@@ -536,21 +597,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Expose functions to global scope (Required for onclick handlers in HTML)
     window.openAddModal = openAddModal;
     window.closeModal = closeModal;
-    window.editClient = editClient;
-    window.toggleFavorite = toggleFavorite;
-    window.addNewContact = addNewContact;
-    window.openClientNotes = openClientNotes;
-    window.openServerData = openServerData;
-    window.deleteClient = deleteClient;
-    window.editContact = editContact;
-    window.removeContact = removeContact;
-    window.addPhone = addPhone;
-    window.addEmail = addEmail;
-    window.removeContactField = removeContactField;
-    window.copyToClipboard = copyToClipboard;
-    window.editServerRecord = editServerRecord;
-    window.deleteServerRecord = deleteServerRecord;
-
 
     window.addNewContact = (clientId) => {
         const client = clients.find(c => c.id === clientId);
@@ -573,6 +619,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const client = clients.find(c => c.id === id);
         if (client) {
             const newStatus = !client.is_favorite;
+            // Optimistic update
             client.is_favorite = newStatus;
 
             if (searchInput.value.trim() !== '') {
@@ -628,6 +675,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (editingContactIndex !== undefined) {
+            // Editing a single contact logic
             const contactGroups = contactList.querySelectorAll('.contact-group');
             if (contactGroups.length !== 1) {
                 originalHandleFormSubmit(e);
@@ -654,6 +702,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const updatedContact = { name, phones, emails };
 
+            // Logic to update array in database
             const client = clients.find(c => c.id === editingId);
             if (client && client.contacts) {
                 const currentIndex = parseInt(editingContactIndex);
@@ -692,9 +741,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (confirm('Tem certeza que deseja excluir este contato?')) {
                 const client = clients.find(c => c.id === editingId);
                 if (client && client.contacts) {
-                    const newContacts = client.contacts.filter((_, idx) => idx !== parseInt(editingContactIndex));
+                    const contactId = client.contacts[parseInt(editingContactIndex)].id;
 
-                    supabase.from('clients').update({ contacts: newContacts }).eq('id', editingId)
+                    supabase.from('contacts').delete().eq('id', contactId)
                         .then(({ error }) => {
                             if (error) throw error;
                             showToast('✅ Contato excluído!', 'success');
@@ -975,6 +1024,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!client || !client.servers) return;
 
         const updatedServers = client.servers.filter((_, idx) => idx !== index);
+
 
         try {
             const { error } = await supabase

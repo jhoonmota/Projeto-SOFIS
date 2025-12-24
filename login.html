@@ -86,7 +86,6 @@
             <div class="form-group">
                 <label for="username"><i class="fa-solid fa-user"></i> Usuário</label>
                 <input type="text" id="username" required placeholder="Digite seu usuário"
-                    pattern="[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\\|,.<>\/?]*"
                     title="Apenas letras, números e caracteres especiais permitidos">
             </div>
 
@@ -155,6 +154,7 @@
                     icon.classList.add('fa-eye');
                 }
             });
+
 
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();

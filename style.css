@@ -53,7 +53,8 @@ header {
 
 .logo-container {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .logo-img {
@@ -911,4 +912,12 @@ button {
 
 .client-card {
     animation: fadeIn 0.4s ease forwards;
+}
+
+.app-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 300;
+    margin-top: -20px;
+    margin-left: 0;
 }
