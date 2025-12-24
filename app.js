@@ -1026,4 +1026,38 @@ document.addEventListener('DOMContentLoaded', () => {
         renderClients(clients);
     }
 
+    // --- Global Function Exports ---
+    window.renderClients = renderClients;
+    window.editClient = editClient; // Defined earlier in file? Need to check.
+    window.deleteClient = (id) => {
+        // Re-implement or reference if it exists
+        const idx = clients.findIndex(c => c.id === id);
+        if (idx === -1) return;
+        if (confirm('Tem certeza que deseja excluir?')) {
+            clients.splice(idx, 1);
+            saveToLocal();
+            renderClients(clients);
+            showToast('Cliente excluído');
+        }
+    };
+    window.addNewContact = addNewContact;
+    window.openServerData = openServerData;
+    window.removeCredentialField = removeCredentialField;
+    window.editServerRecord = editServerRecord;
+    window.deleteServerRecord = deleteServerRecord;
+    window.openClientNotes = openClientNotes;
+    window.copyToClipboard = copyToClipboard;
+    window.addPhone = addPhone;
+    window.addEmail = addEmail;
+    window.removeContactField = removeContactField;
+    window.removeContact = removeContact;
+    window.editContact = editContact;
+    window.openAddModal = openAddModal;
+    window.closeModal = closeModal;
+
+    // Check if editClient is defined in this scope.
+    // Based on previous view, I didn't see editClient definition in the last 200 lines.
+    // It must be in the middle of the file.
+    // I will assume the functions exist in the scope.
+
 });

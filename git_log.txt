@@ -1,0 +1,63 @@
+commit 73079f8daa9b5873f239e5646d1403ee09b40828
+Author: JhonMota <jhoonmota@gmail.com>
+Date:   Wed Dec 24 19:58:56 2025 -0300
+
+    Forcing deploy to Vercel
+
+commit 56fe0577b5f8e787ed0ddfae268053e3bdd3fa7a
+Author: JhonMota <jhoonmota@gmail.com>
+Date:   Wed Dec 24 19:42:49 2025 -0300
+
+    ajustes para voltar funcionar
+
+commit 3c9a423d81353b0b21f89c4e307e7f72a08d6ea0
+Author: JhonMota <jhoonmota@gmail.com>
+Date:   Wed Dec 24 19:24:03 2025 -0300
+
+    Force redeploy v1.0.1
+
+commit 97f4692fc34ebbc5b3011e52824ab23f3b1fdd2a
+Author: JhonMota <jhoonmota@gmail.com>
+Date:   Wed Dec 24 19:13:17 2025 -0300
+
+    Eliminate ReferenceError by removing redundant window assignments
+
+commit 87c48dcd5e540f3143534311e1ff93686771f283
+Author: JhonMota <jhoonmota@gmail.com>
+Date:   Wed Dec 24 19:02:24 2025 -0300
+
+    Fix ReferenceError in app.js and ensure global scope for card buttons
+
+commit 68cf50eb0813c2cf0dea2d6ef152047dd1de5be2
+Author: JhonMota <jhoonmota@gmail.com>
+Date:   Wed Dec 24 18:49:58 2025 -0300
+
+    funcionamento de botões
+
+commit 81a237017a64a13a5b30a9e11fb7496b4854422e
+Author: JhonMota <jhoonmota@gmail.com>
+Date:   Wed Dec 24 18:44:58 2025 -0300
+
+    ajustes
+
+commit 36885874089db95664814e7248ad09af2ccc1849
+Merge: 4c413ed f4596bf
+Author: JhonMota <jhoonmota@gmail.com>
+Date:   Wed Dec 24 18:37:19 2025 -0300
+
+    Merge branch 'main' of https://github.com/jhoonmota/Projeto-SOFIS
+
+commit 4c413edf7fba55d90fcfa032cde48b193d153432
+Author: JhonMota <jhoonmota@gmail.com>
+Date:   Wed Dec 24 18:28:38 2025 -0300
+
+    alteração do nome da tela de Dados do Servidor para "Dados de acesso ao SQL". Alteração da forma de visualização e cadastro da tela de  "Dados de acesso ao SQL"
+
+commit f4596bf707b788ccf3a38830d433fa71863b70cd
+Merge: d9ed2cb b55f7dc
+Author: jhoonmota <jhoonmota@gmail.com>
+Date:   Wed Dec 24 17:45:03 2025 -0300
+
+    Merge pull request #3 from feliperj91/main
+    
+    Deploy e Banco de Dados
