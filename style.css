@@ -1334,6 +1334,23 @@ button:hover .vpn-icon-img {
     border-radius: 8px;
     display: flex;
     align-items: center;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.clients-section-header:hover {
+    filter: brightness(1.2);
+}
+
+.section-chevron {
+    transition: transform 0.3s ease;
+    margin-right: 4px;
+    font-size: 0.9rem !important;
+}
+
+.section-collapsed .section-chevron {
+    transform: rotate(-90deg);
 }
 
 .clients-section-header.favorites-header {

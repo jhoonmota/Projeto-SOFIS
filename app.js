@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let editingId = null;
     let currentClientFilter = 'all'; // 'all', 'favorites', 'regular'
     let isModalFavorite = false;
+    let favoritesCollapsed = JSON.parse(localStorage.getItem('sofis_favorites_collapsed')) || false;
+    let regularCollapsed = JSON.parse(localStorage.getItem('sofis_regular_collapsed')) || false;
 
     // DOM Elements
     const clientList = document.getElementById('clientList');
@@ -365,9 +367,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Render Favorites Section
         if (favoriteClients.length > 0) {
             const favoritesHeader = document.createElement('div');
-            favoritesHeader.className = 'clients-section-header favorites-header';
+            favoritesHeader.className = `clients-section-header favorites-header ${favoritesCollapsed ? 'section-collapsed' : ''}`;
+            favoritesHeader.onclick = toggleFavoritesSection;
             favoritesHeader.innerHTML = `
                 <div class="section-header-content">
+                    <i class="fa-solid fa-chevron-down section-chevron"></i>
                     <i class="fa-solid fa-star"></i>
                     <span class="section-title">Clientes Favoritos</span>
                     <span class="section-count">${favoriteClients.length}</span>
@@ -375,17 +379,21 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             clientList.appendChild(favoritesHeader);
 
-            favoriteClients.forEach(client => {
-                clientList.appendChild(createClientRow(client));
-            });
+            if (!favoritesCollapsed) {
+                favoriteClients.forEach(client => {
+                    clientList.appendChild(createClientRow(client));
+                });
+            }
         }
 
         // Render Regular Clients Section
         if (regularClients.length > 0) {
             const regularHeader = document.createElement('div');
-            regularHeader.className = 'clients-section-header regular-header';
+            regularHeader.className = `clients-section-header regular-header ${regularCollapsed ? 'section-collapsed' : ''}`;
+            regularHeader.onclick = toggleRegularSection;
             regularHeader.innerHTML = `
                 <div class="section-header-content">
+                    <i class="fa-solid fa-chevron-down section-chevron"></i>
                     <i class="fa-solid fa-users"></i>
                     <span class="section-title">${favoriteClients.length > 0 ? 'Outros Clientes' : 'Clientes'}</span>
                     <span class="section-count">${regularClients.length}</span>
@@ -393,9 +401,11 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             clientList.appendChild(regularHeader);
 
-            regularClients.forEach(client => {
-                clientList.appendChild(createClientRow(client));
-            });
+            if (!regularCollapsed) {
+                regularClients.forEach(client => {
+                    clientList.appendChild(createClientRow(client));
+                });
+            }
         }
     }
 
@@ -1942,6 +1952,20 @@ document.addEventListener('DOMContentLoaded', () => {
     window.closeUrlModal = closeUrlModal;
     window.openUrlEntry = openUrlEntry;
     window.closeUrlEntryModal = closeUrlEntryModal;
+
+    function toggleFavoritesSection() {
+        favoritesCollapsed = !favoritesCollapsed;
+        localStorage.setItem('sofis_favorites_collapsed', favoritesCollapsed);
+        applyClientFilter();
+    }
+    window.toggleFavoritesSection = toggleFavoritesSection;
+
+    function toggleRegularSection() {
+        regularCollapsed = !regularCollapsed;
+        localStorage.setItem('sofis_regular_collapsed', regularCollapsed);
+        applyClientFilter();
+    }
+    window.toggleRegularSection = toggleRegularSection;
 
     // Initial render
     applyClientFilter();
