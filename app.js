@@ -353,7 +353,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         <button class="btn-icon btn-star ${client.isFavorite ? 'favorite-active' : ''}" onclick="toggleFavorite('${client.id}'); event.stopPropagation();" title="${client.isFavorite ? 'Remover Favorito' : 'Favoritar'}">
                             <i class="fa-${client.isFavorite ? 'solid' : 'regular'} fa-star"></i>
                         </button>
-                        <div class="client-name-row clickable" onclick="openClientNotes('${client.id}'); event.stopPropagation();" title="Ver Observações">${escapeHtml(client.name)}</div>
+                        <div class="client-name-row clickable" onclick="openClientNotes('${client.id}'); event.stopPropagation();" title="Ver Observações">
+                            ${escapeHtml(client.name)}
+                            ${client.notes ? `<i class="fa-solid fa-bell client-note-indicator" title="Possui observações importantes"></i>` : ''}
+                        </div>
                     </div>
                     
                     <div class="header-right">

@@ -1169,8 +1169,15 @@ button:hover .vpn-icon-img {
 }
 
 @keyframes dropdownFade {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .dropdown-item {
@@ -1237,4 +1244,46 @@ button:hover .vpn-icon-img {
 .filter-icon-btn i {
     color: var(--accent);
     font-size: 1.4rem;
+}
+
+/* Client Note Indicator */
+/* Client Note Indicator */
+.client-note-indicator {
+    color: var(--accent);
+    margin-left: 16px;
+    font-size: 0.8rem;
+    animation: ring-bell 2s ease-in-out infinite;
+    display: inline-block;
+    vertical-align: middle;
+    transform-origin: top center;
+}
+
+@keyframes ring-bell {
+    0% {
+        transform: rotate(0);
+    }
+
+    10% {
+        transform: rotate(15deg);
+    }
+
+    20% {
+        transform: rotate(-10deg);
+    }
+
+    30% {
+        transform: rotate(5deg);
+    }
+
+    40% {
+        transform: rotate(-5deg);
+    }
+
+    50% {
+        transform: rotate(0);
+    }
+
+    100% {
+        transform: rotate(0);
+    }
 }
