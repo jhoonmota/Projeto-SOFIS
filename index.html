@@ -379,8 +379,7 @@
                 <div class="form-group"
                     style="margin-bottom: 25px; padding: 15px; background: rgba(0,0,0,0.1); border-radius: 8px; border-left: 4px solid var(--accent);">
                     <label style="color: var(--accent); font-weight: 600; margin-bottom: 12px;">
-                        <span><i class="fa-solid fa-globe"
-                                style="color: var(--accent); margin-right: 8px;"></i>WebLaudo</span>
+                        <span><i class="fa-solid fa-globe" style="margin-right: 8px;"></i>WebLaudo</span>
                     </label>
                     <div id="webLaudoDisplay"
                         style="display: none; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
@@ -419,7 +418,7 @@
         <div id="urlEntryModal" class="modal hidden">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 id="urlEntryModalTitle">Novo Acesso Sistema</h2>
+                    <h2 id="urlEntryModalTitle">URLs de Sistema</h2>
                     <button id="closeUrlEntryModal" type="button" class="btn-icon">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
@@ -459,18 +458,27 @@
                             <span><i class="fa-solid fa-bridge"></i> Bridge data_access<span
                                     class="required">*</span></span>
                         </label>
-                        <input type="text" id="bridgeDataAccessInput" required placeholder="URL ou Caminho">
+                        <input type="text" id="bridgeDataAccessInput" required placeholder="URL">
                     </div>
 
-                    <div class="form-group">
+                    <div id="bootstrapGroup" class="form-group">
                         <label for="bootstrapInput">
                             <span><i class="fa-solid fa-bolt"></i> Bootstrap</span>
                         </label>
-                        <input type="text" id="bootstrapInput" placeholder="Configuração Bootstrap">
+                        <input type="text" id="bootstrapInput" placeholder="URL">
+                    </div>
+
+                    <div id="execUpdateGroup" class="form-group">
+                        <label for="execUpdateInput">
+                            <span><i class="fa-solid fa-download"></i> Atualização de Executáveis</span>
+                        </label>
+                        <input type="text" id="execUpdateInput" placeholder="Caminho de atualização do bootstrap">
                     </div>
 
                     <div class="form-group">
-                        <label for="urlNotesInput">Observações</label>
+                        <label for="urlNotesInput">
+                            <span><i class="fa-solid fa-comment-dots"></i> Observações</span>
+                        </label>
                         <textarea id="urlNotesInput" rows="3" placeholder="Detalhes adicionais..."></textarea>
                     </div>
 

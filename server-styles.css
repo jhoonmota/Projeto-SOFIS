@@ -29,7 +29,7 @@
 }
 
 .servers-section h3 i {
-    color: var(--accent);
+    color: var(--text-secondary);
 }
 
 .servers-grid {

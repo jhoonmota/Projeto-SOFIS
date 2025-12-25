@@ -100,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlSystemSelect = document.getElementById('urlSystemSelect');
     const bridgeDataAccessInput = document.getElementById('bridgeDataAccessInput');
     const bootstrapInput = document.getElementById('bootstrapInput');
+    const execUpdateInput = document.getElementById('execUpdateInput');
     const webLaudoInput = document.getElementById('webLaudoInput');
     const urlNotesInput = document.getElementById('urlNotesInput');
     const saveWebLaudoBtn = document.getElementById('saveWebLaudoBtn');
@@ -1505,11 +1506,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleUrlSystemChange() {
-        const bootstrapGroup = bootstrapInput.closest('.form-group');
+        const bootstrapGroup = document.getElementById('bootstrapGroup');
+        const execUpdateGroup = document.getElementById('execUpdateGroup');
         if (urlSystemSelect.value === 'Hemote Web') {
             bootstrapGroup.style.display = 'none';
+            execUpdateGroup.style.display = 'none';
         } else {
             bootstrapGroup.style.display = 'block';
+            execUpdateGroup.style.display = 'block';
         }
     }
 
@@ -1519,7 +1523,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openUrlEntry() {
         clearUrlForm();
-        urlEntryModalTitle.textContent = 'Novo Acesso Sistema';
+        urlEntryModalTitle.textContent = 'URLs de Sistema';
         document.getElementById('editingUrlIndex').value = '';
         urlEntryModal.classList.remove('hidden');
         handleUrlSystemChange();
@@ -1535,6 +1539,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (urlSystemSelect) urlSystemSelect.value = '';
         if (bridgeDataAccessInput) bridgeDataAccessInput.value = '';
         if (bootstrapInput) bootstrapInput.value = '';
+        if (execUpdateInput) execUpdateInput.value = '';
         if (urlNotesInput) urlNotesInput.value = '';
         const editIdx = document.getElementById('editingUrlIndex');
         if (editIdx) editIdx.value = '';
@@ -1580,12 +1585,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div class="server-info">
-                        <div class="server-info-label">Sistema</div>
+                        <div class="server-info-label">
+                            <i class="fa-solid fa-window-maximize" style="margin-right: 6px;"></i> Sistema
+                        </div>
                         <div class="server-info-value" style="font-weight: 600; color: var(--accent);">${escapeHtml(url.system)}</div>
                     </div>
                     ${url.bridgeDataAccess ? `
                         <div class="server-info">
-                            <div class="server-info-label">Bridge data_access</div>
+                            <div class="server-info-label">
+                                <i class="fa-solid fa-bridge" style="margin-right: 6px;"></i> Bridge data_access
+                            </div>
                             <div class="server-info-value" style="display: flex; align-items: center; gap: 8px;">
                                 ${escapeHtml(url.bridgeDataAccess)}
                                 <button class="btn-copy-small" onclick="copyToClipboard('${escapeHtml(url.bridgeDataAccess).replace(/'/g, "\\'")}')" title="Copiar">
@@ -1595,7 +1604,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>` : ''}
                     ${url.bootstrap ? `
                         <div class="server-info">
-                            <div class="server-info-label">Bootstrap</div>
+                            <div class="server-info-label">
+                                <i class="fa-solid fa-bolt" style="margin-right: 6px;"></i> Bootstrap
+                            </div>
                             <div class="server-info-value" style="display: flex; align-items: center; gap: 8px;">
                                 ${escapeHtml(url.bootstrap)}
                                 <button class="btn-copy-small" onclick="copyToClipboard('${escapeHtml(url.bootstrap).replace(/'/g, "\\'")}')" title="Copiar">
@@ -1603,9 +1614,23 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </button>
                             </div>
                         </div>` : ''}
+                    ${url.execUpdate ? `
+                        <div class="server-info">
+                            <div class="server-info-label">
+                                <i class="fa-solid fa-download" style="margin-right: 6px;"></i> Atualização de Executáveis
+                            </div>
+                            <div class="server-info-value" style="display: flex; align-items: center; gap: 8px;">
+                                ${escapeHtml(url.execUpdate)}
+                                <button class="btn-copy-small" onclick="copyToClipboard('${escapeHtml(url.execUpdate).replace(/'/g, "\\'")}')" title="Copiar">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>` : ''}
                     ${url.notes ? `
                         <div class="server-notes">
-                            <div class="server-notes-title">Observações</div>
+                            <div class="server-notes-title">
+                                <i class="fa-solid fa-comment-dots" style="margin-right: 6px;"></i> Observações
+                            </div>
                             <div class="server-notes-content">${escapeHtml(url.notes)}</div>
                         </div>` : ''}
                 </div>
@@ -1627,6 +1652,7 @@ document.addEventListener('DOMContentLoaded', () => {
             system: urlSystemSelect.value,
             bridgeDataAccess: bridgeDataAccessInput.value.trim(),
             bootstrap: bootstrapInput.value.trim(),
+            execUpdate: execUpdateInput ? execUpdateInput.value.trim() : '',
             notes: urlNotesInput ? urlNotesInput.value.trim() : ''
         };
 
@@ -1653,10 +1679,11 @@ document.addEventListener('DOMContentLoaded', () => {
         urlSystemSelect.value = url.system;
         bridgeDataAccessInput.value = url.bridgeDataAccess || '';
         bootstrapInput.value = url.bootstrap || '';
+        execUpdateInput.value = url.execUpdate || '';
         urlNotesInput.value = url.notes || '';
         document.getElementById('editingUrlIndex').value = index;
 
-        urlEntryModalTitle.textContent = 'Editar Acesso Sistema';
+        urlEntryModalTitle.textContent = 'URLs de Sistema';
         urlEntryModal.classList.remove('hidden');
 
         // Trigger change to update bootstrap visibility
