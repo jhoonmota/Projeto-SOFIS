@@ -59,9 +59,10 @@ header {
 
 .logo-img {
     height: 120px;
-    /* Aumentado de 90px para 120px */
     width: auto;
     object-fit: contain;
+    margin-left: -15px;
+    /* Alinha a logo à esquerda com a margem do texto */
 }
 
 .logo {
@@ -126,12 +127,30 @@ button {
     color: var(--text-primary);
 }
 
-.btn-icon,
+.btn-icon {
+    background: transparent;
+    color: var(--text-secondary);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
 .btn-icon-small {
     background: transparent;
     color: var(--text-secondary);
-    padding: 8px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    flex-shrink: 0;
 }
 
 .btn-icon:hover,
@@ -1026,4 +1045,29 @@ button {
     font-weight: 300;
     margin-top: -20px;
     margin-left: 0;
+}
+
+/* Custom VPN Icon */
+.vpn-icon-img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    filter: invert(1) brightness(1.2);
+    opacity: 0.8;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+    transition: all 0.2s ease;
+}
+
+.btn-icon:hover .vpn-icon-img,
+button:hover .vpn-icon-img {
+    opacity: 1;
+    filter: invert(1) brightness(1.8);
+}
+
+/* Yellow VPN Icon for Headers */
+.vpn-icon-yellow {
+    filter: invert(63%) sepia(85%) saturate(1814%) hue-rotate(5deg) brightness(105%) contrast(106%) !important;
+    opacity: 1 !important;
 }

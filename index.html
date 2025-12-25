@@ -17,7 +17,7 @@
         <header>
             <div class="logo-container">
                 <img src="logo.png" alt="Sofis Logo" class="logo-img">
-                <p class="app-subtitle">Gerenciamento de Senhas e Contatos de Clientes</p>
+                <p class="app-subtitle">Gerenciamento de Contatos e Conexões de Clientes</p>
             </div>
             <button id="logoutBtn" class="btn-secondary" style="color: var(--danger); border-color: var(--danger);">
                 <i class="fa-solid fa-right-from-bracket"></i> Sair
@@ -184,7 +184,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="sqlServerInput"><span>SQL Server<span class="required">*</span></span></label>
+                            <label for="sqlServerInput"><span>Instância do SQL Server<span
+                                        class="required">*</span></span></label>
                             <input type="text" id="sqlServerInput" required
                                 placeholder="Ex: servidor.database.windows.net">
                         </div>
@@ -218,24 +219,71 @@
             </div>
         </div>
 
-        <!-- Client Notes Modal -->
-        <div id="notesModal" class="modal hidden">
+        <!-- VPN Data Modal -->
+        <div id="vpnModal" class="modal hidden">
+            <div class="modal-content modal-content-large">
+                <div class="modal-header">
+                    <div class="modal-header-left">
+                        <h2>Dados de Acesso VPN</h2>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button id="addVpnEntryBtn" class="btn-primary" style="margin-right: 15px;">
+                            <i class="fa-solid fa-plus"></i> Adicionar
+                        </button>
+                        <button id="closeVpnModal" type="button" class="btn-icon"><i
+                                class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+
+                <div class="servers-section" style="border-top: none; margin-top: 0; padding-top: 0;">
+                    <h3 style="text-align: left; margin-bottom: 16px;">
+                        <img src="vpn-icon.png" class="vpn-icon-img vpn-icon-yellow" style="margin-right: 8px;"
+                            alt="VPN">
+                        VPNs Cadastradas
+                    </h3>
+                    <div id="vpnList" class="servers-grid">
+                    </div>
+                </div>
+
+                <div class="modal-actions"
+                    style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+                    <button type="button" id="closeVpnModalBtn" class="btn-primary">Fechar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- New VPN Entry Modal -->
+        <div id="vpnEntryModal" class="modal hidden">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 id="notesModalTitle">Observações - Cliente</h2>
-                    <button id="closeNotesModal" type="button" class="btn-icon"><i
+                    <h2 id="vpnEntryModalTitle">Novo Acesso VPN</h2>
+                    <button id="closeVpnEntryModal" type="button" class="btn-icon"><i
                             class="fa-solid fa-xmark"></i></button>
                 </div>
-                <form id="notesForm">
-                    <input type="hidden" id="notesClientId">
+                <form id="vpnForm">
+                    <input type="hidden" id="vpnClientId">
+                    <input type="hidden" id="editingVpnIndex">
+
                     <div class="form-group">
-                        <label for="clientNoteInput">Observações do Cliente</label>
-                        <textarea id="clientNoteInput" rows="10"
-                            placeholder="Digite as observações gerais do cliente..."></textarea>
+                        <label for="vpnUserInput"><span>Usuário<span class="required">*</span></span></label>
+                        <input type="text" id="vpnUserInput" required placeholder="Digite o usuário">
                     </div>
+
+                    <div class="form-group">
+                        <label for="vpnPassInput"><span>Senha<span class="required">*</span></span></label>
+                        <input type="text" id="vpnPassInput" required placeholder="Digite a senha">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vpnNotesInput">Observações</label>
+                        <textarea id="vpnNotesInput" rows="3" placeholder="Detalhes adicionais..."></textarea>
+                    </div>
+
                     <div class="modal-actions">
-                        <button type="button" id="cancelNotesBtn" class="btn-secondary">Cancelar</button>
-                        <button type="submit" class="btn-primary">Salvar</button>
+                        <button type="button" id="cancelVpnEntryBtn" class="btn-secondary">Cancelar</button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fa-solid fa-plus"></i> Salvar
+                        </button>
                     </div>
                 </form>
             </div>

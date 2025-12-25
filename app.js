@@ -1,6 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
     // State
     let clients = JSON.parse(localStorage.getItem('sofis_clients')) || [];
+
+    // Remove duplicates based on ID
+    const uniqueClients = [];
+    const seenIds = new Set();
+    clients.forEach(client => {
+        if (!seenIds.has(client.id)) {
+            seenIds.add(client.id);
+            uniqueClients.push(client);
+        }
+    });
+    clients = uniqueClients;
+
+    // Save cleaned data back to localStorage
+    if (uniqueClients.length !== JSON.parse(localStorage.getItem('sofis_clients') || '[]').length) {
+        localStorage.setItem('sofis_clients', JSON.stringify(clients));
+        console.log('Removed duplicate clients');
+    }
+
     let editingId = null;
 
     // DOM Elements
@@ -54,6 +72,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const clientNoteInput = document.getElementById('clientNoteInput');
     const notesModalTitle = document.getElementById('notesModalTitle');
 
+    // VPN Modal Elements
+    const vpnModal = document.getElementById('vpnModal');
+    const vpnEntryModal = document.getElementById('vpnEntryModal');
+    const vpnForm = document.getElementById('vpnForm');
+    const closeVpnBtn = document.getElementById('closeVpnModal');
+    const closeVpnEntryBtn = document.getElementById('closeVpnEntryModal');
+    const cancelVpnEntryBtn = document.getElementById('cancelVpnEntryBtn');
+    const addVpnEntryBtn = document.getElementById('addVpnEntryBtn');
+    const vpnClientIdInput = document.getElementById('vpnClientId');
+    const vpnUserInput = document.getElementById('vpnUserInput');
+    const vpnPassInput = document.getElementById('vpnPassInput');
+    const vpnNotesInput = document.getElementById('vpnNotesInput');
+    const vpnEntryModalTitle = document.getElementById('vpnEntryModalTitle');
+    const closeVpnModalBtn = document.getElementById('closeVpnModalBtn');
+
 
     // Initial Render
     renderClients(clients);
@@ -100,6 +133,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (notesForm) notesForm.addEventListener('submit', handleNotesSubmit);
     if (closeNotesBtn) closeNotesBtn.addEventListener('click', closeNotesModal);
     if (cancelNotesBtn) cancelNotesBtn.addEventListener('click', closeNotesModal);
+
+    // VPN Listeners
+    if (vpnForm) vpnForm.addEventListener('submit', handleVpnSubmit);
+    if (closeVpnBtn) closeVpnBtn.addEventListener('click', closeVpnModal);
+    if (closeVpnEntryBtn) closeVpnEntryBtn.addEventListener('click', closeVpnEntryModal);
+    if (cancelVpnEntryBtn) cancelVpnEntryBtn.addEventListener('click', closeVpnEntryModal);
+    if (addVpnEntryBtn) addVpnEntryBtn.addEventListener('click', openVpnEntry);
+    if (closeVpnModalBtn) closeVpnModalBtn.addEventListener('click', closeVpnModal);
 
     // --- Functions ---
 
@@ -189,12 +230,15 @@ document.addEventListener('DOMContentLoaded', () => {
                              <button class="btn-icon" onclick="addNewContact('${client.id}'); event.stopPropagation();" title="Adicionar Contato">
                                 <i class="fa-solid fa-user-plus"></i>
                             </button>
-                            <button class="${serverBtnClass}" onclick="openServerData('${client.id}'); event.stopPropagation();" title="Dados de Acesso ao SQL">
-                                <i class="fa-solid fa-database"></i>
+                             <button class="${serverBtnClass}" onclick="openServerData('${client.id}'); event.stopPropagation();" title="Dados de Acesso ao SQL">
+                                 <i class="fa-solid fa-database"></i>
+                             </button>
+                             <button class="btn-icon" onclick="openVpnData('${client.id}'); event.stopPropagation();" title="Dados de Acesso VPN">
+                                <img src="vpn-icon.png" class="vpn-icon-img" alt="VPN">
                             </button>
-                            <button class="btn-icon btn-danger" onclick="deleteClient('${client.id}'); event.stopPropagation();" title="Excluir">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+                             <button class="btn-icon btn-danger" onclick="deleteClient('${client.id}'); event.stopPropagation();" title="Excluir">
+                                 <i class="fa-solid fa-trash"></i>
+                             </button>
                          </div>
                     </div>
                 </div>
@@ -224,11 +268,62 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleFormSubmit(e) {
         e.preventDefault();
         const mode = form.dataset.mode;
+        const editingContactIndex = contactList.dataset.editingContactIndex;
 
-        // Validate Client Name (always required)
+        // Validate Client Name
         if (!clientNameInput.value.trim()) {
             showToast('⚠️ O nome do cliente é obrigatório.', 'error');
             clientNameInput.focus();
+            return;
+        }
+
+        // --- MODE: EDITING A SINGLE CONTACT ---
+        if (editingContactIndex !== undefined) {
+            const contactGroups = contactList.querySelectorAll('.contact-group');
+            if (contactGroups.length !== 1) {
+                showToast('⚠️ Erro ao salvar contato.', 'error');
+                return;
+            }
+
+            const group = contactGroups[0];
+            const name = group.querySelector('.contact-name-input').value.trim();
+            const phones = Array.from(group.querySelectorAll('.phone-input'))
+                .map(input => input.value.trim())
+                .filter(val => val !== '');
+            const emails = Array.from(group.querySelectorAll('.email-input'))
+                .map(input => input.value.trim())
+                .filter(val => val !== '');
+
+            if (!name || phones.length === 0) {
+                showToast('⚠️ Nome e pelo menos um telefone são obrigatórios.', 'error');
+                return;
+            }
+
+            const client = clients.find(c => c.id === editingId);
+            if (!client) return;
+
+            const currentIndex = parseInt(editingContactIndex);
+
+            // Duplicate checks
+            if (client.contacts) {
+                for (let i = 0; i < client.contacts.length; i++) {
+                    if (i === currentIndex) continue;
+                    const existing = client.contacts[i];
+                    for (const phone of phones) {
+                        if (existing.phones && existing.phones.includes(phone)) {
+                            showToast(`❌ Telefone ${phone} já cadastrado em outro contato.`, 'error');
+                            return;
+                        }
+                    }
+                }
+            }
+
+            client.contacts[currentIndex] = { name, phones, emails };
+            saveToLocal();
+            renderClients(clients);
+            closeModal();
+            delete contactList.dataset.editingContactIndex;
+            showToast('✅ Contato atualizado com sucesso!', 'success');
             return;
         }
 
@@ -316,7 +411,9 @@ document.addEventListener('DOMContentLoaded', () => {
             isFavorite: client ? client.isFavorite : false
         };
 
+
         if (editingId && mode !== 'addContact') {
+            // Normal client edit mode - update entire client
             clients = clients.map(c => c.id === editingId ? newClient : c);
             showToast('✅ Cliente atualizado com sucesso!', 'success');
         } else if (editingId && mode === 'addContact') {
@@ -324,10 +421,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const clientToUpdate = clients.find(c => c.id === editingId);
             if (clientToUpdate) {
                 if (!clientToUpdate.contacts) clientToUpdate.contacts = [];
-
                 // Preserve existing contacts and add only the new ones
                 clientToUpdate.contacts.push(...contacts);
-
                 showToast('✅ Contato adicionado com sucesso!', 'success');
             }
         } else {
@@ -616,97 +711,32 @@ document.addEventListener('DOMContentLoaded', () => {
         openModal();
     };
 
-    // Override handleFormSubmit for specific modes
-    const originalHandleFormSubmit = handleFormSubmit;
-    handleFormSubmit = function (e) {
-        e.preventDefault();
 
-        const mode = form.dataset.mode;
-        const editingContactIndex = contactList.dataset.editingContactIndex;
 
-        // If explicitly adding a contact (Append mode)
-        if (mode === 'addContact') {
-            originalHandleFormSubmit(e);
-            return;
-        }
 
-        if (editingContactIndex !== undefined) {
-            // Editing a single contact
-            const contactGroups = contactList.querySelectorAll('.contact-group');
-            if (contactGroups.length !== 1) {
-                originalHandleFormSubmit(e);
-                return;
-            }
 
-            const group = contactGroups[0];
-            const name = group.querySelector('.contact-name-input').value.trim();
 
-            const phoneInputs = group.querySelectorAll('.phone-input');
-            const phones = Array.from(phoneInputs)
-                .map(input => input.value.trim())
-                .filter(val => val !== '');
 
-            const emailInputs = group.querySelectorAll('.email-input');
-            const emails = Array.from(emailInputs)
-                .map(input => input.value.trim())
-                .filter(val => val !== '');
 
-            // Validate required fields
-            if (!name) {
-                showToast('⚠️ O nome do contato é obrigatório.', 'error');
-                return;
-            }
 
-            if (phones.length === 0) {
-                showToast('⚠️ Pelo menos um telefone é obrigatório.', 'error');
-                return;
-            }
 
-            const updatedContact = { name, phones, emails };
 
-            // Check for duplicates with other contacts in the same client
-            const client = clients.find(c => c.id === editingId);
-            if (client && client.contacts) {
-                const currentIndex = parseInt(editingContactIndex);
 
-                // Check if this contact data already exists in another contact
-                for (let i = 0; i < client.contacts.length; i++) {
-                    if (i === currentIndex) continue; // Skip the contact being edited
 
-                    const existingContact = client.contacts[i];
 
-                    // Check if name, phones, and emails are identical
-                    const sameNames = existingContact.name === updatedContact.name;
-                    const samePhones = JSON.stringify(existingContact.phones.sort()) === JSON.stringify(updatedContact.phones.sort());
-                    const sameEmails = JSON.stringify(existingContact.emails.sort()) === JSON.stringify(updatedContact.emails.sort());
 
-                    if (sameNames && samePhones && sameEmails) {
-                        showToast('❌ Já existe um contato com esses mesmos dados.', 'error');
-                        return;
-                    }
 
-                    // Check for duplicate phones
-                    for (const phone of updatedContact.phones) {
-                        if (existingContact.phones && existingContact.phones.includes(phone)) {
-                            showToast(`❌ O telefone ${phone} já está cadastrado em outro contato.`, 'error');
-                            return;
-                        }
-                    }
-                }
 
-                client.contacts[currentIndex] = updatedContact;
 
-                saveToLocal();
-                renderClients(clients);
-                closeModal();
-                delete contactList.dataset.editingContactIndex;
-                showToast('✅ Contato atualizado com sucesso!', 'success');
-            }
-        } else {
-            // Normal client editing/creation
-            originalHandleFormSubmit(e);
-        }
-    };
+
+
+
+
+
+
+
+
+
 
     window.removeContact = (button) => {
         const contactGroup = button.closest('.contact-group');
@@ -778,8 +808,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.togglePassword = (btn) => {
-        const row = btn.closest('.credential-row');
-        const valueSpan = row.querySelector('.credential-value');
+        const row = btn.closest('.credential-row') || btn.closest('.server-info');
+        const valueSpan = row.querySelector('.credential-value') || row.querySelector('.pass-hidden');
         const icon = btn.querySelector('i');
         const isMasked = valueSpan.textContent === '••••••';
 
@@ -915,7 +945,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div class="server-info">
-                        <div class="server-info-label">SQL Server</div>
+                        <div class="server-info-label">Instância do SQL Server</div>
                         <div class="server-info-value">${escapeHtml(server.sqlServer)}</div>
                     </div>
                     ${credentialsHTML}
@@ -1040,6 +1070,151 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('🗑️ Servidor removido com sucesso!', 'success');
     };
 
+    // --- VPN Data Functions ---
+    function closeVpnModal() {
+        vpnModal.classList.add('hidden');
+    }
+
+    function openVpnEntry() {
+        clearVpnForm();
+        vpnEntryModalTitle.textContent = 'Novo Acesso VPN';
+        document.getElementById('editingVpnIndex').value = '';
+        vpnEntryModal.classList.remove('hidden');
+    }
+
+    function closeVpnEntryModal() {
+        vpnEntryModal.classList.add('hidden');
+        clearVpnForm();
+    }
+
+    function clearVpnForm() {
+        if (vpnUserInput) vpnUserInput.value = '';
+        if (vpnPassInput) vpnPassInput.value = '';
+        if (vpnNotesInput) vpnNotesInput.value = '';
+        const editIdx = document.getElementById('editingVpnIndex');
+        if (editIdx) editIdx.value = '';
+    }
+
+    function renderVpnList(client) {
+        const listContainer = document.getElementById('vpnList');
+        if (!listContainer) return;
+
+        if (!client.vpns || client.vpns.length === 0) {
+            listContainer.innerHTML = `
+                <div class="servers-grid-empty">
+                    <img src="vpn-icon.png" class="vpn-icon-img" style="width: 48px; height: 48px; opacity: 0.5; margin-bottom: 15px;" alt="VPN">
+                    <p>Nenhuma VPN cadastrada ainda.</p>
+                </div>
+            `;
+            return;
+        }
+
+        listContainer.innerHTML = client.vpns.map((vpn, index) => {
+            return `
+                <div class="server-card">
+                    <div class="server-card-header">
+                        <span class="server-environment producao">VPN</span>
+                        <div class="server-card-actions">
+                            <button class="btn-icon" onclick="editVpnRecord('${client.id}', ${index})" title="Editar">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="btn-icon btn-danger" onclick="deleteVpnRecord('${client.id}', ${index})" title="Excluir">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="server-info">
+                        <div class="server-info-label">Usuário</div>
+                        <div class="server-info-value" style="display: flex; align-items: center; gap: 8px;">
+                            ${escapeHtml(vpn.user)}
+                            <button class="btn-copy-small" onclick="copyToClipboard('${escapeHtml(vpn.user).replace(/'/g, "\\'")}')" title="Copiar Usuário">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="server-info">
+                        <div class="server-info-label">Senha</div>
+                        <div class="server-info-value" style="display: flex; align-items: center; gap: 8px;">
+                            <span data-raw="${escapeHtml(vpn.password)}" class="pass-hidden">••••••</span>
+                            <button class="btn-copy-small" onclick="togglePassword(this)" title="Visualizar Senha">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            <button class="btn-copy-small" onclick="copyToClipboard('${escapeHtml(vpn.password).replace(/'/g, "\\'")}')" title="Copiar Senha">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    ${vpn.notes ? `<div class="server-notes"><i class="fa-solid fa-note-sticky"></i> ${escapeHtml(vpn.notes)}</div>` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+
+    function handleVpnSubmit(e) {
+        e.preventDefault();
+        const id = vpnClientIdInput.value;
+        const client = clients.find(c => c.id === id);
+        if (!client) return;
+
+        if (!client.vpns) client.vpns = [];
+
+        const editingIndex = document.getElementById('editingVpnIndex').value;
+        const vpnRecord = {
+            user: vpnUserInput.value.trim(),
+            password: vpnPassInput.value.trim(),
+            notes: vpnNotesInput.value.trim()
+        };
+
+        if (editingIndex !== '') {
+            client.vpns[parseInt(editingIndex)] = vpnRecord;
+            showToast('✅ VPN atualizada com sucesso!', 'success');
+        } else {
+            client.vpns.push(vpnRecord);
+            showToast('✅ VPN incluída com sucesso!', 'success');
+        }
+
+        saveToLocal();
+        renderVpnList(client);
+        closeVpnEntryModal();
+    }
+
+    function openVpnData(clientId) {
+        const client = clients.find(c => c.id === clientId);
+        if (!client) return;
+
+        vpnClientIdInput.value = clientId;
+        if (!client.vpns) client.vpns = [];
+
+        clearVpnForm();
+        renderVpnList(client);
+        vpnModal.classList.remove('hidden');
+    }
+
+    function editVpnRecord(clientId, index) {
+        const client = clients.find(c => c.id === clientId);
+        if (!client || !client.vpns || !client.vpns[index]) return;
+
+        const vpn = client.vpns[index];
+        vpnUserInput.value = vpn.user;
+        vpnPassInput.value = vpn.password;
+        vpnNotesInput.value = vpn.notes || '';
+        document.getElementById('editingVpnIndex').value = index;
+
+        vpnEntryModalTitle.textContent = 'Editar Acesso VPN';
+        vpnEntryModal.classList.remove('hidden');
+    }
+
+    function deleteVpnRecord(clientId, index) {
+        if (!confirm('Tem certeza que deseja excluir esta VPN?')) return;
+        const client = clients.find(c => c.id === clientId);
+        if (!client || !client.vpns) return;
+
+        client.vpns.splice(index, 1);
+        saveToLocal();
+        renderVpnList(client);
+        showToast('🗑️ VPN removida com sucesso!', 'success');
+    }
+
     // --- Client Notes Functions ---
 
     window.openClientNotes = (clientId) => {
@@ -1090,6 +1265,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.removeCredentialField = removeCredentialField;
     window.editServerRecord = editServerRecord;
     window.deleteServerRecord = deleteServerRecord;
+    window.openVpnData = openVpnData;
+    window.editVpnRecord = editVpnRecord;
+    window.deleteVpnRecord = deleteVpnRecord;
     window.openClientNotes = openClientNotes;
     window.copyToClipboard = copyToClipboard;
     window.addPhone = addPhone;
@@ -1106,7 +1284,3 @@ document.addEventListener('DOMContentLoaded', () => {
     // I will assume the functions exist in the scope.
 
 });
-//
-Force
-redeploy
-v2
