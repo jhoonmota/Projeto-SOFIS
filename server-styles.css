@@ -110,12 +110,12 @@
 }
 
 .server-credentials-title {
-    font-size: 0.85rem;
-    color: var(--accent);
-    margin-bottom: 8px;
     display: flex;
     align-items: center;
     gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
 }
 
 .credential-item {

@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
                              <button class="${vpnBtnClass}" onclick="openVpnData('${client.id}'); event.stopPropagation();" title="Dados de Acesso VPN">
                                 <img src="vpn-icon.png" class="${vpnIconClass}" alt="VPN">
                             </button>
-                             <button class="${urlBtnClass}" onclick="openUrlData('${client.id}'); event.stopPropagation();" title="URL">
+                             <button class="${urlBtnClass}" onclick="event.stopPropagation(); openUrlData('${client.id}');" title="URL">
                                 <i class="fa-solid fa-link"></i>
                             </button>
                              <button class="btn-icon btn-danger" onclick="deleteClient('${client.id}'); event.stopPropagation();" title="Excluir">
@@ -494,10 +494,24 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < contacts.length; i++) {
             if (!contacts[i].name) {
                 showToast('⚠️ O nome do contato é obrigatório.', 'error');
+                if (contactGroups[i]) {
+                    const input = contactGroups[i].querySelector('.contact-name-input');
+                    if (input) {
+                        input.focus();
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
                 return;
             }
             if (contacts[i].phones.length === 0) {
                 showToast('⚠️ Pelo menos um telefone é obrigatório.', 'error');
+                if (contactGroups[i]) {
+                    const btn = contactGroups[i].querySelector('.btn-add-phone');
+                    if (btn) {
+                        btn.focus();
+                        btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
                 return;
             }
         }
@@ -636,8 +650,8 @@ document.addEventListener('DOMContentLoaded', () => {
         groupDiv.className = 'contact-group';
         groupDiv.innerHTML = `
             <div class="contact-group-header">
-                <h4 class="contact-group-title">
-                    <i class="fa-solid fa-user"></i> Informações do Contato
+                <h4 class="contact-group-title" style="color: var(--text-primary);">
+                    <i class="fa-solid fa-user" style="color: var(--accent);"></i> Informações do Contato
                 </h4>
                 <button type="button" class="btn-remove-contact" onclick="removeContact(this)" title="Remover Contato" tabindex="-1">
                     <i class="fa-solid fa-trash"></i>
@@ -976,6 +990,7 @@ document.addEventListener('DOMContentLoaded', () => {
             client.servers = [];
         }
 
+        const serverModalClientName = document.getElementById('serverModalClientName');
         if (serverModalClientName) serverModalClientName.textContent = client.name;
 
         // Reset filter state
@@ -1058,7 +1073,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? `
                     <div class="server-credentials">
                         <div class="server-credentials-title">
-                            <i class="fa-solid fa-key"></i> Credenciais
+                            <i class="fa-solid fa-key" style="color: var(--accent);"></i> Credenciais
                         </div>
                         ${server.credentials.map(cred => `
                             <div class="credential-item">
@@ -1107,7 +1122,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="server-info">
                         <div class="server-credentials-title">
-                            <i class="fa-solid fa-database"></i> Instância do SQL Server
+                            <i class="fa-solid fa-database" style="color: var(--accent);"></i> Instância do SQL Server
                         </div>
                         <div class="server-info-value">${escapeHtml(server.sqlServer)}</div>
                     </div>
@@ -1171,6 +1186,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 password: div.querySelector('.server-pass-input').value.trim()
             };
         }).filter(c => c.user !== '' || c.password !== '');
+
+        // Validation
+        if (!environmentSelect.value) {
+            showToast('⚠️ O ambiente é obrigatório.', 'error');
+            environmentSelect.focus();
+            return;
+        }
+        if (!sqlServerInput.value.trim()) {
+            showToast('⚠️ A instância do SQL Server é obrigatória.', 'error');
+            sqlServerInput.focus();
+            return;
+        }
 
         const serverRecord = {
             environment: environmentSelect.value,
@@ -1288,20 +1315,18 @@ document.addEventListener('DOMContentLoaded', () => {
                             </button>
                         </div>
                     </div>
-                    <div class="server-info">
-                        <div class="server-info-label">Usuário</div>
-                        <div class="server-info-value" style="display: flex; align-items: center; gap: 8px;">
-                            ${escapeHtml(vpn.user)}
+                    <div class="credential-item">
+                        <div class="credential-row">
+                            <span class="credential-label">Usuário:</span>
+                            <span class="credential-value">${escapeHtml(vpn.user)}</span>
                             <button class="btn-copy-small" onclick="copyToClipboard('${escapeHtml(vpn.user).replace(/'/g, "\\'")}')" title="Copiar Usuário">
                                 <i class="fa-regular fa-copy"></i>
                             </button>
                         </div>
-                    </div>
-                    <div class="server-info">
-                        <div class="server-info-label">Senha</div>
-                        <div class="server-info-value" style="display: flex; align-items: center; gap: 8px;">
-                            <span data-raw="${escapeHtml(vpn.password)}" class="pass-hidden">••••••</span>
-                            <button class="btn-copy-small" onclick="togglePassword(this)" title="Visualizar Senha">
+                        <div class="credential-row">
+                            <span class="credential-label">Senha:</span>
+                            <span class="credential-value" data-raw="${escapeHtml(vpn.password)}">••••••</span>
+                            <button class="btn-copy-small" onclick="togglePassword(this)" title="Visualizar Senha" style="margin-right: 4px;">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                             <button class="btn-copy-small" onclick="copyToClipboard('${escapeHtml(vpn.password).replace(/'/g, "\\'")}')" title="Copiar Senha">
@@ -1328,9 +1353,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!client.vpns) client.vpns = [];
 
         const editingIndex = document.getElementById('editingVpnIndex').value;
+        const vpnUser = vpnUserInput.value.trim();
+        const vpnPass = vpnPassInput.value.trim();
+
+        if (!vpnUser) {
+            showToast('⚠️ O usuário da VPN é obrigatório.', 'error');
+            vpnUserInput.focus();
+            return;
+        }
+        if (!vpnPass) {
+            showToast('⚠️ A senha da VPN é obrigatória.', 'error');
+            vpnPassInput.focus();
+            return;
+        }
+
         const vpnRecord = {
-            user: vpnUserInput.value.trim(),
-            password: vpnPassInput.value.trim(),
+            user: vpnUser,
+            password: vpnPass,
             notes: vpnNotesInput.value.trim()
         };
 
@@ -1461,6 +1500,7 @@ document.addEventListener('DOMContentLoaded', () => {
         urlClientIdInput.value = clientId;
         if (!client.urls) client.urls = [];
 
+        const urlModalClientName = document.getElementById('urlModalClientName');
         if (urlModalClientName) urlModalClientName.textContent = client.name;
 
         // Reset filter state
@@ -1566,9 +1606,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        listContainer.innerHTML = filteredUrls.map(item => {
-            const url = item.data;
-            const originalIndex = item.index;
+        listContainer.innerHTML = filteredUrls.map(url => {
+            const originalIndex = client.urls.indexOf(url);
             const environmentClass = url.environment === 'producao' ? 'producao' : 'homologacao';
             const environmentLabel = url.environment === 'producao' ? 'Produção' : 'Homologação';
 
@@ -1596,8 +1635,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="server-info-label">
                                 <i class="fa-solid fa-bridge" style="margin-right: 6px;"></i> Bridge data_access
                             </div>
-                            <div class="server-info-value" style="display: flex; align-items: center; gap: 8px;">
-                                ${escapeHtml(url.bridgeDataAccess)}
+                            <div class="server-info-value" style="display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 8px;">
+                                <span style="font-family: monospace; color: var(--text-primary); word-break: break-all; margin-right: 10px; font-size: 0.75rem;">${escapeHtml(url.bridgeDataAccess)}</span>
                                 <button class="btn-copy-small" onclick="copyToClipboard('${escapeHtml(url.bridgeDataAccess).replace(/'/g, "\\'")}')" title="Copiar">
                                     <i class="fa-regular fa-copy"></i>
                                 </button>
@@ -1608,8 +1647,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="server-info-label">
                                 <i class="fa-solid fa-bolt" style="margin-right: 6px;"></i> Bootstrap
                             </div>
-                            <div class="server-info-value" style="display: flex; align-items: center; gap: 8px;">
-                                ${escapeHtml(url.bootstrap)}
+                            <div class="server-info-value" style="display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 8px;">
+                                <span style="font-family: monospace; color: var(--text-primary); word-break: break-all; margin-right: 10px; font-size: 0.75rem;">${escapeHtml(url.bootstrap)}</span>
                                 <button class="btn-copy-small" onclick="copyToClipboard('${escapeHtml(url.bootstrap).replace(/'/g, "\\'")}')" title="Copiar">
                                     <i class="fa-regular fa-copy"></i>
                                 </button>
@@ -1620,8 +1659,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="server-info-label">
                                 <i class="fa-solid fa-download" style="margin-right: 6px;"></i> Atualização de Executáveis
                             </div>
-                            <div class="server-info-value" style="display: flex; align-items: center; gap: 8px;">
-                                ${escapeHtml(url.execUpdate)}
+                            <div class="server-info-value" style="display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 8px;">
+                                <span style="font-family: monospace; color: var(--text-primary); word-break: break-all; margin-right: 10px; font-size: 0.75rem;">${escapeHtml(url.execUpdate)}</span>
                                 <button class="btn-copy-small" onclick="copyToClipboard('${escapeHtml(url.execUpdate).replace(/'/g, "\\'")}')" title="Copiar">
                                     <i class="fa-regular fa-copy"></i>
                                 </button>
@@ -1648,6 +1687,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!client.urls) client.urls = [];
 
         const editingIndex = document.getElementById('editingUrlIndex').value;
+        if (!urlEnvironmentSelect.value) {
+            showToast('⚠️ O ambiente é obrigatório.', 'error');
+            urlEnvironmentSelect.focus();
+            return;
+        }
+        if (!urlSystemSelect.value) {
+            showToast('⚠️ O sistema é obrigatório.', 'error');
+            urlSystemSelect.focus();
+            return;
+        }
+        if (!bridgeDataAccessInput.value.trim()) {
+            showToast('⚠️ O Bridge data_access é obrigatório.', 'error');
+            bridgeDataAccessInput.focus();
+            return;
+        }
+
         const urlRecord = {
             environment: urlEnvironmentSelect.value,
             system: urlSystemSelect.value,
