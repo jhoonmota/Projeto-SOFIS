@@ -413,11 +413,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const editingContactIndex = contactList.dataset.editingContactIndex;
 
         // Validate Client Name
-        if (!clientNameInput.value.trim()) {
+        const nameValue = clientNameInput.value.trim();
+        if (!nameValue) {
             showToast('⚠️ O nome do cliente é obrigatório.', 'error');
             clientNameInput.focus();
             return;
         }
+
+        // Check for duplicate client name
+        // Don't check strictly if we are just adding a contact to an existing client (mode === 'addContact')
+        // But wait, if mode is addContact, clientNameInput is disabled or readonly usually? 
+        // Logic: if we are creating a new client (!editingId) or updating a client name (editingId && mode !== 'addContact')
+
+        if (mode !== 'addContact') {
+            const duplicateClient = clients.find(c => c.name.toLowerCase() === nameValue.toLowerCase() && c.id !== editingId);
+            if (duplicateClient) {
+                showToast('⚠️ Já existe um cliente cadastrado com este nome.', 'error');
+                clientNameInput.focus();
+                return;
+            }
+        }
+
 
         // --- MODE: EDITING A SINGLE CONTACT ---
         if (editingContactIndex !== undefined) {
@@ -518,6 +534,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
         }
+
+        // Check for duplicate contact names within the same client
+        const contactNames = contacts.map(c => c.name.toLowerCase());
+        const nameDuplicates = contactNames.filter((name, index) => contactNames.indexOf(name) !== index);
+        if (nameDuplicates.length > 0) {
+            showToast(`⚠️ Nome de contato duplicado: ${contacts.find(c => c.name.toLowerCase() === nameDuplicates[0]).name}`, 'error');
+            return;
+        }
+
+        // If editing or adding contact to existing client, check against existing contacts
+        if (editingId) {
+            const currentClient = clients.find(c => c.id === editingId);
+            if (currentClient && currentClient.contacts) {
+                for (const newContact of contacts) {
+                    // When editing a single contact, skip checking against itself
+                    const existingContactIndex = editingContactIndex !== undefined ? parseInt(editingContactIndex) : -1;
+
+                    for (let i = 0; i < currentClient.contacts.length; i++) {
+                        // Skip if this is the contact being edited
+                        if (i === existingContactIndex) continue;
+
+                        const existingContact = currentClient.contacts[i];
+                        if (existingContact.name.toLowerCase() === newContact.name.toLowerCase()) {
+                            showToast(`⚠️ O nome "${newContact.name}" já está cadastrado para este cliente.`, 'error');
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
 
         // Check for duplicate phones
         const allPhones = contacts.flatMap(c => c.phones);
