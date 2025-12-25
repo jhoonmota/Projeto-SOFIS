@@ -273,7 +273,8 @@
 
                 <div class="modal-actions"
                     style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
-                    <button type="button" id="closeVpnModalBtn" class="btn-primary">Fechar</button>
+                    <button type="button" id="closeVpnModalBtn" class="btn-primary"
+                        onclick="closeVpnModal()">Fechar</button>
                 </div>
             </div>
         </div>
@@ -307,6 +308,133 @@
 
                     <div class="modal-actions">
                         <button type="button" id="cancelVpnEntryBtn" class="btn-secondary">Cancelar</button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fa-solid fa-plus"></i> Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- URL Data Modal -->
+        <div id="urlModal" class="modal hidden">
+            <div class="modal-content modal-content-large">
+                <div class="modal-header">
+                    <div class="modal-header-left">
+                        <h2>URL</h2>
+                        <span class="modal-subtitle" id="urlModalClientName"></span>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button id="addUrlEntryBtn" class="btn-primary" style="margin-right: 15px;">
+                            <i class="fa-solid fa-plus"></i> Adicionar
+                        </button>
+                        <button id="closeUrlModal" type="button" class="btn-icon">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- WebLaudo Field (Outside the entries list) -->
+                <div class="form-group"
+                    style="margin-bottom: 25px; padding: 15px; background: rgba(0,0,0,0.1); border-radius: 8px; border-left: 4px solid var(--accent);">
+                    <label style="color: var(--accent); font-weight: 600; margin-bottom: 12px;">
+                        <span><i class="fa-solid fa-globe"
+                                style="color: var(--accent); margin-right: 8px;"></i>WebLaudo</span>
+                    </label>
+                    <div id="webLaudoDisplay"
+                        style="display: none; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
+                        <span id="webLaudoText"
+                            style="color: var(--text-primary); font-family: monospace; word-break: break-all; margin-right: 10px;"></span>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" id="editWebLaudoBtn" class="btn-icon" title="Editar"><i
+                                    class="fa-solid fa-pen"></i></button>
+                            <button type="button" id="deleteWebLaudoBtn" class="btn-icon btn-danger" title="Excluir"><i
+                                    class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div id="webLaudoForm" style="display: flex; gap: 10px;">
+                        <input type="text" id="webLaudoInput" placeholder="Ex: https://laudo.empresa.com">
+                        <button type="button" id="saveWebLaudoBtn" class="btn-primary" style="padding: 0 15px;">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="servers-section" style="border-top: none; margin-top: 0; padding-top: 0;">
+                    <h3><i class="fa-solid fa-link"></i> URLs Cadastradas</h3>
+                    <div id="urlsList" class="servers-grid">
+                        <!-- URL records will be displayed here -->
+                    </div>
+                </div>
+
+                <div class="modal-actions"
+                    style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+                    <button type="button" id="closeUrlModalBtn" class="btn-primary">Fechar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- New URL Entry Modal -->
+        <div id="urlEntryModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="urlEntryModalTitle">Novo Acesso Sistema</h2>
+                    <button id="closeUrlEntryModal" type="button" class="btn-icon">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <form id="urlForm">
+                    <input type="hidden" id="urlClientId">
+                    <input type="hidden" id="editingUrlIndex">
+
+                    <div class="server-form-grid">
+                        <div class="form-group">
+                            <label for="urlEnvironmentSelect">
+                                <span><i class="fa-solid fa-server"></i> Ambiente<span class="required">*</span></span>
+                            </label>
+                            <select id="urlEnvironmentSelect" required>
+                                <option value="">Selecione...</option>
+                                <option value="producao">Produção</option>
+                                <option value="homologacao">Homologação</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="urlSystemSelect">
+                                <span><i class="fa-solid fa-window-maximize"></i> Sistema<span
+                                        class="required">*</span></span>
+                            </label>
+                            <select id="urlSystemSelect" required>
+                                <option value="">Selecione...</option>
+                                <option value="Hemote Plus">Hemote Plus</option>
+                                <option value="Hemote Web">Hemote Web</option>
+                                <option value="Monetário">Monetário</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bridgeDataAccessInput">
+                            <span><i class="fa-solid fa-bridge"></i> Bridge data_access<span
+                                    class="required">*</span></span>
+                        </label>
+                        <input type="text" id="bridgeDataAccessInput" required placeholder="URL ou Caminho">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bootstrapInput">
+                            <span><i class="fa-solid fa-bolt"></i> Bootstrap</span>
+                        </label>
+                        <input type="text" id="bootstrapInput" placeholder="Configuração Bootstrap">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="urlNotesInput">Observações</label>
+                        <textarea id="urlNotesInput" rows="3" placeholder="Detalhes adicionais..."></textarea>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" id="cancelUrlEntryBtn" class="btn-secondary">Cancelar</button>
                         <button type="submit" class="btn-primary">
                             <i class="fa-solid fa-plus"></i> Salvar
                         </button>

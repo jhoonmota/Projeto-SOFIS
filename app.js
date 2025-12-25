@@ -87,6 +87,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const vpnEntryModalTitle = document.getElementById('vpnEntryModalTitle');
     const closeVpnModalBtn = document.getElementById('closeVpnModalBtn');
 
+    // URL Modal Elements
+    const urlModal = document.getElementById('urlModal');
+    const urlEntryModal = document.getElementById('urlEntryModal');
+    const urlForm = document.getElementById('urlForm');
+    const closeUrlBtn = document.getElementById('closeUrlModal');
+    const closeUrlEntryBtn = document.getElementById('closeUrlEntryModal');
+    const cancelUrlEntryBtn = document.getElementById('cancelUrlEntryBtn');
+    const addUrlEntryBtn = document.getElementById('addUrlEntryBtn');
+    const urlClientIdInput = document.getElementById('urlClientId');
+    const urlEnvironmentSelect = document.getElementById('urlEnvironmentSelect');
+    const urlSystemSelect = document.getElementById('urlSystemSelect');
+    const bridgeDataAccessInput = document.getElementById('bridgeDataAccessInput');
+    const bootstrapInput = document.getElementById('bootstrapInput');
+    const webLaudoInput = document.getElementById('webLaudoInput');
+    const urlNotesInput = document.getElementById('urlNotesInput');
+    const saveWebLaudoBtn = document.getElementById('saveWebLaudoBtn');
+    const urlEntryModalTitle = document.getElementById('urlEntryModalTitle');
+    const closeUrlModalBtn = document.getElementById('closeUrlModalBtn');
+    const webLaudoDisplay = document.getElementById('webLaudoDisplay');
+    const webLaudoForm = document.getElementById('webLaudoForm');
+    const webLaudoText = document.getElementById('webLaudoText');
+    const editWebLaudoBtn = document.getElementById('editWebLaudoBtn');
+    const deleteWebLaudoBtn = document.getElementById('deleteWebLaudoBtn');
+
 
     // Initial Render
     renderClients(clients);
@@ -141,6 +165,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (cancelVpnEntryBtn) cancelVpnEntryBtn.addEventListener('click', closeVpnEntryModal);
     if (addVpnEntryBtn) addVpnEntryBtn.addEventListener('click', openVpnEntry);
     if (closeVpnModalBtn) closeVpnModalBtn.addEventListener('click', closeVpnModal);
+
+    // URL Listeners
+    if (urlForm) urlForm.addEventListener('submit', handleUrlSubmit);
+    if (closeUrlBtn) closeUrlBtn.addEventListener('click', closeUrlModal);
+    if (closeUrlEntryBtn) closeUrlEntryBtn.addEventListener('click', closeUrlEntryModal);
+    if (cancelUrlEntryBtn) cancelUrlEntryBtn.addEventListener('click', closeUrlEntryModal);
+    if (addUrlEntryBtn) addUrlEntryBtn.addEventListener('click', openUrlEntry);
+    if (closeUrlModalBtn) closeUrlModalBtn.addEventListener('click', closeUrlModal);
+    if (saveWebLaudoBtn) saveWebLaudoBtn.addEventListener('click', handleWebLaudoSave);
+    if (editWebLaudoBtn) editWebLaudoBtn.addEventListener('click', () => {
+        webLaudoDisplay.style.display = 'none';
+        webLaudoForm.style.display = 'flex';
+        webLaudoInput.focus();
+    });
+    if (deleteWebLaudoBtn) deleteWebLaudoBtn.addEventListener('click', handleDeleteWebLaudo);
+
+    if (urlSystemSelect) {
+        urlSystemSelect.addEventListener('change', handleUrlSystemChange);
+    }
 
     // --- Functions ---
 
@@ -219,8 +262,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const hasServers = client.servers && client.servers.length > 0;
             const hasVpns = client.vpns && client.vpns.length > 0;
+            const hasUrls = client.urls && client.urls.length > 0;
             const serverBtnClass = hasServers ? 'btn-icon active-success' : 'btn-icon';
             const vpnBtnClass = hasVpns ? 'btn-icon active-success' : 'btn-icon';
+            const urlBtnClass = hasUrls ? 'btn-icon active-success' : 'btn-icon';
             const vpnIconClass = hasVpns ? 'vpn-icon-img vpn-icon-success' : 'vpn-icon-img';
 
             row.innerHTML = `
@@ -247,6 +292,9 @@ document.addEventListener('DOMContentLoaded', () => {
                              </button>
                              <button class="${vpnBtnClass}" onclick="openVpnData('${client.id}'); event.stopPropagation();" title="Dados de Acesso VPN">
                                 <img src="vpn-icon.png" class="${vpnIconClass}" alt="VPN">
+                            </button>
+                             <button class="${urlBtnClass}" onclick="openUrlData('${client.id}'); event.stopPropagation();" title="URL">
+                                <i class="fa-solid fa-link"></i>
                             </button>
                              <button class="btn-icon btn-danger" onclick="deleteClient('${client.id}'); event.stopPropagation();" title="Excluir">
                                  <i class="fa-solid fa-trash"></i>
@@ -1309,6 +1357,229 @@ document.addEventListener('DOMContentLoaded', () => {
     window.editContact = editContact;
     window.openAddModal = openAddModal;
     window.closeModal = closeModal;
+
+    // --- URL Data Functions ---
+    window.openUrlData = (clientId) => {
+        const client = clients.find(c => c.id === clientId);
+        if (!client) return;
+
+        urlClientIdInput.value = clientId;
+        if (!client.urls) client.urls = [];
+
+        // Set client name in subtitle
+        const urlModalClientName = document.getElementById('urlModalClientName');
+        if (urlModalClientName) urlModalClientName.textContent = client.name;
+
+        // Set WebLaudo
+        updateWebLaudoDisplay(client);
+
+        clearUrlForm();
+        renderUrlList(client);
+        urlModal.classList.remove('hidden');
+    };
+
+    function updateWebLaudoDisplay(client) {
+        if (client.webLaudo) {
+            webLaudoText.textContent = client.webLaudo;
+            webLaudoDisplay.style.display = 'flex';
+            webLaudoForm.style.display = 'none';
+            webLaudoInput.value = client.webLaudo;
+        } else {
+            webLaudoDisplay.style.display = 'none';
+            webLaudoForm.style.display = 'flex';
+            webLaudoInput.value = '';
+        }
+    }
+
+    function handleDeleteWebLaudo() {
+        if (!confirm('Tem certeza que deseja excluir o WebLaudo?')) return;
+        const id = urlClientIdInput.value;
+        const client = clients.find(c => c.id === id);
+        if (!client) return;
+
+        client.webLaudo = '';
+        saveToLocal();
+        updateWebLaudoDisplay(client);
+        showToast('🗑️ WebLaudo removido com sucesso!', 'success');
+    }
+
+    function handleUrlSystemChange() {
+        const bootstrapGroup = bootstrapInput.closest('.form-group');
+        if (urlSystemSelect.value === 'Hemote Web') {
+            bootstrapGroup.style.display = 'none';
+        } else {
+            bootstrapGroup.style.display = 'block';
+        }
+    }
+
+    function closeUrlModal() {
+        urlModal.classList.add('hidden');
+    }
+
+    function openUrlEntry() {
+        clearUrlForm();
+        urlEntryModalTitle.textContent = 'Novo Acesso Sistema';
+        document.getElementById('editingUrlIndex').value = '';
+        urlEntryModal.classList.remove('hidden');
+        handleUrlSystemChange();
+    }
+
+    function closeUrlEntryModal() {
+        urlEntryModal.classList.add('hidden');
+        clearUrlForm();
+    }
+
+    function clearUrlForm() {
+        if (urlEnvironmentSelect) urlEnvironmentSelect.value = '';
+        if (urlSystemSelect) urlSystemSelect.value = '';
+        if (bridgeDataAccessInput) bridgeDataAccessInput.value = '';
+        if (bootstrapInput) bootstrapInput.value = '';
+        if (urlNotesInput) urlNotesInput.value = '';
+        const editIdx = document.getElementById('editingUrlIndex');
+        if (editIdx) editIdx.value = '';
+    }
+
+    function renderUrlList(client) {
+        const listContainer = document.getElementById('urlsList');
+        if (!listContainer) return;
+
+        if (!client.urls || client.urls.length === 0) {
+            listContainer.innerHTML = `
+                <div class="servers-grid-empty">
+                    <i class="fa-solid fa-link" style="font-size: 3rem; opacity: 0.3; margin-bottom: 12px; display: block;"></i>
+                    <p>Nenhum sistema cadastrado ainda.</p>
+                </div>
+            `;
+            return;
+        }
+
+        listContainer.innerHTML = client.urls.map((url, index) => {
+            const environmentClass = url.environment === 'homologacao' ? 'homologacao' : 'producao';
+            const environmentLabel = url.environment === 'homologacao' ? 'Homologação' : 'Produção';
+
+            return `
+                <div class="server-card">
+                    <div class="server-card-header">
+                        <span class="server-environment ${environmentClass}">${environmentLabel}</span>
+                        <div class="server-card-actions">
+                            <button class="btn-icon" onclick="editUrlRecord('${client.id}', ${index})" title="Editar">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="btn-icon btn-danger" onclick="deleteUrlRecord('${client.id}', ${index})" title="Excluir">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="server-info">
+                        <div class="server-info-label">Sistema</div>
+                        <div class="server-info-value" style="font-weight: 600; color: var(--accent);">${escapeHtml(url.system)}</div>
+                    </div>
+                    ${url.bridgeDataAccess ? `
+                        <div class="server-info">
+                            <div class="server-info-label">Bridge data_access</div>
+                            <div class="server-info-value" style="display: flex; align-items: center; gap: 8px;">
+                                ${escapeHtml(url.bridgeDataAccess)}
+                                <button class="btn-copy-small" onclick="copyToClipboard('${escapeHtml(url.bridgeDataAccess).replace(/'/g, "\\'")}')" title="Copiar">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>` : ''}
+                    ${url.bootstrap ? `
+                        <div class="server-info">
+                            <div class="server-info-label">Bootstrap</div>
+                            <div class="server-info-value" style="display: flex; align-items: center; gap: 8px;">
+                                ${escapeHtml(url.bootstrap)}
+                                <button class="btn-copy-small" onclick="copyToClipboard('${escapeHtml(url.bootstrap).replace(/'/g, "\\'")}')" title="Copiar">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>` : ''}
+                    ${url.notes ? `
+                        <div class="server-notes">
+                            <div class="server-notes-title">Observações</div>
+                            <div class="server-notes-content">${escapeHtml(url.notes)}</div>
+                        </div>` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+
+    function handleUrlSubmit(e) {
+        e.preventDefault();
+        const id = urlClientIdInput.value;
+        const client = clients.find(c => c.id === id);
+        if (!client) return;
+
+        if (!client.urls) client.urls = [];
+
+        const editingIndex = document.getElementById('editingUrlIndex').value;
+        const urlRecord = {
+            environment: urlEnvironmentSelect.value,
+            system: urlSystemSelect.value,
+            bridgeDataAccess: bridgeDataAccessInput.value.trim(),
+            bootstrap: bootstrapInput.value.trim(),
+            notes: urlNotesInput ? urlNotesInput.value.trim() : ''
+        };
+
+        if (editingIndex !== '') {
+            client.urls[parseInt(editingIndex)] = urlRecord;
+            showToast('✅ Sistema atualizado com sucesso!', 'success');
+        } else {
+            client.urls.push(urlRecord);
+            showToast('✅ Sistema incluído com sucesso!', 'success');
+        }
+
+        saveToLocal();
+        renderClients(clients);
+        renderUrlList(client);
+        closeUrlEntryModal();
+    }
+
+    window.editUrlRecord = (clientId, index) => {
+        const client = clients.find(c => c.id === clientId);
+        if (!client || !client.urls || !client.urls[index]) return;
+
+        const url = client.urls[index];
+        urlEnvironmentSelect.value = url.environment;
+        urlSystemSelect.value = url.system;
+        bridgeDataAccessInput.value = url.bridgeDataAccess || '';
+        bootstrapInput.value = url.bootstrap || '';
+        urlNotesInput.value = url.notes || '';
+        document.getElementById('editingUrlIndex').value = index;
+
+        urlEntryModalTitle.textContent = 'Editar Acesso Sistema';
+        urlEntryModal.classList.remove('hidden');
+
+        // Trigger change to update bootstrap visibility
+        handleUrlSystemChange();
+    }
+
+    window.deleteUrlRecord = (clientId, index) => {
+        if (!confirm('Tem certeza que deseja excluir este sistema?')) return;
+        const client = clients.find(c => c.id === clientId);
+        if (!client || !client.urls) return;
+
+        client.urls.splice(index, 1);
+        saveToLocal();
+        renderClients(clients);
+        renderUrlList(client);
+        showToast('🗑️ Sistema removido com sucesso!', 'success');
+    }
+
+    function handleWebLaudoSave() {
+        const id = urlClientIdInput.value;
+        const client = clients.find(c => c.id === id);
+        if (!client) return;
+
+        client.webLaudo = webLaudoInput.value.trim();
+        saveToLocal();
+        updateWebLaudoDisplay(client);
+        showToast('✅ WebLaudo salvo com sucesso!', 'success');
+    }
+    window.handleWebLaudoSave = handleWebLaudoSave;
+    window.closeUrlModal = closeUrlModal;
+    window.openUrlEntry = openUrlEntry;
+    window.closeUrlEntryModal = closeUrlEntryModal;
 
     // Check if editClient is defined in this scope.
     // Based on previous view, I didn't see editClient definition in the last 200 lines.
