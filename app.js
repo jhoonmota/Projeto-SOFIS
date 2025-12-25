@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let editingId = null;
     let currentClientFilter = 'all'; // 'all', 'favorites', 'regular'
+    let isModalFavorite = false;
 
     // DOM Elements
     const clientList = document.getElementById('clientList');
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.getElementById('closeModal');
     const searchInput = document.getElementById('searchInput');
     const modalTitle = document.getElementById('modalTitle');
+    const modalToggleFavorite = document.getElementById('modalToggleFavorite');
     const toast = document.getElementById('toast');
     const clearSearchBtn = document.getElementById('clearSearch');
     const logoutBtn = document.getElementById('logoutBtn');
@@ -132,6 +134,13 @@ document.addEventListener('DOMContentLoaded', () => {
     cancelBtn.addEventListener('click', closeModal);
     closeBtn.addEventListener('click', closeModal);
     form.addEventListener('submit', handleFormSubmit);
+
+    if (modalToggleFavorite) {
+        modalToggleFavorite.addEventListener('click', () => {
+            isModalFavorite = !isModalFavorite;
+            updateModalFavoriteUI();
+        });
+    }
 
     searchInput.addEventListener('input', (e) => {
         if (e.target.value.length > 0) {
@@ -706,7 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
             id: editingId || Date.now().toString(),
             name: clientNameInput.value,
             contacts: contacts,
-            isFavorite: client ? client.isFavorite : false
+            isFavorite: isModalFavorite
         };
 
 
@@ -749,6 +758,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!client) return;
 
         editingId = id;
+        isModalFavorite = client.isFavorite || false;
+        updateModalFavoriteUI();
         clientNameInput.value = client.name;
         clientNameInput.disabled = false;
         delete form.dataset.mode;
@@ -906,6 +917,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openAddModal() {
         editingId = null;
+        isModalFavorite = false;
+        updateModalFavoriteUI();
         form.reset();
         clientNameInput.disabled = false;
         delete form.dataset.mode;
@@ -921,6 +934,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openModal() {
         modal.classList.remove('hidden');
+    }
+
+    function updateModalFavoriteUI() {
+        if (!modalToggleFavorite) return;
+        const icon = modalToggleFavorite.querySelector('i');
+        if (isModalFavorite) {
+            modalToggleFavorite.classList.add('favorite-active');
+            icon.className = 'fa-solid fa-star';
+            modalToggleFavorite.title = 'Remover Favorito';
+        } else {
+            modalToggleFavorite.classList.remove('favorite-active');
+            icon.className = 'fa-regular fa-star';
+            modalToggleFavorite.title = 'Favoritar';
+        }
     }
 
     function closeModal() {
@@ -1916,36 +1943,30 @@ document.addEventListener('DOMContentLoaded', () => {
     window.openUrlEntry = openUrlEntry;
     window.closeUrlEntryModal = closeUrlEntryModal;
 
-    // Check if editClient is defined in this scope.
-    // Based on previous view, I didn't see editClient definition in the last 200 lines.
-    // It must be in the middle of the file.
-    // I will assume the functions exist in the scope.
+    // Initial render
+    applyClientFilter();
+    updateFilterCounts();
 
-});
+    // Scroll to Top Button Functionality
+    const scrollToTopBtn = document.getElementById('scrollToTopBtn');
 
-// Scroll to Top Button Functionality
-const scrollToTopBtn = document.getElementById('scrollToTopBtn');
-
-if (scrollToTopBtn) {
-    // Show/hide button based on scroll position
-    window.addEventListener('scroll', () => {
-        if (window.pageYOffset > 300) {
-            scrollToTopBtn.classList.add('visible');
-        } else {
-            scrollToTopBtn.classList.remove('visible');
-        }
-    });
-
-    // Scroll to top when clicked
-    scrollToTopBtn.addEventListener('click', () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
+    if (scrollToTopBtn) {
+        // Show/hide button based on scroll position
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
         });
-    });
-}
 
-// Initial render
-applyClientFilter();
-updateFilterCounts();
+        // Scroll to top when clicked
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
+});
 
