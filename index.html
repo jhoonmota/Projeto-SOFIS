@@ -134,6 +134,7 @@
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2>Dados de Acesso ao SQL</h2>
+                        <span class="modal-subtitle" id="serverModalClientName"></span>
                     </div>
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <button id="addServerEntryBtn" class="btn-primary" style="margin-right: 15px;">
@@ -184,7 +185,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="sqlServerInput"><span>Instância do SQL Server<span
+                            <label for="sqlServerInput"><span><i class="fa-solid fa-database"
+                                        style="margin-right: 5px;"></i> Instância do SQL Server<span
                                         class="required">*</span></span></label>
                             <input type="text" id="sqlServerInput" required
                                 placeholder="Ex: servidor.database.windows.net">
@@ -219,12 +221,36 @@
             </div>
         </div>
 
+        <!-- Client Notes Modal -->
+        <div id="notesModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="notesModalTitle">Observações</h2>
+                    <button id="closeNotesModal" type="button" class="btn-icon"><i
+                            class="fa-solid fa-xmark"></i></button>
+                </div>
+                <form id="notesForm">
+                    <input type="hidden" id="notesClientId">
+                    <div class="form-group">
+                        <label for="clientNoteInput">Observações Gerais</label>
+                        <textarea id="clientNoteInput" rows="10"
+                            placeholder="Digite aqui as observações do cliente..."></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" id="cancelNotesBtn" class="btn-secondary">Cancelar</button>
+                        <button type="submit" class="btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- VPN Data Modal -->
         <div id="vpnModal" class="modal hidden">
             <div class="modal-content modal-content-large">
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2>Dados de Acesso VPN</h2>
+                        <span class="modal-subtitle" id="vpnModalClientName"></span>
                     </div>
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <button id="addVpnEntryBtn" class="btn-primary" style="margin-right: 15px;">

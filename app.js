@@ -217,7 +217,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }).join('')
                 : '<div class="contact-item">Nenhum contato cadastrado</div>';
 
-            const serverBtnClass = (client.servers && client.servers.length > 0) ? 'btn-icon' : 'btn-icon'; // Can style differently if has servers
+            const hasServers = client.servers && client.servers.length > 0;
+            const hasVpns = client.vpns && client.vpns.length > 0;
+            const serverBtnClass = hasServers ? 'btn-icon active-success' : 'btn-icon';
+            const vpnBtnClass = hasVpns ? 'btn-icon active-success' : 'btn-icon';
+            const vpnIconClass = hasVpns ? 'vpn-icon-img vpn-icon-success' : 'vpn-icon-img';
 
             row.innerHTML = `
                 <div class="client-row-header" onclick="toggleClientRow('${client.id}')">
@@ -241,8 +245,8 @@ document.addEventListener('DOMContentLoaded', () => {
                              <button class="${serverBtnClass}" onclick="openServerData('${client.id}'); event.stopPropagation();" title="Dados de Acesso ao SQL">
                                  <i class="fa-solid fa-database"></i>
                              </button>
-                             <button class="btn-icon" onclick="openVpnData('${client.id}'); event.stopPropagation();" title="Dados de Acesso VPN">
-                                <img src="vpn-icon.png" class="vpn-icon-img" alt="VPN">
+                             <button class="${vpnBtnClass}" onclick="openVpnData('${client.id}'); event.stopPropagation();" title="Dados de Acesso VPN">
+                                <img src="vpn-icon.png" class="${vpnIconClass}" alt="VPN">
                             </button>
                              <button class="btn-icon btn-danger" onclick="deleteClient('${client.id}'); event.stopPropagation();" title="Excluir">
                                  <i class="fa-solid fa-trash"></i>
@@ -845,6 +849,10 @@ document.addEventListener('DOMContentLoaded', () => {
             client.servers = [];
         }
 
+        // Set client name in subtitle
+        const serverModalClientName = document.getElementById('serverModalClientName');
+        if (serverModalClientName) serverModalClientName.textContent = client.name;
+
         // Clear and reset the form
         clearServerForm();
 
@@ -929,14 +937,16 @@ document.addEventListener('DOMContentLoaded', () => {
                                     </button>
                                 </div>
                             </div>
-                            </div>
                         `).join('')}
                     </div>
                 `
                 : '';
 
             const notesHTML = server.notes
-                ? `<div class="server-notes"><i class="fa-solid fa-note-sticky"></i> ${escapeHtml(server.notes)}</div>`
+                ? `<div class="server-notes">
+                    <div class="server-notes-title">Observações</div>
+                    <div class="server-notes-content">${escapeHtml(server.notes)}</div>
+                   </div>`
                 : '';
 
             return `
@@ -953,7 +963,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div class="server-info">
-                        <div class="server-info-label">Instância do SQL Server</div>
+                        <div class="server-credentials-title">
+                            <i class="fa-solid fa-database"></i> Instância do SQL Server
+                        </div>
                         <div class="server-info-value">${escapeHtml(server.sqlServer)}</div>
                     </div>
                     ${credentialsHTML}
@@ -1036,6 +1048,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         saveToLocal();
+        renderClients(clients);
         renderServersList(client);
         closeServerEntryModal();
     }
@@ -1074,6 +1087,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         client.servers.splice(index, 1);
         saveToLocal();
+        renderClients(clients);
         renderServersList(client);
         showToast('🗑️ Servidor removido com sucesso!', 'success');
     };
@@ -1152,7 +1166,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             </button>
                         </div>
                     </div>
-                    ${vpn.notes ? `<div class="server-notes"><i class="fa-solid fa-note-sticky"></i> ${escapeHtml(vpn.notes)}</div>` : ''}
+                    ${vpn.notes ? `
+                        <div class="server-notes">
+                            <div class="server-notes-title">Observações</div>
+                            <div class="server-notes-content">${escapeHtml(vpn.notes)}</div>
+                        </div>` : ''}
                 </div>
             `;
         }).join('');
@@ -1182,6 +1200,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         saveToLocal();
+        renderClients(clients);
         renderVpnList(client);
         closeVpnEntryModal();
     }
@@ -1192,6 +1211,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         vpnClientIdInput.value = clientId;
         if (!client.vpns) client.vpns = [];
+
+        // Set client name in subtitle
+        const vpnModalClientName = document.getElementById('vpnModalClientName');
+        if (vpnModalClientName) vpnModalClientName.textContent = client.name;
 
         clearVpnForm();
         renderVpnList(client);
@@ -1219,6 +1242,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         client.vpns.splice(index, 1);
         saveToLocal();
+        renderClients(clients);
         renderVpnList(client);
         showToast('🗑️ VPN removida com sucesso!', 'success');
     }

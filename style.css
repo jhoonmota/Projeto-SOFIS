@@ -51,6 +51,15 @@ header {
     /* Logo volta para a esquerda (padrão do flex) */
 }
 
+.modal-subtitle {
+    display: block;
+    color: var(--accent);
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+}
+
 .logo-container {
     display: flex;
     flex-direction: column;
@@ -1124,6 +1133,17 @@ button:hover .vpn-icon-img {
 }
 
 /* Yellow VPN Icon for Headers */
+/* Success/Active Icons */
+.btn-icon.active-success {
+    color: var(--success) !important;
+    opacity: 1 !important;
+}
+
+.vpn-icon-success {
+    filter: invert(61%) sepia(50%) saturate(452%) hue-rotate(75deg) brightness(96%) contrast(90%) !important;
+    opacity: 1 !important;
+}
+
 .vpn-icon-yellow {
     filter: invert(63%) sepia(85%) saturate(1814%) hue-rotate(5deg) brightness(105%) contrast(106%) !important;
     opacity: 1 !important;

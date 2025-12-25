@@ -187,11 +187,26 @@
 
 .server-notes {
     margin-top: 12px;
-    padding: 10px;
+    padding: 12px;
     background: rgba(0, 0, 0, 0.15);
     border-radius: 6px;
-    font-size: 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.server-notes-title {
+    font-size: 0.75rem;
     color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.server-notes-content {
+    font-size: 0.85rem;
+    color: var(--text-primary);
     line-height: 1.5;
     word-break: break-word;
     white-space: pre-wrap;
