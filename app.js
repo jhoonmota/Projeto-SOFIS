@@ -461,9 +461,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const hasServers = client.servers && client.servers.length > 0;
         const hasVpns = client.vpns && client.vpns.length > 0;
         const hasUrls = client.urls && client.urls.length > 0;
+        const hasContacts = client.contacts && client.contacts.length > 0;
         const serverBtnClass = hasServers ? 'btn-icon active-success' : 'btn-icon';
         const vpnBtnClass = hasVpns ? 'btn-icon active-success' : 'btn-icon';
         const urlBtnClass = hasUrls ? 'btn-icon active-success' : 'btn-icon';
+        const contactBtnClass = hasContacts ? 'btn-icon active-success' : 'btn-icon';
         const vpnIconClass = hasVpns ? 'vpn-icon-img vpn-icon-success' : 'vpn-icon-img';
 
         row.innerHTML = `
@@ -485,17 +487,21 @@ document.addEventListener('DOMContentLoaded', () => {
                          <button class="btn-icon" onclick="editClient('${client.id}'); event.stopPropagation();" title="Editar Cliente">
                              <i class="fa-solid fa-pen"></i>
                          </button>
-                         <button class="btn-icon" onclick="addNewContact('${client.id}'); event.stopPropagation();" title="Adicionar Contato">
+                         <button class="${contactBtnClass} btn-with-badge" onclick="addNewContact('${client.id}'); event.stopPropagation();" title="Adicionar Contato">
                             <i class="fa-solid fa-user-plus"></i>
+                            ${hasContacts ? `<span class="btn-badge">${client.contacts.length}</span>` : ''}
                         </button>
-                         <button class="${serverBtnClass}" onclick="openServerData('${client.id}'); event.stopPropagation();" title="Dados de Acesso ao SQL">
+                         <button class="${serverBtnClass} btn-with-badge" onclick="openServerData('${client.id}'); event.stopPropagation();" title="Dados de Acesso ao SQL">
                              <i class="fa-solid fa-database"></i>
+                             ${hasServers ? `<span class="btn-badge">${client.servers.length}</span>` : ''}
                          </button>
-                         <button class="${vpnBtnClass}" onclick="openVpnData('${client.id}'); event.stopPropagation();" title="Dados de Acesso VPN">
+                         <button class="${vpnBtnClass} btn-with-badge" onclick="openVpnData('${client.id}'); event.stopPropagation();" title="Dados de Acesso VPN">
                             <img src="vpn-icon.png" class="${vpnIconClass}" alt="VPN">
+                            ${hasVpns ? `<span class="btn-badge">${client.vpns.length}</span>` : ''}
                         </button>
-                         <button class="${urlBtnClass}" onclick="event.stopPropagation(); openUrlData('${client.id}');" title="URL">
+                         <button class="${urlBtnClass} btn-with-badge" onclick="event.stopPropagation(); openUrlData('${client.id}');" title="URL">
                             <i class="fa-solid fa-link"></i>
+                            ${hasUrls ? `<span class="btn-badge">${client.urls.length}</span>` : ''}
                         </button>
                          <button class="btn-icon btn-danger" onclick="deleteClient('${client.id}'); event.stopPropagation();" title="Excluir">
                              <i class="fa-solid fa-trash"></i>
@@ -1073,9 +1079,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const editingContactIndex = contactList.dataset.editingContactIndex;
 
         if (editingContactIndex !== undefined && editingId) {
+            const client = clients.find(c => c.id === editingId);
+
+            // Validation: Cannot delete the last contact
+            if (client && client.contacts && client.contacts.length <= 1) {
+                showToast('⚠️ O cliente deve possuir pelo menos um contato cadastrado.', 'error');
+                return;
+            }
+
             // We are editing a specific existing contact. The trash button should DELETE it.
             if (confirm('Tem certeza que deseja excluir este contato?')) {
-                const client = clients.find(c => c.id === editingId);
                 if (client && client.contacts) {
                     const index = parseInt(editingContactIndex);
                     // Ensure the index is valid
