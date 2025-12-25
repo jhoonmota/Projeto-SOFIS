@@ -216,6 +216,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     window.toggleClientRow = toggleClientRow;
 
+    // Save data to localStorage
+    function saveToLocal() {
+        localStorage.setItem('sofis_clients', JSON.stringify(clients));
+    }
+
     function handleFormSubmit(e) {
         e.preventDefault();
         const mode = form.dataset.mode;
@@ -287,6 +292,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // If in addContact mode, also check against existing contacts of the SAME client
+        if (mode === 'addContact' && editingId) {
+            const currentClient = clients.find(c => c.id === editingId);
+            if (currentClient && currentClient.contacts) {
+                for (const phone of allPhones) {
+                    for (const existingContact of currentClient.contacts) {
+                        if (existingContact.phones && existingContact.phones.includes(phone)) {
+                            showToast(`❌ Telefone ${phone} já cadastrado neste cliente`, 'error');
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
         const client = editingId ? clients.find(c => c.id === editingId) : null;
 
         const newClient = {
@@ -300,16 +320,13 @@ document.addEventListener('DOMContentLoaded', () => {
             clients = clients.map(c => c.id === editingId ? newClient : c);
             showToast('✅ Cliente atualizado com sucesso!', 'success');
         } else if (editingId && mode === 'addContact') {
-            // Append new phone/email to existing contacts of the client?
-            // Wait, the structure is: Client -> Contacts[]. Each Contact has Name, Phones[], Emails[].
-            // When we "Add Contact", are we adding a NEW Contact Group? YES.
-
+            // Append new contact to existing contacts of the client
             const clientToUpdate = clients.find(c => c.id === editingId);
             if (clientToUpdate) {
                 if (!clientToUpdate.contacts) clientToUpdate.contacts = [];
+
+                // Preserve existing contacts and add only the new ones
                 clientToUpdate.contacts.push(...contacts);
-                // Also update name if changed? Maybe better to keep original name to avoid confusion if field was disabled.
-                // clientToUpdate.name = clientNameInput.value; 
 
                 showToast('✅ Contato adicionado com sucesso!', 'success');
             }
@@ -551,7 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clientNameInput.value = client.name;
         clientNameInput.disabled = true; // Lock client name to focus on contact addition
 
-        // Clear list and add only one empty group
+        // Clear list and add only one empty group for new contact
         contactList.innerHTML = '';
         addContactGroup();
 

@@ -78,6 +78,16 @@ header {
     margin-left: 8px;
 }
 
+.app-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+    margin-left: 0;
+    /* Ensure alignment with logo */
+    margin-top: -10px;
+    /* Pull closer to logo if needed, or just 0 */
+}
+
 /* Buttons */
 button {
     cursor: pointer;
@@ -435,15 +445,15 @@ button {
 }
 
 .contact-group-display {
-    padding: 10px;
+    padding: 8px;
     background: rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     border-left: 3px solid var(--accent);
-    flex: 1 1 220px;
-    /* Reduced from 300px to 220px */
-    max-width: 400px;
-    min-width: 200px;
-    /* Reduced from 250px to 200px */
+    flex: 0 1 180px;
+    /* Changed flex-grow to 0 to maintain consistent size across rows */
+    max-width: 180px;
+    /* Match the flex-basis for consistency */
+    min-width: 160px;
 }
 
 /* Remove margin-bottom as we use gap now, but keep for fallback */
