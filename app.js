@@ -127,6 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteWebLaudoBtn = document.getElementById('deleteWebLaudoBtn');
 
 
+
+
     // Initial Render
     renderClients(clients);
 
@@ -142,6 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
             updateModalFavoriteUI();
         });
     }
+
+
 
     searchInput.addEventListener('input', (e) => {
         if (e.target.value.length > 0) {
@@ -298,12 +302,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Apply search filter first
         if (searchTerm) {
             filteredClients = clients.filter(client => {
-                const nameMatch = client.name.toLowerCase().includes(searchTerm);
+                const nameMatch = (client.name || "").toLowerCase().includes(searchTerm);
                 const phoneMatch = client.contacts?.some(contact =>
                     contact.phones?.some(phone => phone.includes(searchTerm))
                 );
                 const emailMatch = client.contacts?.some(contact =>
-                    contact.emails?.some(email => email.toLowerCase().includes(searchTerm))
+                    contact.emails?.some(email => (email || "").toLowerCase().includes(searchTerm))
                 );
                 return nameMatch || phoneMatch || emailMatch;
             });
@@ -322,22 +326,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateFilterCounts() {
         const allCount = clients.length;
-        const favoritesCount = clients.filter(c => c.isFavorite).length;
+        const favoritesCount = clients.filter(c => !!c.isFavorite).length;
         const regularCount = clients.filter(c => !c.isFavorite).length;
 
-        document.getElementById('countAll').textContent = allCount;
-        document.getElementById('countFavorites').textContent = favoritesCount;
-        document.getElementById('countRegular').textContent = regularCount;
+        const countAllEl = document.getElementById('countAll');
+        const countFavoritesEl = document.getElementById('countFavorites');
+        const countRegularEl = document.getElementById('countRegular');
+
+        if (countAllEl) countAllEl.textContent = allCount;
+        if (countFavoritesEl) countFavoritesEl.textContent = favoritesCount;
+        if (countRegularEl) countRegularEl.textContent = regularCount;
     }
 
     // --- Functions ---
 
     function renderClients(clientsToRender) {
+        if (!clientList) return;
         clientList.innerHTML = '';
 
-        // Separate favorites from regular clients
-        const favoriteClients = clientsToRender.filter(c => c.isFavorite).sort((a, b) => a.name.localeCompare(b.name));
-        const regularClients = clientsToRender.filter(c => !c.isFavorite).sort((a, b) => a.name.localeCompare(b.name));
+        // Separate favorites from regular clients (normalized)
+        const favoriteClients = clientsToRender.filter(c => !!c.isFavorite).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        const regularClients = clientsToRender.filter(c => !c.isFavorite).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
 
         if (clientsToRender.length === 0) {
             let emptyMessage = 'Nenhum cliente encontrado.';
@@ -460,7 +469,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const hasServers = client.servers && client.servers.length > 0;
         const hasVpns = client.vpns && client.vpns.length > 0;
-        const hasUrls = client.urls && client.urls.length > 0;
+        const urlCount = (client.urls ? client.urls.length : 0) + (client.webLaudo && client.webLaudo.trim() !== '' ? 1 : 0);
+        const hasUrls = urlCount > 0;
         const hasContacts = client.contacts && client.contacts.length > 0;
         const serverBtnClass = hasServers ? 'btn-icon active-success' : 'btn-icon';
         const vpnBtnClass = hasVpns ? 'btn-icon active-success' : 'btn-icon';
@@ -491,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <i class="fa-solid fa-user-plus"></i>
                             ${hasContacts ? `<span class="btn-badge">${client.contacts.length}</span>` : ''}
                         </button>
-                         <button class="${serverBtnClass} btn-with-badge" onclick="openServerData('${client.id}'); event.stopPropagation();" title="Dados de Acesso ao SQL">
+                         <button class="${serverBtnClass} btn-with-badge" onclick="openServerData('${client.id}'); event.stopPropagation();" title="Dados de acesso ao SQL">
                              <i class="fa-solid fa-database"></i>
                              ${hasServers ? `<span class="btn-badge">${client.servers.length}</span>` : ''}
                          </button>
@@ -501,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </button>
                          <button class="${urlBtnClass} btn-with-badge" onclick="event.stopPropagation(); openUrlData('${client.id}');" title="URL">
                             <i class="fa-solid fa-link"></i>
-                            ${hasUrls ? `<span class="btn-badge">${client.urls.length}</span>` : ''}
+                            ${hasUrls ? `<span class="btn-badge">${urlCount}</span>` : ''}
                         </button>
                          <button class="btn-icon btn-danger" onclick="deleteClient('${client.id}'); event.stopPropagation();" title="Excluir">
                              <i class="fa-solid fa-trash"></i>
@@ -759,14 +769,17 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function deleteClient(id) {
-        const clientToDelete = clients.find(c => c.id === id);
-        if (confirm('Tem certeza que deseja excluir este cliente?')) {
+        const client = clients.find(c => c.id === id);
+        if (!client) return;
+
+        if (confirm(`⚠️ EXCLUIR CLIENTE ⚠️\n\nTem certeza que deseja excluir "${client.name}"?`)) {
             clients = clients.filter(c => c.id !== id);
             saveToLocal();
-            renderClients(clients);
-            showToast(`🗑️ Cliente "${clientToDelete.name}" removido com sucesso!`, 'success');
+            applyClientFilter();
+            showToast(`🗑️ Cliente "${client.name}" removido com sucesso!`, 'success');
         }
     }
+    window.deleteClient = deleteClient;
 
     function editClient(id) {
         const client = clients.find(c => c.id === id);
@@ -796,6 +809,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveToLocal() {
         localStorage.setItem('sofis_clients', JSON.stringify(clients));
+        updateFilterCounts();
     }
 
     function handleSearch(e) {
@@ -1244,7 +1258,7 @@ document.addEventListener('DOMContentLoaded', () => {
             serversList.innerHTML = `
                 <div class="servers-grid-empty">
                     <i class="fa-solid fa-database"></i>
-                    <p>${filterValue === 'all' ? 'Nenhum servidor cadastrado ainda.' : 'Nenhum servidor encontrado para este filtro.'}</p>
+                    <p>${filterValue === 'all' ? 'Nenhum dado de acesso cadastrado ainda.' : 'Nenhum dado de acesso encontrado para este filtro.'}</p>
                 </div>
             `;
             return;
@@ -1651,17 +1665,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Global Function Exports ---
     window.renderClients = renderClients;
     window.editClient = editClient; // Defined earlier in file? Need to check.
-    window.deleteClient = (id) => {
-        // Re-implement or reference if it exists
-        const idx = clients.findIndex(c => c.id === id);
-        if (idx === -1) return;
-        if (confirm('Tem certeza que deseja excluir?')) {
-            clients.splice(idx, 1);
-            saveToLocal();
-            renderClients(clients);
-            showToast('Cliente excluído');
-        }
-    };
+
     window.addNewContact = addNewContact;
     window.openServerData = openServerData;
     window.removeCredentialField = removeCredentialField;
@@ -1730,6 +1734,7 @@ document.addEventListener('DOMContentLoaded', () => {
         client.webLaudo = '';
         saveToLocal();
         updateWebLaudoDisplay(client);
+        applyClientFilter();
         showToast('🗑️ WebLaudo removido com sucesso!', 'success');
     }
 
@@ -1958,6 +1963,7 @@ document.addEventListener('DOMContentLoaded', () => {
         client.webLaudo = webLaudoInput.value.trim();
         saveToLocal();
         updateWebLaudoDisplay(client);
+        applyClientFilter();
         showToast('✅ WebLaudo salvo com sucesso!', 'success');
     }
     window.handleWebLaudoSave = handleWebLaudoSave;
