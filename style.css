@@ -1224,6 +1224,14 @@ button:hover .vpn-icon-img {
     opacity: 1 !important;
 }
 
+.contact-icon-img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    filter: invert(1);
+    /* Make it white if it's black */
+}
+
 /* Custom Dropdown Styles */
 .custom-dropdown {
     position: relative;

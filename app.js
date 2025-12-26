@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const webLaudoForm = document.getElementById('webLaudoForm');
     const webLaudoText = document.getElementById('webLaudoText');
     const editWebLaudoBtn = document.getElementById('editWebLaudoBtn');
-    const editWebLaudoBtn = document.getElementById('editWebLaudoBtn');
+
     const deleteWebLaudoBtn = document.getElementById('deleteWebLaudoBtn');
 
     // Contact Modal Elements
@@ -656,7 +656,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             ${hasUrls ? `<span class="btn-badge">${urlCount}</span>` : ''}
                         </button>
                          <button class="${contactBtnClass}" onclick="event.stopPropagation(); openContactData('${client.id}');" title="Ver Contatos">
-                            <i class="fa-solid fa-address-book"></i>
+                            <img src="contact-icon.png" class="contact-icon-img" alt="Contatos">
                         </button>
                          <button class="btn-icon btn-danger" onclick="deleteClient('${client.id}'); event.stopPropagation();" title="Excluir">
                              <i class="fa-solid fa-trash"></i>
