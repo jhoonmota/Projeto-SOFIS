@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Gerenciador de Clientes SOFIS</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Login v1.2 - Gerenciador de Clientes SOFIS</title>
+    <link rel="stylesheet" href="style.css?v=1.2">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -112,9 +112,15 @@
 
     <div id="toast" class="toast hidden"></div>
 
-    <script src="supabase-client.js?v=1.5"></script>
+    <script src="supabase-client.js?v=1.6"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Check if already logged in
+            if (localStorage.getItem('sofis_user')) {
+                window.location.href = 'index.html';
+                return;
+            }
+
             const loginForm = document.getElementById('loginForm');
             const usernameInput = document.getElementById('username');
             const passwordInput = document.getElementById('password');
@@ -148,15 +154,48 @@
                 }
             });
 
-            loginForm.addEventListener('submit', (e) => {
+            loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const username = usernameInput.value;
                 const password = passwordInput.value;
 
-                if (username && password) {
-                    window.location.href = 'index.html';
-                } else {
+                if (!username || !password) {
                     showToast('Preencha os campos.', 'error');
+                    return;
+                }
+
+                try {
+                    // Check if window.supabaseClient is ready
+                    if (!window.supabaseClient) {
+                        showToast('Erro: Cliente de banco de dados não inicializado.', 'error');
+                        return;
+                    }
+
+                    const { data, error } = await window.supabaseClient
+                        .from('users')
+                        .select('*')
+                        .eq('username', username)
+                        .eq('password', password)
+                        .single();
+
+                    if (error || !data) {
+                        showToast('Usuário ou senha incorretos.', 'error');
+                    } else {
+                        // Success! Store user info
+                        localStorage.setItem('sofis_user', JSON.stringify({
+                            id: data.id,
+                            username: data.username,
+                            fullName: data.full_name
+                        }));
+
+                        showToast('Login realizado com sucesso!');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 1000);
+                    }
+                } catch (err) {
+                    console.error('Erro no login:', err);
+                    showToast('Erro ao tentar realizar login. Tente novamente.', 'error');
                 }
             });
 
