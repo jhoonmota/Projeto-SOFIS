@@ -540,6 +540,32 @@
         </div>
     </div>
 
+    <!-- New Contact Modal -->
+    <div id="contactModal" class="modal hidden">
+        <div class="modal-content modal-content-large">
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <h2>Contatos</h2>
+                    <span class="modal-subtitle" id="contactModalClientName"></span>
+                </div>
+                <button id="closeContactModal" type="button" class="btn-icon">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="servers-section" style="border-top: none; margin-top: 0; padding-top: 0;">
+                <div id="contactModalList" class="client-contact-list" style="justify-content: flex-start;">
+                    <!-- Contact cards will be displayed here -->
+                </div>
+            </div>
+
+            <div class="modal-actions"
+                style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+                <button type="button" id="closeContactModalBtn" class="btn-primary">Fechar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scroll to Top Button -->
     <button id="scrollToTopBtn" class="scroll-to-top" title="Voltar ao topo">
         <i class="fa-solid fa-chevron-up"></i>
