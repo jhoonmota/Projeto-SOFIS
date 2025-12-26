@@ -14,598 +14,537 @@
 </head>
 
 <body>
-    <div class="dashboard-layout">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <img src="logo.png" alt="Sofis" class="sidebar-logo">
+    <div class="app-container">
+        <header>
+            <div class="logo-container">
+                <img src="logo.png" alt="Sofis Logo" class="logo-img">
+                <p class="app-subtitle">Gerenciamento de Contatos e Conexões de Clientes</p>
             </div>
-            <nav class="sidebar-nav">
-                <button class="nav-item" id="nav-dashboard" title="Dashboard">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Início</span>
-                </button>
-                <button class="nav-item active" id="nav-clients" title="Clientes">
-                    <i class="fa-solid fa-users"></i>
-                    <span>Clientes</span>
-                </button>
-            </nav>
-            <div class="sidebar-footer">
-                <button id="logoutBtn" class="logout-sidebar-btn" title="Sair do Sistema">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>Sair</span>
-                </button>
-            </div>
-        </aside>
+            <button id="logoutBtn" class="btn-secondary" style="color: var(--danger); border-color: var(--danger);">
+                <i class="fa-solid fa-right-from-bracket"></i> Sair
+            </button>
+        </header>
 
-        <div class="main-content">
-            <header class="top-header">
-                <div class="header-info">
-                    <h1 id="view-title">Clientes</h1>
-                    <p class="app-subtitle">Gerenciamento de Contatos e Conexões</p>
+        <main>
+            <div id="search-bar" style="display: flex; gap: 10px; align-items: center;">
+                <div style="position: relative; flex: 1;">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar clientes, telefones ou e-mails...">
+                    <button id="clearSearch" class="btn-clear hidden" title="Limpar pesquisa" tabindex="-1">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
-            </header>
+                <button id="addClientBtn" class="btn-primary">
+                    <i class="fa-solid fa-plus"></i> Novo Cliente
+                </button>
+            </div>
 
-            <div id="dashboard-view" class="view-section hidden">
-                <div class="dashboard-grid">
-                    <div class="stat-card">
+            <!-- Filter Chips & View Toggle -->
+            <div class="filter-chips-container">
+                <div class="filter-buttons">
+                    <button class="filter-chip active" data-filter="all">
+                        <i class="fa-solid fa-list"></i>
+                        <span>Todos</span>
+                        <span class="chip-count" id="countAll">0</span>
+                    </button>
+                    <button class="filter-chip" data-filter="favorites">
+                        <i class="fa-solid fa-star"></i>
+                        <span>Favoritos</span>
+                        <span class="chip-count" id="countFavorites">0</span>
+                    </button>
+                    <button class="filter-chip" data-filter="regular">
                         <i class="fa-solid fa-users"></i>
-                        <div class="stat-info">
-                            <span class="stat-value" id="dash-total-clients">0</span>
-                            <span class="stat-label">Total de Clientes</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fa-solid fa-star" style="color: var(--accent);"></i>
-                        <div class="stat-info">
-                            <span class="stat-value" id="dash-total-favorites">0</span>
-                            <span class="stat-label">Favoritos</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fa-solid fa-database" style="color: var(--success);"></i>
-                        <div class="stat-info">
-                            <span class="stat-value" id="dash-total-servers">0</span>
-                            <span class="stat-label">Servidores SQL</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="welcome-banner">
-                    <h2>Bem-vindo ao SOFIS v1.5</h2>
-                    <p>Selecione "Clientes" no menu ao lado para gerenciar seus dados técnicos.</p>
-                </div>
-            </div>
-
-            <div id="clients-view" class="view-section active">
-                <div id="search-bar" style="display: flex; gap: 10px; align-items: center;">
-                    <div style="position: relative; flex: 1;">
-                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                        <input type="text" id="searchInput" placeholder="Buscar clientes, telefones ou e-mails...">
-                        <button id="clearSearch" class="btn-clear hidden" title="Limpar pesquisa" tabindex="-1">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                    <button id="addClientBtn" class="btn-primary">
-                        <i class="fa-solid fa-plus"></i> Novo Cliente
+                        <span>Regulares</span>
+                        <span class="chip-count" id="countRegular">0</span>
                     </button>
                 </div>
 
-                <!-- Filter Chips & View Toggle -->
-                <div class="filter-chips-container">
-                    <div class="filter-buttons">
-                        <button class="filter-chip active" data-filter="all">
-                            <i class="fa-solid fa-list"></i>
-                            <span>Todos</span>
-                            <span class="chip-count" id="countAll">0</span>
-                        </button>
-                        <button class="filter-chip" data-filter="favorites">
-                            <i class="fa-solid fa-star"></i>
-                            <span>Favoritos</span>
-                            <span class="chip-count" id="countFavorites">0</span>
-                        </button>
-                        <button class="filter-chip" data-filter="regular">
-                            <i class="fa-solid fa-users"></i>
-                            <span>Regulares</span>
-                            <span class="chip-count" id="countRegular">0</span>
-                        </button>
-                    </div>
-
-                    <div class="view-toggle-container">
-                        <button id="listViewBtn" class="view-btn active" title="Visualização em Lista">
-                            <i class="fa-solid fa-bars"></i>
-                        </button>
-                        <button id="gridViewBtn" class="view-btn" title="Visualização em Grade">
-                            <i class="fa-solid fa-table-cells-large"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="clientList" class="client-list-container">
-                    <!-- Clients will be rendered here -->
-                </div>
-                </main>
-
-                <!-- Modal Form -->
-                <div id="modal" class="modal hidden">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <h2 id="modalTitle">Novo Cliente</h2>
-                                <button type="button" id="modalToggleFavorite" class="btn-icon" title="Favoritar">
-                                    <i class="fa-regular fa-star"></i>
-                                </button>
-                            </div>
-                            <button id="closeModal" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
-                        </div>
-                        <form id="clientForm">
-                            <input type="hidden" id="clientId">
-
-                            <div class="form-group">
-                                <label for="clientName"><span>Nome do Cliente <span
-                                            class="required">*</span></span></label>
-                                <input type="text" id="clientName" required placeholder="Ex: Empresa X">
-                            </div>
-
-                            <div class="form-group">
-                                <label>
-                                    <button type="button" id="addContactBtn" class="btn-add-field" tabindex="-1">
-                                        <i class="fa-solid fa-plus"></i> Adicionar Contato
-                                    </button>
-                                </label>
-                                <div id="contactList">
-                                    <div class="contact-group">
-                                        <div class="contact-group-header">
-                                            <input type="text" class="contact-name-input"
-                                                placeholder="Nome do contato (ex: João Silva, Comercial)">
-                                            <button type="button" class="btn-remove-contact"
-                                                onclick="removeContact(this)" title="Remover Contato" tabindex="-1">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </div>
-
-                                        <div class="contact-details">
-                                            <div class="contact-section">
-                                                <label class="section-label">
-                                                    <i class="fa-solid fa-phone"></i> Telefones
-                                                    <button type="button" class="btn-add-phone" onclick="addPhone(this)"
-                                                        title="Adicionar Telefone" tabindex="-1">
-                                                        <i class="fa-solid fa-plus"></i>
-                                                    </button>
-                                                </label>
-                                                <div class="phone-list">
-                                                    <div class="contact-field">
-                                                        <input type="text" class="phone-input"
-                                                            placeholder="(11) 99999-9999" maxlength="15">
-                                                        <button type="button" class="btn-remove-field-small"
-                                                            onclick="removeContactField(this)" title="Remover"
-                                                            tabindex="-1">
-                                                            <i class="fa-solid fa-xmark"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="contact-section">
-                                                <label class="section-label">
-                                                    <i class="fa-solid fa-envelope"></i> E-mails
-                                                    <button type="button" class="btn-add-email" onclick="addEmail(this)"
-                                                        title="Adicionar E-mail" tabindex="-1">
-                                                        <i class="fa-solid fa-plus"></i>
-                                                    </button>
-                                                </label>
-                                                <div class="email-list">
-                                                    <div class="contact-field">
-                                                        <input type="email" class="email-input"
-                                                            placeholder="contato@empresa.com">
-                                                        <button type="button" class="btn-remove-field-small"
-                                                            onclick="removeContactField(this)" title="Remover"
-                                                            tabindex="-1">
-                                                            <i class="fa-solid fa-xmark"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="modal-actions">
-                                <button type="button" id="cancelBtn" class="btn-secondary">Cancelar</button>
-                                <button type="submit" class="btn-primary">Salvar</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Server Data Modal -->
-                <div id="serverModal" class="modal hidden">
-                    <div class="modal-content modal-content-large">
-                        <div class="modal-header">
-                            <div class="modal-header-left">
-                                <h2>Dados de acesso ao SQL</h2>
-                                <span class="modal-subtitle" id="serverModalClientName"></span>
-                            </div>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <div class="custom-dropdown" id="serverFilterDropdown">
-                                    <button type="button" class="filter-icon-btn" id="serverFilterBtn"
-                                        title="Filtrar por Ambiente">
-                                        <i class="fa-solid fa-filter"></i>
-                                    </button>
-                                    <div class="dropdown-menu" id="serverFilterMenu">
-                                        <div class="dropdown-item selected" data-value="all">
-                                            <span>Todos os Ambientes</span>
-                                            <i class="fa-solid fa-check check-icon"></i>
-                                        </div>
-                                        <div class="dropdown-item" data-value="producao">
-                                            <span>Produção</span>
-                                            <i class="fa-solid fa-check check-icon"></i>
-                                        </div>
-                                        <div class="dropdown-item" data-value="homologacao">
-                                            <span>Homologação</span>
-                                            <i class="fa-solid fa-check check-icon"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button id="addServerEntryBtn" class="btn-primary" style="margin-right: 15px;">
-                                    <i class="fa-solid fa-plus"></i> Adicionar
-                                </button>
-                                <button id="closeServerModal" type="button" class="btn-icon">
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Saved servers grid -->
-                        <div class="servers-section" style="border-top: none; margin-top: 0; padding-top: 0;">
-                            <h3><i class="fa-solid fa-database" style="color: var(--accent);"></i> Dados de Acesso
-                                Cadastrados
-                            </h3>
-                            <div id="serversList" class="servers-grid">
-                                <!-- Server records will be displayed here -->
-                            </div>
-                        </div>
-
-                        <div class="modal-actions"
-                            style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
-                            <button type="button" id="closeServerModalBtn" class="btn-primary">Fechar</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- New Server Entry Modal -->
-                <div id="serverEntryModal" class="modal hidden">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h2 id="serverEntryModalTitle">Novo Acesso SQL</h2>
-                            <button id="closeServerEntryModal" type="button" class="btn-icon"><i
-                                    class="fa-solid fa-xmark"></i></button>
-                        </div>
-                        <form id="serverForm">
-                            <input type="hidden" id="serverClientId">
-                            <input type="hidden" id="editingServerIndex">
-
-                            <div class="server-form-grid">
-                                <div class="form-group">
-                                    <label for="environmentSelect">
-                                        <span><i class="fa-solid fa-server"></i> Ambiente <span
-                                                class="required">*</span></span>
-                                    </label>
-                                    <select id="environmentSelect" required>
-                                        <option value="">Selecione...</option>
-                                        <option value="homologacao">Homologação</option>
-                                        <option value="producao">Produção</option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="sqlServerInput"><span><i class="fa-solid fa-database"
-                                                style="margin-right: 5px;"></i> Instância do SQL Server
-                                            <span class="required">*</span></span></label>
-                                    <input type="text" id="sqlServerInput" required
-                                        placeholder="Ex: servidor.database.windows.net">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>
-                                    <span><i class="fa-solid fa-key"></i> Autenticação</span>
-                                    <button type="button" id="addCredentialBtn" class="btn-add-field" tabindex="-1">
-                                        <i class="fa-solid fa-plus"></i> Adicionar
-                                    </button>
-                                </label>
-                                <div id="credentialList">
-                                    <!-- Credential items will be added here -->
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="serverNotesInput"><span><i class="fa-solid fa-comment-dots"
-                                            style="margin-right: 5px;"></i>
-                                        Observações</span></label>
-                                <textarea id="serverNotesInput" rows="3"
-                                    placeholder="Detalhes adicionais, procedimentos de acesso, etc..."></textarea>
-                            </div>
-
-                            <div class="modal-actions">
-                                <button type="button" id="cancelServerEntryBtn" class="btn-secondary">Cancelar</button>
-                                <button type="submit" class="btn-primary">
-                                    <i class="fa-solid fa-plus"></i> Salvar
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Client Notes Modal -->
-                <div id="notesModal" class="modal hidden">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h2 id="notesModalTitle">Observações</h2>
-                            <button id="closeNotesModal" type="button" class="btn-icon"><i
-                                    class="fa-solid fa-xmark"></i></button>
-                        </div>
-                        <form id="notesForm">
-                            <input type="hidden" id="notesClientId">
-                            <div class="form-group">
-                                <label for="clientNoteInput">Observações Gerais</label>
-                                <textarea id="clientNoteInput" rows="10"
-                                    placeholder="Digite aqui as observações do cliente..."></textarea>
-                            </div>
-                            <div class="modal-actions">
-                                <button type="button" id="cancelNotesBtn" class="btn-secondary">Cancelar</button>
-                                <button type="submit" class="btn-primary">Salvar</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- VPN Data Modal -->
-                <div id="vpnModal" class="modal hidden">
-                    <div class="modal-content modal-content-large">
-                        <div class="modal-header">
-                            <div class="modal-header-left">
-                                <h2>Dados de Acesso VPN</h2>
-                                <span class="modal-subtitle" id="vpnModalClientName"></span>
-                            </div>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <button id="addVpnEntryBtn" class="btn-primary" style="margin-right: 15px;">
-                                    <i class="fa-solid fa-plus"></i> Adicionar
-                                </button>
-                                <button id="closeVpnModal" type="button" class="btn-icon"><i
-                                        class="fa-solid fa-xmark"></i></button>
-                            </div>
-                        </div>
-
-                        <div class="servers-section" style="border-top: none; margin-top: 0; padding-top: 0;">
-                            <h3 style="text-align: left; margin-bottom: 16px;">
-                                <img src="vpn-icon.png" class="vpn-icon-img vpn-icon-yellow" style="margin-right: 8px;"
-                                    alt="VPN">
-                                VPNs Cadastradas
-                            </h3>
-                            <div id="vpnList" class="servers-grid">
-                            </div>
-                        </div>
-
-                        <div class="modal-actions"
-                            style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
-                            <button type="button" id="closeVpnModalBtn" class="btn-primary"
-                                onclick="closeVpnModal()">Fechar</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- New VPN Entry Modal -->
-                <div id="vpnEntryModal" class="modal hidden">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h2 id="vpnEntryModalTitle">Novo Acesso VPN</h2>
-                            <button id="closeVpnEntryModal" type="button" class="btn-icon"><i
-                                    class="fa-solid fa-xmark"></i></button>
-                        </div>
-                        <form id="vpnForm">
-                            <input type="hidden" id="vpnClientId">
-                            <input type="hidden" id="editingVpnIndex">
-
-                            <div class="form-group">
-                                <label for="vpnUserInput"><span><i class="fa-solid fa-user"
-                                            style="margin-right: 5px;"></i>
-                                        Usuário <span class="required">*</span></span></label>
-                                <input type="text" id="vpnUserInput" required placeholder="Digite o usuário">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="vpnPassInput"><span><i class="fa-solid fa-key"
-                                            style="margin-right: 5px;"></i> Senha
-                                        <span class="required">*</span></span></label>
-                                <input type="text" id="vpnPassInput" required placeholder="Digite a senha">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="vpnNotesInput"><span><i class="fa-solid fa-comment-dots"
-                                            style="margin-right: 5px;"></i> Observações</span></label>
-                                <textarea id="vpnNotesInput" rows="3" placeholder="Detalhes adicionais..."></textarea>
-                            </div>
-
-                            <div class="modal-actions">
-                                <button type="button" id="cancelVpnEntryBtn" class="btn-secondary">Cancelar</button>
-                                <button type="submit" class="btn-primary">
-                                    <i class="fa-solid fa-plus"></i> Salvar
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- URL Data Modal -->
-                <div id="urlModal" class="modal hidden">
-                    <div class="modal-content modal-content-large">
-                        <div class="modal-header">
-                            <div class="modal-header-left">
-                                <h2>URL</h2>
-                                <span class="modal-subtitle" id="urlModalClientName"></span>
-                            </div>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <div class="custom-dropdown" id="urlFilterDropdown">
-                                    <button type="button" class="filter-icon-btn" id="urlFilterBtn"
-                                        title="Filtrar por Ambiente">
-                                        <i class="fa-solid fa-filter"></i>
-                                    </button>
-                                    <div class="dropdown-menu" id="urlFilterMenu">
-                                        <div class="dropdown-item selected" data-value="all">
-                                            <span>Todos os Ambientes</span>
-                                            <i class="fa-solid fa-check check-icon"></i>
-                                        </div>
-                                        <div class="dropdown-item" data-value="producao">
-                                            <span>Produção</span>
-                                            <i class="fa-solid fa-check check-icon"></i>
-                                        </div>
-                                        <div class="dropdown-item" data-value="homologacao">
-                                            <span>Homologação</span>
-                                            <i class="fa-solid fa-check check-icon"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button id="addUrlEntryBtn" class="btn-primary" style="margin-right: 15px;">
-                                    <i class="fa-solid fa-plus"></i> Adicionar
-                                </button>
-                                <button id="closeUrlModal" type="button" class="btn-icon">
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- WebLaudo Field (Outside the entries list) -->
-                        <div class="form-group"
-                            style="margin-bottom: 25px; padding: 15px; background: rgba(0,0,0,0.1); border-radius: 8px; border-left: 4px solid var(--accent);">
-                            <label style="color: var(--accent); font-weight: 600; margin-bottom: 12px;">
-                                <span><i class="fa-solid fa-globe" style="margin-right: 8px;"></i>WebLaudo</span>
-                            </label>
-                            <div id="webLaudoDisplay"
-                                style="display: none; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
-                                <span id="webLaudoText"
-                                    style="color: var(--text-primary); font-family: monospace; word-break: break-all; margin-right: 10px;"></span>
-                                <div style="display: flex; gap: 8px;">
-                                    <button type="button" class="btn-icon" title="Copiar"
-                                        onclick="copyToClipboard(document.getElementById('webLaudoText').textContent)">
-                                        <i class="fa-regular fa-copy"></i>
-                                    </button>
-                                    <button type="button" id="editWebLaudoBtn" class="btn-icon" title="Editar"><i
-                                            class="fa-solid fa-pen"></i></button>
-                                    <button type="button" id="deleteWebLaudoBtn" class="btn-icon btn-danger"
-                                        title="Excluir"><i class="fa-solid fa-trash"></i></button>
-                                </div>
-                            </div>
-                            <div id="webLaudoForm" style="display: flex; gap: 10px;">
-                                <input type="text" id="webLaudoInput" placeholder="Ex: https://laudo.empresa.com">
-                                <button type="button" id="saveWebLaudoBtn" class="btn-primary" style="padding: 0 15px;">
-                                    <i class="fa-solid fa-floppy-disk"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="servers-section" style="border-top: none; margin-top: 0; padding-top: 0;">
-                            <h3><i class="fa-solid fa-link" style="color: var(--accent);"></i> URLs Cadastradas</h3>
-                            <div id="urlsList" class="servers-grid">
-                                <!-- URL records will be displayed here -->
-                            </div>
-                        </div>
-
-                        <div class="modal-actions"
-                            style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
-                            <button type="button" id="closeUrlModalBtn" class="btn-primary">Fechar</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- New URL Entry Modal -->
-                <div id="urlEntryModal" class="modal hidden">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h2 id="urlEntryModalTitle">URLs de Sistema</h2>
-                            <button id="closeUrlEntryModal" type="button" class="btn-icon">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-                        <form id="urlForm">
-                            <input type="hidden" id="urlClientId">
-                            <input type="hidden" id="editingUrlIndex">
-
-                            <div class="server-form-grid">
-                                <div class="form-group">
-                                    <label for="urlEnvironmentSelect">
-                                        <span><i class="fa-solid fa-server"></i> Ambiente <span
-                                                class="required">*</span></span>
-                                    </label>
-                                    <select id="urlEnvironmentSelect" required>
-                                        <option value="">Selecione...</option>
-                                        <option value="producao">Produção</option>
-                                        <option value="homologacao">Homologação</option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="urlSystemSelect">
-                                        <span><i class="fa-solid fa-window-maximize"></i> Sistema <span
-                                                class="required">*</span></span>
-                                    </label>
-                                    <select id="urlSystemSelect" required>
-                                        <option value="">Selecione...</option>
-                                        <option value="CellVida">CellVida</option>
-                                        <option value="Hemote Plus">Hemote Plus</option>
-                                        <option value="Hemote Web">Hemote Web</option>
-                                        <option value="Monetário">Monetário</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="bridgeDataAccessInput">
-                                    <span><i class="fa-solid fa-bridge"></i> Bridge data_access <span
-                                            class="required">*</span></span>
-                                </label>
-                                <input type="text" id="bridgeDataAccessInput" required placeholder="URL">
-                            </div>
-
-                            <div id="bootstrapGroup" class="form-group">
-                                <label for="bootstrapInput">
-                                    <span><i class="fa-solid fa-bolt"></i> Bootstrap</span>
-                                </label>
-                                <input type="text" id="bootstrapInput" placeholder="URL">
-                            </div>
-
-                            <div id="execUpdateGroup" class="form-group">
-                                <label for="execUpdateInput">
-                                    <span><i class="fa-solid fa-download"></i> Atualização de Executáveis</span>
-                                </label>
-                                <input type="text" id="execUpdateInput"
-                                    placeholder="Caminho de atualização do bootstrap">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="urlNotesInput">
-                                    <span><i class="fa-solid fa-comment-dots"></i> Observações</span>
-                                </label>
-                                <textarea id="urlNotesInput" rows="3" placeholder="Detalhes adicionais..."></textarea>
-                            </div>
-
-                            <div class="modal-actions">
-                                <button type="button" id="cancelUrlEntryBtn" class="btn-secondary">Cancelar</button>
-                                <button type="submit" class="btn-primary">
-                                    <i class="fa-solid fa-plus"></i> Salvar
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                <div class="view-toggle-container">
+                    <button id="listViewBtn" class="view-btn active" title="Visualização em Lista">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <button id="gridViewBtn" class="view-btn" title="Visualização em Grade">
+                        <i class="fa-solid fa-table-cells-large"></i>
+                    </button>
                 </div>
             </div>
 
-            <!-- Scroll to Top Button -->
-            <button id="scrollToTopBtn" class="scroll-to-top" title="Voltar ao topo">
-                <i class="fa-solid fa-chevron-up"></i>
-            </button>
+            <div id="clientList" class="client-list-container">
+                <!-- Clients will be rendered here -->
+            </div>
+        </main>
 
-        </div> <!-- End clients-view -->
-    </div> <!-- End main-content -->
+        <!-- Modal Form -->
+        <div id="modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <h2 id="modalTitle">Novo Cliente</h2>
+                        <button type="button" id="modalToggleFavorite" class="btn-icon" title="Favoritar">
+                            <i class="fa-regular fa-star"></i>
+                        </button>
+                    </div>
+                    <button id="closeModal" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <form id="clientForm">
+                    <input type="hidden" id="clientId">
+
+                    <div class="form-group">
+                        <label for="clientName"><span>Nome do Cliente <span class="required">*</span></span></label>
+                        <input type="text" id="clientName" required placeholder="Ex: Empresa X">
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <button type="button" id="addContactBtn" class="btn-add-field" tabindex="-1">
+                                <i class="fa-solid fa-plus"></i> Adicionar Contato
+                            </button>
+                        </label>
+                        <div id="contactList">
+                            <div class="contact-group">
+                                <div class="contact-group-header">
+                                    <input type="text" class="contact-name-input"
+                                        placeholder="Nome do contato (ex: João Silva, Comercial)">
+                                    <button type="button" class="btn-remove-contact" onclick="removeContact(this)"
+                                        title="Remover Contato" tabindex="-1">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+
+                                <div class="contact-details">
+                                    <div class="contact-section">
+                                        <label class="section-label">
+                                            <i class="fa-solid fa-phone"></i> Telefones
+                                            <button type="button" class="btn-add-phone" onclick="addPhone(this)"
+                                                title="Adicionar Telefone" tabindex="-1">
+                                                <i class="fa-solid fa-plus"></i>
+                                            </button>
+                                        </label>
+                                        <div class="phone-list">
+                                            <div class="contact-field">
+                                                <input type="text" class="phone-input" placeholder="(11) 99999-9999"
+                                                    maxlength="15">
+                                                <button type="button" class="btn-remove-field-small"
+                                                    onclick="removeContactField(this)" title="Remover" tabindex="-1">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="contact-section">
+                                        <label class="section-label">
+                                            <i class="fa-solid fa-envelope"></i> E-mails
+                                            <button type="button" class="btn-add-email" onclick="addEmail(this)"
+                                                title="Adicionar E-mail" tabindex="-1">
+                                                <i class="fa-solid fa-plus"></i>
+                                            </button>
+                                        </label>
+                                        <div class="email-list">
+                                            <div class="contact-field">
+                                                <input type="email" class="email-input"
+                                                    placeholder="contato@empresa.com">
+                                                <button type="button" class="btn-remove-field-small"
+                                                    onclick="removeContactField(this)" title="Remover" tabindex="-1">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" id="cancelBtn" class="btn-secondary">Cancelar</button>
+                        <button type="submit" class="btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Server Data Modal -->
+        <div id="serverModal" class="modal hidden">
+            <div class="modal-content modal-content-large">
+                <div class="modal-header">
+                    <div class="modal-header-left">
+                        <h2>Dados de acesso ao SQL</h2>
+                        <span class="modal-subtitle" id="serverModalClientName"></span>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="custom-dropdown" id="serverFilterDropdown">
+                            <button type="button" class="filter-icon-btn" id="serverFilterBtn"
+                                title="Filtrar por Ambiente">
+                                <i class="fa-solid fa-filter"></i>
+                            </button>
+                            <div class="dropdown-menu" id="serverFilterMenu">
+                                <div class="dropdown-item selected" data-value="all">
+                                    <span>Todos os Ambientes</span>
+                                    <i class="fa-solid fa-check check-icon"></i>
+                                </div>
+                                <div class="dropdown-item" data-value="producao">
+                                    <span>Produção</span>
+                                    <i class="fa-solid fa-check check-icon"></i>
+                                </div>
+                                <div class="dropdown-item" data-value="homologacao">
+                                    <span>Homologação</span>
+                                    <i class="fa-solid fa-check check-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="addServerEntryBtn" class="btn-primary" style="margin-right: 15px;">
+                            <i class="fa-solid fa-plus"></i> Adicionar
+                        </button>
+                        <button id="closeServerModal" type="button" class="btn-icon">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Saved servers grid -->
+                <div class="servers-section" style="border-top: none; margin-top: 0; padding-top: 0;">
+                    <h3><i class="fa-solid fa-database" style="color: var(--accent);"></i> Dados de Acesso Cadastrados
+                    </h3>
+                    <div id="serversList" class="servers-grid">
+                        <!-- Server records will be displayed here -->
+                    </div>
+                </div>
+
+                <div class="modal-actions"
+                    style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+                    <button type="button" id="closeServerModalBtn" class="btn-primary">Fechar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Server Entry Modal -->
+        <div id="serverEntryModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="serverEntryModalTitle">Novo Acesso SQL</h2>
+                    <button id="closeServerEntryModal" type="button" class="btn-icon"><i
+                            class="fa-solid fa-xmark"></i></button>
+                </div>
+                <form id="serverForm">
+                    <input type="hidden" id="serverClientId">
+                    <input type="hidden" id="editingServerIndex">
+
+                    <div class="server-form-grid">
+                        <div class="form-group">
+                            <label for="environmentSelect">
+                                <span><i class="fa-solid fa-server"></i> Ambiente <span class="required">*</span></span>
+                            </label>
+                            <select id="environmentSelect" required>
+                                <option value="">Selecione...</option>
+                                <option value="homologacao">Homologação</option>
+                                <option value="producao">Produção</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sqlServerInput"><span><i class="fa-solid fa-database"
+                                        style="margin-right: 5px;"></i> Instância do SQL Server
+                                    <span class="required">*</span></span></label>
+                            <input type="text" id="sqlServerInput" required
+                                placeholder="Ex: servidor.database.windows.net">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <span><i class="fa-solid fa-key"></i> Autenticação</span>
+                            <button type="button" id="addCredentialBtn" class="btn-add-field" tabindex="-1">
+                                <i class="fa-solid fa-plus"></i> Adicionar
+                            </button>
+                        </label>
+                        <div id="credentialList">
+                            <!-- Credential items will be added here -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="serverNotesInput"><span><i class="fa-solid fa-comment-dots"
+                                    style="margin-right: 5px;"></i>
+                                Observações</span></label>
+                        <textarea id="serverNotesInput" rows="3"
+                            placeholder="Detalhes adicionais, procedimentos de acesso, etc..."></textarea>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" id="cancelServerEntryBtn" class="btn-secondary">Cancelar</button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fa-solid fa-plus"></i> Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Client Notes Modal -->
+        <div id="notesModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="notesModalTitle">Observações</h2>
+                    <button id="closeNotesModal" type="button" class="btn-icon"><i
+                            class="fa-solid fa-xmark"></i></button>
+                </div>
+                <form id="notesForm">
+                    <input type="hidden" id="notesClientId">
+                    <div class="form-group">
+                        <label for="clientNoteInput">Observações Gerais</label>
+                        <textarea id="clientNoteInput" rows="10"
+                            placeholder="Digite aqui as observações do cliente..."></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" id="cancelNotesBtn" class="btn-secondary">Cancelar</button>
+                        <button type="submit" class="btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- VPN Data Modal -->
+        <div id="vpnModal" class="modal hidden">
+            <div class="modal-content modal-content-large">
+                <div class="modal-header">
+                    <div class="modal-header-left">
+                        <h2>Dados de Acesso VPN</h2>
+                        <span class="modal-subtitle" id="vpnModalClientName"></span>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button id="addVpnEntryBtn" class="btn-primary" style="margin-right: 15px;">
+                            <i class="fa-solid fa-plus"></i> Adicionar
+                        </button>
+                        <button id="closeVpnModal" type="button" class="btn-icon"><i
+                                class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+
+                <div class="servers-section" style="border-top: none; margin-top: 0; padding-top: 0;">
+                    <h3 style="text-align: left; margin-bottom: 16px;">
+                        <img src="vpn-icon.png" class="vpn-icon-img vpn-icon-yellow" style="margin-right: 8px;"
+                            alt="VPN">
+                        VPNs Cadastradas
+                    </h3>
+                    <div id="vpnList" class="servers-grid">
+                    </div>
+                </div>
+
+                <div class="modal-actions"
+                    style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+                    <button type="button" id="closeVpnModalBtn" class="btn-primary"
+                        onclick="closeVpnModal()">Fechar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- New VPN Entry Modal -->
+        <div id="vpnEntryModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="vpnEntryModalTitle">Novo Acesso VPN</h2>
+                    <button id="closeVpnEntryModal" type="button" class="btn-icon"><i
+                            class="fa-solid fa-xmark"></i></button>
+                </div>
+                <form id="vpnForm">
+                    <input type="hidden" id="vpnClientId">
+                    <input type="hidden" id="editingVpnIndex">
+
+                    <div class="form-group">
+                        <label for="vpnUserInput"><span><i class="fa-solid fa-user" style="margin-right: 5px;"></i>
+                                Usuário <span class="required">*</span></span></label>
+                        <input type="text" id="vpnUserInput" required placeholder="Digite o usuário">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vpnPassInput"><span><i class="fa-solid fa-key" style="margin-right: 5px;"></i> Senha
+                                <span class="required">*</span></span></label>
+                        <input type="text" id="vpnPassInput" required placeholder="Digite a senha">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vpnNotesInput"><span><i class="fa-solid fa-comment-dots"
+                                    style="margin-right: 5px;"></i> Observações</span></label>
+                        <textarea id="vpnNotesInput" rows="3" placeholder="Detalhes adicionais..."></textarea>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" id="cancelVpnEntryBtn" class="btn-secondary">Cancelar</button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fa-solid fa-plus"></i> Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- URL Data Modal -->
+        <div id="urlModal" class="modal hidden">
+            <div class="modal-content modal-content-large">
+                <div class="modal-header">
+                    <div class="modal-header-left">
+                        <h2>URL</h2>
+                        <span class="modal-subtitle" id="urlModalClientName"></span>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="custom-dropdown" id="urlFilterDropdown">
+                            <button type="button" class="filter-icon-btn" id="urlFilterBtn"
+                                title="Filtrar por Ambiente">
+                                <i class="fa-solid fa-filter"></i>
+                            </button>
+                            <div class="dropdown-menu" id="urlFilterMenu">
+                                <div class="dropdown-item selected" data-value="all">
+                                    <span>Todos os Ambientes</span>
+                                    <i class="fa-solid fa-check check-icon"></i>
+                                </div>
+                                <div class="dropdown-item" data-value="producao">
+                                    <span>Produção</span>
+                                    <i class="fa-solid fa-check check-icon"></i>
+                                </div>
+                                <div class="dropdown-item" data-value="homologacao">
+                                    <span>Homologação</span>
+                                    <i class="fa-solid fa-check check-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="addUrlEntryBtn" class="btn-primary" style="margin-right: 15px;">
+                            <i class="fa-solid fa-plus"></i> Adicionar
+                        </button>
+                        <button id="closeUrlModal" type="button" class="btn-icon">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- WebLaudo Field (Outside the entries list) -->
+                <div class="form-group"
+                    style="margin-bottom: 25px; padding: 15px; background: rgba(0,0,0,0.1); border-radius: 8px; border-left: 4px solid var(--accent);">
+                    <label style="color: var(--accent); font-weight: 600; margin-bottom: 12px;">
+                        <span><i class="fa-solid fa-globe" style="margin-right: 8px;"></i>WebLaudo</span>
+                    </label>
+                    <div id="webLaudoDisplay"
+                        style="display: none; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
+                        <span id="webLaudoText"
+                            style="color: var(--text-primary); font-family: monospace; word-break: break-all; margin-right: 10px;"></span>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn-icon" title="Copiar"
+                                onclick="copyToClipboard(document.getElementById('webLaudoText').textContent)">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                            <button type="button" id="editWebLaudoBtn" class="btn-icon" title="Editar"><i
+                                    class="fa-solid fa-pen"></i></button>
+                            <button type="button" id="deleteWebLaudoBtn" class="btn-icon btn-danger" title="Excluir"><i
+                                    class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div id="webLaudoForm" style="display: flex; gap: 10px;">
+                        <input type="text" id="webLaudoInput" placeholder="Ex: https://laudo.empresa.com">
+                        <button type="button" id="saveWebLaudoBtn" class="btn-primary" style="padding: 0 15px;">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="servers-section" style="border-top: none; margin-top: 0; padding-top: 0;">
+                    <h3><i class="fa-solid fa-link" style="color: var(--accent);"></i> URLs Cadastradas</h3>
+                    <div id="urlsList" class="servers-grid">
+                        <!-- URL records will be displayed here -->
+                    </div>
+                </div>
+
+                <div class="modal-actions"
+                    style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+                    <button type="button" id="closeUrlModalBtn" class="btn-primary">Fechar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- New URL Entry Modal -->
+        <div id="urlEntryModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="urlEntryModalTitle">URLs de Sistema</h2>
+                    <button id="closeUrlEntryModal" type="button" class="btn-icon">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <form id="urlForm">
+                    <input type="hidden" id="urlClientId">
+                    <input type="hidden" id="editingUrlIndex">
+
+                    <div class="server-form-grid">
+                        <div class="form-group">
+                            <label for="urlEnvironmentSelect">
+                                <span><i class="fa-solid fa-server"></i> Ambiente <span class="required">*</span></span>
+                            </label>
+                            <select id="urlEnvironmentSelect" required>
+                                <option value="">Selecione...</option>
+                                <option value="producao">Produção</option>
+                                <option value="homologacao">Homologação</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="urlSystemSelect">
+                                <span><i class="fa-solid fa-window-maximize"></i> Sistema <span
+                                        class="required">*</span></span>
+                            </label>
+                            <select id="urlSystemSelect" required>
+                                <option value="">Selecione...</option>
+                                <option value="CellVida">CellVida</option>
+                                <option value="Hemote Plus">Hemote Plus</option>
+                                <option value="Hemote Web">Hemote Web</option>
+                                <option value="Monetário">Monetário</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bridgeDataAccessInput">
+                            <span><i class="fa-solid fa-bridge"></i> Bridge data_access <span
+                                    class="required">*</span></span>
+                        </label>
+                        <input type="text" id="bridgeDataAccessInput" required placeholder="URL">
+                    </div>
+
+                    <div id="bootstrapGroup" class="form-group">
+                        <label for="bootstrapInput">
+                            <span><i class="fa-solid fa-bolt"></i> Bootstrap</span>
+                        </label>
+                        <input type="text" id="bootstrapInput" placeholder="URL">
+                    </div>
+
+                    <div id="execUpdateGroup" class="form-group">
+                        <label for="execUpdateInput">
+                            <span><i class="fa-solid fa-download"></i> Atualização de Executáveis</span>
+                        </label>
+                        <input type="text" id="execUpdateInput" placeholder="Caminho de atualização do bootstrap">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="urlNotesInput">
+                            <span><i class="fa-solid fa-comment-dots"></i> Observações</span>
+                        </label>
+                        <textarea id="urlNotesInput" rows="3" placeholder="Detalhes adicionais..."></textarea>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" id="cancelUrlEntryBtn" class="btn-secondary">Cancelar</button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fa-solid fa-plus"></i> Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button id="scrollToTopBtn" class="scroll-to-top" title="Voltar ao topo">
+        <i class="fa-solid fa-chevron-up"></i>
+    </button>
+
     <div id="toast" class="toast hidden">Notificação</div>
 
     <script src="supabase-client.js?v=1.5"></script>

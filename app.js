@@ -42,13 +42,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const listViewBtn = document.getElementById('listViewBtn');
     const gridViewBtn = document.getElementById('gridViewBtn');
 
-    // Navigation Elements
-    const navDashboard = document.getElementById('nav-dashboard');
-    const navClients = document.getElementById('nav-clients');
-    const dashboardView = document.getElementById('dashboard-view');
-    const clientsView = document.getElementById('clients-view');
-    const viewTitle = document.getElementById('view-title');
-
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             if (confirm('Deseja realmente sair do sistema?')) {
@@ -233,7 +226,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderClients(clients);
         updateFilterCounts();
         applyViewMode();
-        updateDashboardStats();
     }
 
     await initialLoad();
@@ -274,46 +266,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (listViewBtn) listViewBtn.classList.add('active');
             if (gridViewBtn) gridViewBtn.classList.remove('active');
         }
-    }
-
-    // Navigation Logic
-    if (navDashboard) {
-        navDashboard.addEventListener('click', () => switchView('dashboard'));
-    }
-    if (navClients) {
-        navClients.addEventListener('click', () => switchView('clients'));
-    }
-
-    function switchView(viewName) {
-        if (viewName === 'dashboard') {
-            dashboardView.classList.remove('hidden');
-            clientsView.classList.add('hidden');
-            navDashboard.classList.add('active');
-            navClients.classList.remove('active');
-            viewTitle.textContent = 'Início';
-            updateDashboardStats();
-        } else {
-            dashboardView.classList.add('hidden');
-            clientsView.classList.remove('active'); // Wait, should be remove('hidden')
-            clientsView.classList.remove('hidden');
-            navDashboard.classList.remove('active');
-            navClients.classList.add('active');
-            viewTitle.textContent = 'Clientes';
-        }
-    }
-
-    function updateDashboardStats() {
-        const totalClients = clients.length;
-        const totalFavorites = clients.filter(c => !!c.isFavorite).length;
-        const totalServers = clients.reduce((acc, c) => acc + (c.servers ? c.servers.length : 0), 0);
-
-        const dashClientsEl = document.getElementById('dash-total-clients');
-        const dashFavoritesEl = document.getElementById('dash-total-favorites');
-        const dashServersEl = document.getElementById('dash-total-servers');
-
-        if (dashClientsEl) dashClientsEl.textContent = totalClients;
-        if (dashFavoritesEl) dashFavoritesEl.textContent = totalFavorites;
-        if (dashServersEl) dashServersEl.textContent = totalServers;
     }
 
     if (modalToggleFavorite) {
