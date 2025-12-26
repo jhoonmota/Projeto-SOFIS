@@ -191,14 +191,18 @@ button {
 
 #searchInput {
     width: 100%;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
+    background: rgba(66, 84, 93, 0.6);
+    /* Transparent background */
+    backdrop-filter: blur(10px);
+    /* Glass effect */
+    -webkit-backdrop-filter: blur(10px);
+    /* Safari support */
+    border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 14px 50px 14px 45px;
-    /* More padding on the right for the X button */
     border-radius: var(--radius);
     color: var(--text-primary);
     font-size: 1rem;
-    transition: 0.2s;
+    transition: all 0.3s ease;
     box-sizing: border-box;
 }
 
@@ -669,16 +673,20 @@ button {
 }
 
 .modal-content {
-    background: var(--card-bg);
+    background: rgba(44, 57, 63, 0.7);
+    /* Deep semi-transparent color */
+    backdrop-filter: blur(15px);
+    /* Stronger blur for modals */
+    -webkit-backdrop-filter: blur(15px);
     width: 100%;
     max-width: 500px;
     max-height: 90vh;
     border-radius: var(--radius);
     padding: 30px;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     transform: scale(1);
     transition: transform 0.3s;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     overflow-y: auto;
 }
 
@@ -1092,8 +1100,10 @@ button {
     color: white;
     padding: 14px 24px;
     border-radius: var(--radius);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
     transform: translateY(0);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     transition: all 0.3s;
     font-weight: 600;
     z-index: 2000;
@@ -1182,8 +1192,10 @@ button:hover .vpn-icon-img {
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
+    background: rgba(66, 84, 93, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--radius);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
     z-index: 1001;
