@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let favoritesCollapsed = JSON.parse(localStorage.getItem('sofis_favorites_collapsed')) || false;
     let regularCollapsed = JSON.parse(localStorage.getItem('sofis_regular_collapsed')) || false;
     let currentView = localStorage.getItem('sofis_view_mode') || 'list'; // 'list' or 'grid'
+    let currentTheme = localStorage.getItem('sofis_theme') || 'dark';
 
     // DOM Elements
     const clientList = document.getElementById('clientList');
@@ -41,6 +42,51 @@ document.addEventListener('DOMContentLoaded', async () => {
     const logoutBtn = document.getElementById('logoutBtn');
     const listViewBtn = document.getElementById('listViewBtn');
     const gridViewBtn = document.getElementById('gridViewBtn');
+    const themeBtn = document.getElementById('themeBtn');
+    const themeMenu = document.getElementById('themeMenu');
+    const themeOptions = document.querySelectorAll('.theme-option');
+
+    // Theme Logic
+    function applyTheme(theme) {
+        document.body.classList.remove('theme-light-academic', 'theme-high-contrast');
+
+        if (theme === 'light-academic') {
+            document.body.classList.add('theme-light-academic');
+        } else if (theme === 'high-contrast') {
+            document.body.classList.add('theme-high-contrast');
+        }
+
+        // Update menu active state
+        themeOptions.forEach(opt => {
+            if (opt.dataset.theme === theme) {
+                opt.classList.add('active');
+            } else {
+                opt.classList.remove('active');
+            }
+        });
+
+        localStorage.setItem('sofis_theme', theme);
+        currentTheme = theme;
+    }
+
+    // Initialize Theme
+    applyTheme(currentTheme);
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            themeMenu.classList.toggle('show');
+        });
+    }
+
+    themeOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            const theme = option.dataset.theme;
+            applyTheme(theme);
+            themeMenu.classList.remove('show');
+            showToast(`Tema alterado para: ${option.textContent.trim()}`);
+        });
+    });
 
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
@@ -396,6 +442,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.addEventListener('click', () => {
         if (serverFilterMenu) serverFilterMenu.classList.remove('active');
         if (urlFilterMenu) urlFilterMenu.classList.remove('active');
+        if (themeMenu) themeMenu.classList.remove('show');
     });
 
     // Handle Filter Item Clicks

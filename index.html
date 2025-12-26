@@ -20,9 +20,27 @@
                 <img src="logo.png" alt="Sofis Logo" class="logo-img">
                 <p class="app-subtitle">Gerenciamento de Contatos e Conexões de Clientes</p>
             </div>
-            <button id="logoutBtn" class="btn-secondary" style="color: var(--danger); border-color: var(--danger);">
-                <i class="fa-solid fa-right-from-bracket"></i> Sair
-            </button>
+            <div class="header-controls">
+                <div class="theme-switcher">
+                    <button id="themeBtn" class="theme-btn">
+                        <i class="fa-solid fa-palette"></i> Tema
+                    </button>
+                    <div id="themeMenu" class="theme-menu">
+                        <button class="theme-option active" data-theme="dark">
+                            <i class="fa-solid fa-moon"></i> Modo Escuro
+                        </button>
+                        <button class="theme-option" data-theme="light-academic">
+                            <i class="fa-solid fa-sun"></i> Claro Acadêmico
+                        </button>
+                        <button class="theme-option" data-theme="high-contrast">
+                            <i class="fa-solid fa-circle-half-stroke"></i> Alto Contraste
+                        </button>
+                    </div>
+                </div>
+                <button id="logoutBtn" class="btn-secondary" style="color: var(--danger); border-color: var(--danger);">
+                    <i class="fa-solid fa-right-from-bracket"></i> Sair
+                </button>
+            </div>
         </header>
 
         <main>
@@ -419,12 +437,12 @@
 
                 <!-- WebLaudo Field (Outside the entries list) -->
                 <div class="form-group"
-                    style="margin-bottom: 25px; padding: 15px; background: rgba(0,0,0,0.1); border-radius: 8px; border-left: 4px solid var(--accent);">
+                    style="margin-bottom: 25px; padding: 15px; background: var(--bg-darker); border-radius: 8px; border-left: 4px solid var(--accent);">
                     <label style="color: var(--accent); font-weight: 600; margin-bottom: 12px;">
                         <span><i class="fa-solid fa-globe" style="margin-right: 8px;"></i>WebLaudo</span>
                     </label>
                     <div id="webLaudoDisplay"
-                        style="display: none; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
+                        style="display: none; justify-content: space-between; align-items: center; background: var(--bg-darker); padding: 10px; border-radius: 8px;">
                         <span id="webLaudoText"
                             style="color: var(--text-primary); font-family: monospace; word-break: break-all; margin-right: 10px;"></span>
                         <div style="display: flex; gap: 8px;">
