@@ -657,11 +657,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                      <i class="fa-solid fa-chevron-down chevron-icon" id="chevron-${client.id}"></i>
                      <div class="divider-vertical"></div>
                      <div class="row-actions">
-                         <button class="btn-icon" onclick="editClient('${client.id}'); event.stopPropagation();" title="Editar Cliente">
-                             <i class="fa-solid fa-pen"></i>
-                         </button>
-                          <button class="btn-icon" onclick="addNewContact('${client.id}'); event.stopPropagation();" title="Adicionar Contato">
-                             <i class="fa-solid fa-user-plus"></i>
+                          <button class="${contactBtnClass} btn-with-badge" onclick="event.stopPropagation(); openContactData('${client.id}');" title="Ver Contatos">
+                             <img src="contact-icon.png" class="contact-icon-img ${hasContacts ? 'vpn-icon-success' : ''}" alt="Contatos">
+                             ${hasContacts ? `<span class="btn-badge">${client.contacts.length}</span>` : ''}
                          </button>
                           <button class="${serverBtnClass} btn-with-badge" onclick="openServerData('${client.id}'); event.stopPropagation();" title="Dados de acesso ao SQL">
                               <i class="fa-solid fa-database"></i>
@@ -675,9 +673,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                              <i class="fa-solid fa-link"></i>
                              ${hasUrls ? `<span class="btn-badge">${urlCount}</span>` : ''}
                          </button>
-                          <button class="${contactBtnClass} btn-with-badge" onclick="event.stopPropagation(); openContactData('${client.id}');" title="Ver Contatos">
-                             <img src="contact-icon.png" class="contact-icon-img ${hasContacts ? 'vpn-icon-success' : ''}" alt="Contatos">
-                             ${hasContacts ? `<span class="btn-badge">${client.contacts.length}</span>` : ''}
+                         <button class="btn-icon" onclick="editClient('${client.id}'); event.stopPropagation();" title="Editar Cliente">
+                             <i class="fa-solid fa-pen"></i>
                          </button>
                          <button class="btn-icon btn-danger" onclick="deleteClient('${client.id}'); event.stopPropagation();" title="Excluir">
                              <i class="fa-solid fa-trash"></i>
