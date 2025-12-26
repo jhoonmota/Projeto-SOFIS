@@ -695,7 +695,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (err) {
             console.error('Erro ao sincronizar com Supabase:', err);
-            showToast('❌ Erro ao salvar no banco de dados. Verifique a conexão.', 'error');
+            const errorMsg = err.message || (err.error_description) || 'Erro desconhecido';
+            showToast(`❌ Erro no Banco: ${errorMsg}`, 'error');
         }
     }
 
