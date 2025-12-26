@@ -587,50 +587,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         row.className = `client-row ${client.isFavorite ? 'favorite' : ''}`;
         row.id = `client-row-${client.id}`;
 
-        // Format contacts
-        const contactsHTML = client.contacts && client.contacts.length > 0
-            ? client.contacts.map((contact, index) => {
-                const phonesHTML = contact.phones && contact.phones.length > 0
-                    ? contact.phones.map(phone => `
-                        <div class="contact-item">
-                            <i class="fa-solid fa-phone"></i> 
-                            <span class="contact-value">${escapeHtml(phone)}</span>
-                            <button class="btn-copy-tiny" onclick="copyToClipboard('${escapeHtml(phone).replace(/'/g, "\\'")}')" title="Copiar Telefone">
-                                <i class="fa-regular fa-copy"></i>
-                            </button>
-                        </div>
-                    `).join('')
-                    : '';
-
-                const emailsHTML = contact.emails && contact.emails.length > 0
-                    ? contact.emails.map(email => `
-                        <div class="contact-item">
-                            <i class="fa-solid fa-envelope"></i> 
-                            <span class="contact-value">${escapeHtml(email)}</span>
-                            <button class="btn-copy-tiny" onclick="copyToClipboard('${escapeHtml(email).replace(/'/g, "\\'")}')" title="Copiar E-mail">
-                                <i class="fa-regular fa-copy"></i>
-                            </button>
-                        </div>
-                    `).join('')
-                    : '';
-
-                return `
-                    <div class="contact-group-display">
-                        <div class="contact-header-display">
-                            <div class="contact-name-display clickable" onclick="editContact('${client.id}', ${index}); event.stopPropagation();" title="Ver/Editar Contato">
-                                ${escapeHtml(contact.name || 'Sem nome')}
-                            </div>
-                            <button class="btn-icon-small" onclick="editContact('${client.id}', ${index}); event.stopPropagation();" title="Editar Contato">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                        </div>
-                        ${phonesHTML}
-                        ${emailsHTML}
-                    </div>
-                `;
-            }).join('')
-            : '<div class="contact-item">Nenhum contato cadastrado</div>';
-
         const hasServers = client.servers && client.servers.length > 0;
         const hasVpns = client.vpns && client.vpns.length > 0;
         const urlCount = (client.urls ? client.urls.length : 0) + (client.webLaudo && client.webLaudo.trim() !== '' ? 1 : 0);
@@ -643,7 +599,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const vpnIconClass = hasVpns ? 'vpn-icon-img vpn-icon-success' : 'vpn-icon-img';
 
         row.innerHTML = `
-            <div class="client-row-header" onclick="toggleClientRow('${client.id}')">
+            <div class="client-row-header">
                 <div class="header-left">
                     <button class="btn-icon btn-star ${client.isFavorite ? 'favorite-active' : ''}" onclick="toggleFavorite('${client.id}'); event.stopPropagation();" title="${client.isFavorite ? 'Remover Favorito' : 'Favoritar'}">
                         <i class="fa-${client.isFavorite ? 'solid' : 'regular'} fa-star"></i>
@@ -655,8 +611,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
                 
                 <div class="header-right">
-                     <i class="fa-solid fa-chevron-down chevron-icon" id="chevron-${client.id}"></i>
-                     <div class="divider-vertical"></div>
                      <div class="row-actions">
                           <button class="${contactBtnClass} btn-with-badge" onclick="event.stopPropagation(); openContactData('${client.id}');" title="Ver Contatos">
                              <img src="contact-icon.png" class="contact-icon-img ${hasContacts ? 'vpn-icon-success' : ''}" alt="Contatos">
@@ -681,11 +635,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                              <i class="fa-solid fa-trash"></i>
                          </button>
                      </div>
-                </div>
-            </div>
-            <div class="client-row-body" id="body-${client.id}">
-                <div class="client-contact-list">
-                    ${contactsHTML}
                 </div>
             </div>
         `;
@@ -796,14 +745,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         contactModalList.innerHTML = contactsHTML;
     }
-
-    // New Function for Toggling
-    function toggleClientRow(id) {
-        const row = document.getElementById(`client-row-${id}`);
-        // Toggle expanded class
-        row.classList.toggle('expanded');
-    }
-    window.toggleClientRow = toggleClientRow;
 
     // Save data to localStorage and Supabase
     async function saveToLocal() {
