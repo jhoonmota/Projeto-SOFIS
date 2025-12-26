@@ -26,6 +26,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     let regularCollapsed = JSON.parse(localStorage.getItem('sofis_regular_collapsed')) || false;
     let currentView = localStorage.getItem('sofis_view_mode') || 'list'; // 'list' or 'grid'
 
+    // --- Audit Log Helper ---
+    async function registerAuditLog(action, details = '') {
+        const user = JSON.parse(localStorage.getItem('sofis_user') || '{}');
+        const username = user.username || 'Sistema';
+
+        if (window.supabaseClient) {
+            try {
+                await window.supabaseClient.from('audit_logs').insert([{
+                    username: username,
+                    action: action,
+                    details: details
+                }]);
+            } catch (err) {
+                console.error('Erro ao registrar log:', err);
+            }
+        }
+    }
+
     // DOM Elements
     const clientList = document.getElementById('clientList');
     const modal = document.getElementById('modal');
@@ -1080,6 +1098,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         closeModal();
+        await registerAuditLog(editingId ? `Edição de ${mode === 'addContact' ? 'Contato' : 'Cliente'}` : 'Adição de Novo Cliente', `Cliente: ${newClient.name}`);
     };
 
     async function deleteClient(id) {
@@ -1104,6 +1123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             await saveToLocal();
             applyClientFilter();
             showToast(`🗑️ Cliente "${client.name}" removido com sucesso!`, 'success');
+            await registerAuditLog('Exclusão de Cliente', `Cliente: ${client.name}`);
         }
     }
     window.deleteClient = deleteClient;
@@ -1407,7 +1427,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-    window.removeContact = (button) => {
+    window.removeContact = async (button) => {
         const contactGroup = button.closest('.contact-group');
         const container = contactGroup.parentElement;
 
@@ -1435,6 +1455,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         closeModal();
                         delete contactList.dataset.editingContactIndex;
                         showToast('✅ Contato excluído com sucesso!', 'success');
+                        await registerAuditLog('Exclusão de Contato', `Cliente: ${client.name}, Contato: ${contact.name}`);
                         return;
                     }
                 }
@@ -1744,6 +1765,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderClients(clients);
         renderServersList(client);
         closeServerEntryModal();
+        await registerAuditLog(editingServerIndex.value !== '' ? 'Edição de Acesso SQL' : 'Adição de Acesso SQL', `Cliente: ${client.name}, Ambiente: ${serverRecord.environment}`);
     }
 
     window.editServerRecord = (clientId, index) => {
@@ -1772,7 +1794,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         serverEntryModal.classList.remove('hidden');
     };
 
-    window.deleteServerRecord = (clientId, index) => {
+    window.deleteServerRecord = async (clientId, index) => {
         if (!confirm('Tem certeza que deseja excluir este servidor?')) return;
 
         const client = clients.find(c => c.id === clientId);
@@ -1783,6 +1805,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderClients(clients);
         renderServersList(client);
         showToast(`🗑️ Acesso SQL do cliente "${client.name}" removido com sucesso!`, 'success');
+        await registerAuditLog('Exclusão de Acesso SQL', `Cliente: ${client.name}`);
     };
 
     // --- VPN Data Functions ---
@@ -1909,6 +1932,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderClients(clients);
         renderVpnList(client);
         closeVpnEntryModal();
+        await registerAuditLog(editingIndex !== '' ? 'Edição de Acesso VPN' : 'Adição de Acesso VPN', `Cliente: ${client.name}`);
     }
 
     function openVpnData(clientId) {
@@ -1941,7 +1965,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         vpnEntryModal.classList.remove('hidden');
     }
 
-    function deleteVpnRecord(clientId, index) {
+    async function deleteVpnRecord(clientId, index) {
         if (!confirm('Tem certeza que deseja excluir esta VPN?')) return;
         const client = clients.find(c => c.id === clientId);
         if (!client || !client.vpns) return;
@@ -1951,6 +1975,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderClients(clients);
         renderVpnList(client);
         showToast(`🗑️ VPN do cliente "${client.name}" removida com sucesso!`, 'success');
+        await registerAuditLog('Exclusão de Acesso VPN', `Cliente: ${client.name}`);
     }
 
     // --- Client Notes Functions ---
@@ -1970,7 +1995,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         notesModal.classList.add('hidden');
     }
 
-    function handleNotesSubmit(e) {
+    async function handleNotesSubmit(e) {
         e.preventDefault();
         const id = notesClientIdInput.value;
         const client = clients.find(c => c.id === id);
@@ -1980,6 +2005,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         client.notes = clientNoteInput.value.trim();
         saveToLocal();
         showToast(`✅ Observações do cliente "${client.name}" salvas com sucesso!`, 'success');
+        await registerAuditLog('Atualização de Observações', `Cliente: ${client.name}`);
         closeNotesModal();
         renderClients(clients);
     }
@@ -2047,7 +2073,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    function handleDeleteWebLaudo() {
+    async function handleDeleteWebLaudo() {
         if (!confirm('Tem certeza que deseja excluir o WebLaudo?')) return;
         const id = urlClientIdInput.value;
         const client = clients.find(c => c.id === id);
@@ -2058,6 +2084,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateWebLaudoDisplay(client);
         applyClientFilter();
         showToast('🗑️ WebLaudo removido com sucesso!', 'success');
+        await registerAuditLog('Exclusão de WebLaudo', `Cliente: ${client.name}`);
     }
 
     function handleUrlSystemChange() {
@@ -2243,6 +2270,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderClients(clients);
         renderUrlList(client);
         closeUrlEntryModal();
+        await registerAuditLog(editingIndex !== '' ? 'Edição de URL de Sistema' : 'Adição de URL de Sistema', `Cliente: ${client.name}, Sistema: ${urlRecord.system}`);
     }
 
     window.editUrlRecord = (clientId, index) => {
@@ -2265,7 +2293,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         handleUrlSystemChange();
     }
 
-    window.deleteUrlRecord = (clientId, index) => {
+    window.deleteUrlRecord = async (clientId, index) => {
         if (!confirm('Tem certeza que deseja excluir este sistema?')) return;
         const client = clients.find(c => c.id === clientId);
         if (!client || !client.urls) return;
@@ -2275,9 +2303,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderClients(clients);
         renderUrlList(client);
         showToast(`🗑️ URL do cliente "${client.name}" removida com sucesso!`, 'success');
+        await registerAuditLog('Exclusão de URL de Sistema', `Cliente: ${client.name}`);
     }
 
-    function handleWebLaudoSave() {
+    async function handleWebLaudoSave() {
         const id = urlClientIdInput.value;
         const client = clients.find(c => c.id === id);
         if (!client) return;
@@ -2287,6 +2316,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateWebLaudoDisplay(client);
         applyClientFilter();
         showToast('✅ WebLaudo salvo com sucesso!', 'success');
+        await registerAuditLog('Atualização de WebLaudo', `Cliente: ${client.name}`);
     }
     window.handleWebLaudoSave = handleWebLaudoSave;
     window.closeUrlModal = closeUrlModal;
