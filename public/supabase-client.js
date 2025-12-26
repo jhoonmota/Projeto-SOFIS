@@ -1,7 +1,7 @@
 // Supabase Configuration
 // Replace these with your actual values from the Supabase Dashboard
-const SUPABASE_URL = '';
-const SUPABASE_ANON_KEY = '';
+const SUPABASE_URL = 'https://lxnykmfgthlltgfjvekv.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_suDMO4naUy4iTfoJvJf9-w_m-8hW3d3';
 
 let supabaseClient = null;
 
