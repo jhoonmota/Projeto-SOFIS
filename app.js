@@ -93,7 +93,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const vpnNotesInput = document.getElementById('vpnNotesInput');
     const vpnEntryModalTitle = document.getElementById('vpnEntryModalTitle');
     const closeVpnModalBtn = document.getElementById('closeVpnModalBtn');
-    const vpnModalSearch = document.getElementById('vpnModalSearch');
 
     // URL Modal Elements
     const urlModal = document.getElementById('urlModal');
@@ -334,15 +333,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (addVpnEntryBtn) addVpnEntryBtn.addEventListener('click', openVpnEntry);
     if (closeVpnModalBtn) closeVpnModalBtn.addEventListener('click', closeVpnModal);
 
-    if (vpnModalSearch) {
-        vpnModalSearch.addEventListener('input', () => {
-            const clientId = vpnClientIdInput.value;
-            const client = clients.find(c => c.id === clientId);
-            if (client) {
-                renderVpnList(client);
-            }
-        });
-    }
 
     // URL Listeners
     if (urlForm) urlForm.addEventListener('submit', handleUrlSubmit);
@@ -1892,33 +1882,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        const searchTerm = vpnModalSearch ? vpnModalSearch.value.toLowerCase() : '';
-        const filteredVpns = client.vpns.filter(vpn => {
-            const userMatch = (vpn.user || '').toLowerCase().includes(searchTerm);
-            const notesMatch = (vpn.notes || '').toLowerCase().includes(searchTerm);
-            return userMatch || notesMatch;
-        });
-
-        if (filteredVpns.length === 0) {
-            listContainer.innerHTML = `
-                <div class="servers-grid-empty">
-                    <p>Nenhuma VPN encontrada para "${searchTerm}".</p>
-                </div>
-            `;
-            return;
-        }
-
-        listContainer.innerHTML = filteredVpns.map((vpn) => {
-            const originalIndex = client.vpns.indexOf(vpn);
+        listContainer.innerHTML = client.vpns.map((vpn, index) => {
             return `
                 <div class="server-card">
                     <div class="server-card-header">
                         <span class="server-environment producao">VPN</span>
                         <div class="server-card-actions">
-                            <button class="btn-icon" onclick="editVpnRecord('${client.id}', ${originalIndex})" title="Editar">
+                            <button class="btn-icon" onclick="editVpnRecord('${client.id}', ${index})" title="Editar">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
-                            <button class="btn-icon btn-danger" onclick="deleteVpnRecord('${client.id}', ${originalIndex})" title="Excluir">
+                            <button class="btn-icon btn-danger" onclick="deleteVpnRecord('${client.id}', ${index})" title="Excluir">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
@@ -2006,7 +1979,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Set client name in subtitle
         const vpnModalClientName = document.getElementById('vpnModalClientName');
         if (vpnModalClientName) vpnModalClientName.textContent = client.name;
-        if (vpnModalSearch) vpnModalSearch.value = '';
 
         clearVpnForm();
         renderVpnList(client);
