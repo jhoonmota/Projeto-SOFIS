@@ -129,8 +129,36 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
+    function renderSkeleton() {
+        if (!clientList) return;
+        clientList.innerHTML = '';
+        const skeletonCount = 5;
+        for (let i = 0; i < skeletonCount; i++) {
+            const skeletonRow = document.createElement('div');
+            skeletonRow.className = 'skeleton-row';
+            skeletonRow.innerHTML = `
+                <div class="skeleton-header">
+                    <div class="skeleton-left">
+                        <div class="skeleton-star pulse"></div>
+                        <div class="skeleton-text pulse" style="width: 150px;"></div>
+                    </div>
+                    <div class="skeleton-right">
+                        <div class="skeleton-icon pulse"></div>
+                        <div class="skeleton-icon pulse"></div>
+                        <div class="skeleton-icon pulse"></div>
+                        <div class="skeleton-icon pulse"></div>
+                        <div class="skeleton-icon pulse"></div>
+                        <div class="skeleton-icon pulse"></div>
+                    </div>
+                </div>
+            `;
+            clientList.appendChild(skeletonRow);
+        }
+    }
+
     // Initial Render
     async function initialLoad() {
+        renderSkeleton();
         if (window.supabaseClient) {
             try {
                 // Fetch all data

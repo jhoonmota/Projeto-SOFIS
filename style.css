@@ -1535,3 +1535,69 @@ button:hover .vpn-icon-img {
 .filter-chip:active {
     transform: translateY(0);
 }
+
+/* Skeleton Screens */
+.skeleton-row {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    padding: 12px 20px;
+    opacity: 0.6;
+}
+
+.skeleton-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.skeleton-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.skeleton-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.skeleton-star {
+    width: 24px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.skeleton-text {
+    height: 18px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.skeleton-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+}
+
+.pulse {
+    animation: skeleton-pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes skeleton-pulse {
+    0% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 0.3;
+    }
+}
