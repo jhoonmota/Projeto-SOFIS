@@ -127,7 +127,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const webLaudoForm = document.getElementById('webLaudoForm');
     const webLaudoText = document.getElementById('webLaudoText');
     const editWebLaudoBtn = document.getElementById('editWebLaudoBtn');
+
     const deleteWebLaudoBtn = document.getElementById('deleteWebLaudoBtn');
+
+    // Contact Modal Elements
+    const contactModal = document.getElementById('contactModal');
+    const closeContactBtn = document.getElementById('closeContactModal');
+    const closeContactModalBtn = document.getElementById('closeContactModalBtn');
+    const contactModalList = document.getElementById('contactModalList');
+    const contactModalClientName = document.getElementById('contactModalClientName');
 
 
     function renderSkeleton() {
@@ -336,6 +344,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         webLaudoInput.focus();
     });
     if (deleteWebLaudoBtn) deleteWebLaudoBtn.addEventListener('click', handleDeleteWebLaudo);
+
+    // Contact Modal Listeners
+    if (closeContactBtn) closeContactBtn.addEventListener('click', closeContactModal);
+    if (closeContactModalBtn) closeContactModalBtn.addEventListener('click', closeContactModal);
 
     if (urlSystemSelect) {
         urlSystemSelect.addEventListener('change', handleUrlSystemChange);
@@ -643,6 +655,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <i class="fa-solid fa-link"></i>
                             ${hasUrls ? `<span class="btn-badge">${urlCount}</span>` : ''}
                         </button>
+                         <button class="${contactBtnClass}" onclick="event.stopPropagation(); openContactData('${client.id}');" title="Ver Contatos">
+                            <img src="contact-icon.png" class="contact-icon-img" alt="Contatos">
+                        </button>
                          <button class="btn-icon btn-danger" onclick="deleteClient('${client.id}'); event.stopPropagation();" title="Excluir">
                              <i class="fa-solid fa-trash"></i>
                          </button>
@@ -656,6 +671,81 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
         `;
         return row;
+    }
+
+    // --- Contact Modal Functions ---
+    window.openContactData = (clientId) => {
+        const client = clients.find(c => c.id === clientId);
+        if (!client) return;
+
+        if (contactModalClientName) contactModalClientName.textContent = client.name;
+
+        renderContactModalList(client);
+        contactModal.classList.remove('hidden');
+    };
+
+    function closeContactModal() {
+        contactModal.classList.add('hidden');
+    }
+    window.closeContactModal = closeContactModal;
+
+    function renderContactModalList(client) {
+        if (!contactModalList) return;
+        contactModalList.innerHTML = '';
+
+        if (!client.contacts || client.contacts.length === 0) {
+            contactModalList.innerHTML = `
+                <div style="width: 100%; text-align: center; padding: 20px; color: var(--text-secondary);">
+                    <i class="fa-solid fa-address-book" style="font-size: 3rem; opacity: 0.3; margin-bottom: 12px;"></i>
+                    <p>Nenhum contato cadastrado.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Reuse the logic from createClientRow for generating contact cards
+        const contactsHTML = client.contacts.map((contact, index) => {
+            const phonesHTML = contact.phones && contact.phones.length > 0
+                ? contact.phones.map(phone => `
+                        <div class="contact-item">
+                            <i class="fa-solid fa-phone"></i> 
+                            <span class="contact-value">${escapeHtml(phone)}</span>
+                            <button class="btn-copy-tiny" onclick="copyToClipboard('${escapeHtml(phone).replace(/'/g, "\\'")}')" title="Copiar Telefone">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    `).join('')
+                : '';
+
+            const emailsHTML = contact.emails && contact.emails.length > 0
+                ? contact.emails.map(email => `
+                        <div class="contact-item">
+                            <i class="fa-solid fa-envelope"></i> 
+                            <span class="contact-value">${escapeHtml(email)}</span>
+                            <button class="btn-copy-tiny" onclick="copyToClipboard('${escapeHtml(email).replace(/'/g, "\\'")}')" title="Copiar E-mail">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    `).join('')
+                : '';
+
+            return `
+                    <div class="contact-group-display" style="max-width: 100%; flex: 1 1 300px;">
+                        <div class="contact-header-display">
+                            <div class="contact-name-display clickable" onclick="closeContactModal(); editContact('${client.id}', ${index});" title="Ver/Editar Contato">
+                                ${escapeHtml(contact.name || 'Sem nome')}
+                            </div>
+                            <button class="btn-icon-small" onclick="closeContactModal(); editContact('${client.id}', ${index});" title="Editar Contato">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                        </div>
+                        ${phonesHTML}
+                        ${emailsHTML}
+                    </div>
+                `;
+        }).join('');
+
+        contactModalList.innerHTML = contactsHTML;
     }
 
     // New Function for Toggling
