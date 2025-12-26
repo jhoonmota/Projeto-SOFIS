@@ -25,7 +25,7 @@
 }
 
 body {
-    background-color: var(--bg-color);
+    background: linear-gradient(135deg, #2c393f 0%, #1a2529 100%) fixed;
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
