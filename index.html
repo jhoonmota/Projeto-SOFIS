@@ -184,6 +184,16 @@
 
             <!-- Permissions Management Table -->
             <div id="permissionsView" class="hidden">
+                <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                    <div class="role-selector-toggle">
+                        <button class="role-toggle-btn active"
+                            onclick="window.filterPermissionsByRole('Administrador', this)">Administrador</button>
+                        <button class="role-toggle-btn"
+                            onclick="window.filterPermissionsByRole('Analista', this)">Analista</button>
+                        <button class="role-toggle-btn"
+                            onclick="window.filterPermissionsByRole('Técnico', this)">Técnico</button>
+                    </div>
+                </div>
                 <div class="permissions-container">
                     <div class="permissions-table-wrapper">
                         <table class="permissions-table">

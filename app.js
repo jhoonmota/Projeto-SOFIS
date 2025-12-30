@@ -97,6 +97,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    window.currentPermissionsRole = 'Administrador';
+
+    window.filterPermissionsByRole = function (role, btn) {
+        window.currentPermissionsRole = role;
+
+        // Update button UI
+        const buttons = document.querySelectorAll('.role-toggle-btn');
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        renderGroupPermissions();
+    };
+
     function renderGroupPermissions() {
         const tableBody = document.getElementById('permissionsTableBody');
         if (!tableBody) return;
@@ -110,19 +123,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             'usuarios': 'Gestão de Usuários'
         };
 
-        window.groupPermissions.forEach((perm, index) => {
+        // Filter by selected role
+        const filteredPermissions = window.groupPermissions.filter(p => p.role === window.currentPermissionsRole);
+
+        filteredPermissions.forEach((perm) => {
+            // Find index in main array for updates
+            const mainIndex = window.groupPermissions.findIndex(p => p.module === perm.module && p.role === perm.role);
+
             const tr = document.createElement('tr');
             const moduleLabel = modules[perm.module] || perm.module;
-
             const roleClass = perm.role === 'Administrador' ? 'role-admin' : (perm.role === 'Analista' ? 'role-analyst' : 'role-tech');
 
             tr.innerHTML = `
                 <td class="module-cell">${moduleLabel}</td>
                 <td><span class="user-card-role ${roleClass}">${perm.role}</span></td>
-                <td><input type="checkbox" class="perm-check" ${perm.can_view ? 'checked' : ''} onchange="window.updatePermissionLocal(${index}, 'can_view', this.checked)"></td>
-                <td><input type="checkbox" class="perm-check" ${perm.can_create ? 'checked' : ''} onchange="window.updatePermissionLocal(${index}, 'can_create', this.checked)"></td>
-                <td><input type="checkbox" class="perm-check" ${perm.can_edit ? 'checked' : ''} onchange="window.updatePermissionLocal(${index}, 'can_edit', this.checked)"></td>
-                <td><input type="checkbox" class="perm-check" ${perm.can_delete ? 'checked' : ''} onchange="window.updatePermissionLocal(${index}, 'can_delete', this.checked)"></td>
+                <td><input type="checkbox" class="perm-check" ${perm.can_view ? 'checked' : ''} onchange="window.updatePermissionLocal(${mainIndex}, 'can_view', this.checked)"></td>
+                <td><input type="checkbox" class="perm-check" ${perm.can_create ? 'checked' : ''} onchange="window.updatePermissionLocal(${mainIndex}, 'can_create', this.checked)"></td>
+                <td><input type="checkbox" class="perm-check" ${perm.can_edit ? 'checked' : ''} onchange="window.updatePermissionLocal(${mainIndex}, 'can_edit', this.checked)"></td>
+                <td><input type="checkbox" class="perm-check" ${perm.can_delete ? 'checked' : ''} onchange="window.updatePermissionLocal(${mainIndex}, 'can_delete', this.checked)"></td>
             `;
             tableBody.appendChild(tr);
         });
@@ -3351,39 +3369,29 @@ document.addEventListener('DOMContentLoaded', async () => {
             card.className = 'user-card';
 
             const roleClass = user.role === 'Administrador' ? 'role-admin' : (user.role === 'Analista' ? 'role-analyst' : 'role-tech');
-            const initials = user.full_name ? user.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U';
 
             card.innerHTML = `
-                <div class="user-card-header">
-                    <div class="user-card-avatar">${initials}</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                     <div class="user-card-names">
                         <h3 class="user-card-name">${escapeHtml(user.full_name || 'Usuário')}</h3>
-                        <span class="user-card-username"><i class="fa-solid fa-at" style="font-size: 0.75rem; opacity: 0.5;"></i> ${escapeHtml(user.username)}</span>
+                        <span class="user-card-username">@${escapeHtml(user.username)}</span>
+                    </div>
+                    <div style="display: flex; gap: 4px;">
+                        <button class="btn-user-action" style="width: 28px; height: 28px; font-size: 0.8rem;" onclick="window.openUserModal('${user.id}')">
+                            <i class="fa-solid fa-pencil"></i>
+                        </button>
+                        ${user.username !== 'admin' ? `
+                        <button class="btn-user-action delete" style="width: 28px; height: 28px; font-size: 0.8rem;" onclick="window.deleteUser('${user.id}', '${user.username}')">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>` : ''}
                     </div>
                 </div>
                 
-                <div class="user-card-body">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
                     <span class="user-card-role ${roleClass}">${user.role || 'Técnico'}</span>
-                    
-                    <div class="user-info-item">
-                        <i class="fa-solid fa-calendar-alt"></i>
-                        <span>Cadastro: <span class="user-info-value">${user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : '-'}</span></span>
-                    </div>
-                    
-                    <div class="user-info-item">
-                        <i class="fa-solid fa-id-badge"></i>
-                        <span>ID Local: <span class="user-info-value" style="font-family: monospace;">${user.id.substring(0, 8)}...</span></span>
-                    </div>
-                </div>
-
-                <div class="user-card-actions">
-                    <button class="btn-user-action" onclick="window.openUserModal('${user.id}')" title="Editar Usuário">
-                        <i class="fa-solid fa-pencil"></i>
-                    </button>
-                    ${user.username !== 'admin' ? `
-                    <button class="btn-user-action delete" onclick="window.deleteUser('${user.id}', '${user.username}')" title="Excluir Usuário">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>` : ''}
+                    <span style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7;">
+                        <i class="fa-solid fa-calendar-day" style="font-size: 0.7rem;"></i> ${user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : '-'}
+                    </span>
                 </div>
             `;
             userGrid.appendChild(card);
