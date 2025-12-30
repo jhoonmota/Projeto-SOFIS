@@ -78,27 +78,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         const showUsersBtn = document.getElementById('showUsersBtn');
         const showPermissionsBtn = document.getElementById('showPermissionsBtn');
         const userSearchWrapper = document.getElementById('userSearchWrapper');
+        const roleSelectorWrapper = document.getElementById('roleSelectorWrapper');
 
         if (view === 'users') {
-            // Show Users view elements
+            // Show Users context
             userGrid.classList.remove('hidden');
             addUserBtn.classList.remove('hidden');
             showUsersBtn.classList.add('active');
             if (userSearchWrapper) userSearchWrapper.style.display = 'block';
+            if (roleSelectorWrapper) roleSelectorWrapper.classList.add('hidden');
 
-            // Hide Permissions view elements
+            // Hide Permissions context
             permissionsView.classList.add('hidden');
             savePermissionsBtn.classList.add('hidden');
             showPermissionsBtn.classList.remove('active');
 
             loadUsers();
         } else {
-            // Show Permissions view elements
+            // Show Permissions context
             permissionsView.classList.remove('hidden');
             savePermissionsBtn.classList.remove('hidden');
             showPermissionsBtn.classList.add('active');
+            if (roleSelectorWrapper) roleSelectorWrapper.classList.remove('hidden');
 
-            // Hide Users view elements
+            // Hide Users context
             userGrid.classList.add('hidden');
             addUserBtn.classList.add('hidden');
             showUsersBtn.classList.remove('active');
