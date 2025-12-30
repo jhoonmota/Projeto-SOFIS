@@ -80,22 +80,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         const userSearchWrapper = document.getElementById('userSearchWrapper');
 
         if (view === 'users') {
+            // Show Users view elements
             userGrid.classList.remove('hidden');
-            permissionsView.classList.add('hidden');
             addUserBtn.classList.remove('hidden');
-            savePermissionsBtn.classList.add('hidden');
             showUsersBtn.classList.add('active');
+            if (userSearchWrapper) userSearchWrapper.style.display = 'block';
+
+            // Hide Permissions view elements
+            permissionsView.classList.add('hidden');
+            savePermissionsBtn.classList.add('hidden');
             showPermissionsBtn.classList.remove('active');
-            if (userSearchWrapper) userSearchWrapper.style.visibility = 'visible';
+
             loadUsers();
         } else {
-            userGrid.classList.add('hidden');
+            // Show Permissions view elements
             permissionsView.classList.remove('hidden');
-            addUserBtn.classList.add('hidden');
             savePermissionsBtn.classList.remove('hidden');
-            showUsersBtn.classList.remove('active');
             showPermissionsBtn.classList.add('active');
-            if (userSearchWrapper) userSearchWrapper.style.visibility = 'hidden';
+
+            // Hide Users view elements
+            userGrid.classList.add('hidden');
+            addUserBtn.classList.add('hidden');
+            showUsersBtn.classList.remove('active');
+            if (userSearchWrapper) userSearchWrapper.style.display = 'none';
+
             loadGroupPermissions();
         }
     };

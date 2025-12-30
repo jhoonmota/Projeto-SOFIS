@@ -17,23 +17,23 @@
 
 #user-management-bar {
     background: var(--card-bg);
-    padding: 1rem 1.5rem;
-    border-radius: var(--radius);
+    padding: 0.75rem 1.25rem;
+    border-radius: 16px;
     border: 1px solid var(--border);
-    margin-bottom: 1.5rem !important;
+    margin-bottom: 1.25rem !important;
     box-shadow: var(--card-shadow);
     backdrop-filter: blur(10px);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
 }
 
 /* Search Bar Styles */
 .management-search-container {
     flex: 1;
     position: relative;
-    max-width: 400px;
+    max-width: 320px;
 }
 
 .management-search-container i {
