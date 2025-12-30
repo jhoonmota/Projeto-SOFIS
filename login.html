@@ -173,39 +173,51 @@
                 }
 
                 try {
-                    // Check if window.supabaseClient is ready
                     if (!window.supabaseClient) {
-                        showToast('Erro: Cliente de banco de dados não inicializado.', 'error');
+                        showToast('Erro: Banco de dados não inicializado.', 'error');
                         return;
                     }
 
-                    // Use ilike for case-insensitive username matching
-                    const { data, error } = await window.supabaseClient
+                    // 1. Busca o usuário primeiro (insensível a maiúsculas/minúsculas)
+                    const { data: user, error } = await window.supabaseClient
                         .from('users')
                         .select('*')
                         .ilike('username', username)
-                        .eq('password', password)
-                        .single();
+                        .maybeSingle();
 
-                    if (error || !data) {
-                        showToast('Usuário ou senha incorretos.', 'error');
-                    } else {
-                        // Success! Store user info
-                        localStorage.setItem('sofis_user', JSON.stringify({
-                            id: data.id,
-                            username: data.username,
-                            fullName: data.full_name,
-                            role: data.role
-                        }));
-
-                        showToast('Login realizado com sucesso!');
-                        setTimeout(() => {
-                            window.location.href = 'index.html';
-                        }, 1000);
+                    if (error) {
+                        console.error('Erro de conexão com Supabase:', error);
+                        showToast('Erro de conexão. Verifique sua internet.', 'error');
+                        return;
                     }
+
+                    if (!user) {
+                        showToast('Usuário não encontrado.', 'error');
+                        return;
+                    }
+
+                    // 2. Comparação direta da senha
+                    if (user.password !== password) {
+                        showToast('Senha incorreta.', 'error');
+                        return;
+                    }
+
+                    // Sucesso! Armazena os dados do usuário
+                    localStorage.setItem('sofis_user', JSON.stringify({
+                        id: user.id,
+                        username: user.username,
+                        fullName: user.full_name,
+                        role: user.role
+                    }));
+
+                    showToast('Login realizado com sucesso!');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+
                 } catch (err) {
-                    console.error('Erro no login:', err);
-                    showToast('Erro ao tentar realizar login. Tente novamente.', 'error');
+                    console.error('Erro fatal no login:', err);
+                    showToast('Erro interno no servidor.', 'error');
                 }
             });
 
