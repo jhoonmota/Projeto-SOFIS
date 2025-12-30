@@ -138,25 +138,41 @@
 
         <!-- Users Tab Content -->
         <main id="usersTab" class="tab-content">
-            <div id="user-management-bar" style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
-                <div style="flex: 1;">
-                    <h2 style="color: var(--text-primary); margin: 0;"><i class="fa-solid fa-users-gear"
-                            style="color: var(--accent);"></i> Gerenciamento de Usuários e Acessos</h2>
-                </div>
-                <div class="header-actions" style="display: flex; gap: 10px;">
-                    <div class="view-toggle"
-                        style="background: var(--card-bg); padding: 5px; border-radius: var(--radius); display: flex; gap: 5px; border: 1px solid var(--border);">
-                        <button id="showUsersBtn" class="btn-sm active" onclick="window.switchManagementView('users')"
-                            style="padding: 5px 15px; border-radius: 8px;">Usuários</button>
-                        <button id="showPermissionsBtn" class="btn-sm"
-                            onclick="window.switchManagementView('permissions')"
-                            style="padding: 5px 15px; border-radius: 8px;">Permissões de Grupos</button>
+            <div id="user-management-bar"
+                style="display: flex; gap: 15px; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div
+                        style="background: var(--accent); width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(245, 158, 11, 0.2);">
+                        <i class="fa-solid fa-users-gear" style="color: white; font-size: 1.4rem;"></i>
                     </div>
-                    <button id="addUserBtn" class="btn-primary" onclick="window.openUserModal()">
+                    <div>
+                        <h2 style="color: var(--text-primary); margin: 0; font-size: 1.5rem;">Gerenciamento de Acessos
+                        </h2>
+                        <p style="color: var(--text-secondary); margin: 0; font-size: 0.85rem;">Gerencie usuários e
+                            regras de permissão do sistema</p>
+                    </div>
+                </div>
+
+                <div class="header-actions" style="display: flex; gap: 12px; align-items: center;">
+                    <div class="management-toggle">
+                        <button id="showUsersBtn" class="management-toggle-btn active"
+                            onclick="window.switchManagementView('users')">
+                            <i class="fa-solid fa-user-group"></i> Usuários
+                        </button>
+                        <button id="showPermissionsBtn" class="management-toggle-btn"
+                            onclick="window.switchManagementView('permissions')">
+                            <i class="fa-solid fa-shield-halved"></i> Permissões
+                        </button>
+                    </div>
+
+                    <button id="addUserBtn" class="btn-primary" onclick="window.openUserModal()"
+                        style="height: 42px; border-radius: 12px; font-weight: 600;">
                         <i class="fa-solid fa-user-plus"></i> Novo Usuário
                     </button>
-                    <button id="savePermissionsBtn" class="btn-primary hidden" onclick="window.saveGroupPermissions()">
-                        <i class="fa-solid fa-save"></i> Salvar Permissões
+
+                    <button id="savePermissionsBtn" class="btn-primary hidden" onclick="window.saveGroupPermissions()"
+                        style="height: 42px; border-radius: 12px; font-weight: 600; background: var(--success); border-color: var(--success);">
+                        <i class="fa-solid fa-save"></i> Salvar Alterações
                     </button>
                 </div>
             </div>
@@ -167,24 +183,25 @@
             </div>
 
             <!-- Permissions Management Table -->
-            <div id="permissionsView" class="hidden" style="margin-top: 20px;">
-                <div class="user-list-container"
-                    style="background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden;">
-                    <table class="user-table">
-                        <thead>
-                            <tr>
-                                <th>Módulo</th>
-                                <th>Grupo de Acesso</th>
-                                <th style="text-align: center;">Visualizar</th>
-                                <th style="text-align: center;">Criar</th>
-                                <th style="text-align: center;">Editar</th>
-                                <th style="text-align: center;">Excluir</th>
-                            </tr>
-                        </thead>
-                        <tbody id="permissionsTableBody">
-                            <!-- Permissions rows will be rendered here -->
-                        </tbody>
-                    </table>
+            <div id="permissionsView" class="hidden">
+                <div class="permissions-container">
+                    <div class="permissions-table-wrapper">
+                        <table class="permissions-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30%;">Módulo</th>
+                                    <th style="width: 20%;">Grupo</th>
+                                    <th style="text-align: center;">Ver</th>
+                                    <th style="text-align: center;">Criar</th>
+                                    <th style="text-align: center;">Editar</th>
+                                    <th style="text-align: center;">Excluir</th>
+                                </tr>
+                            </thead>
+                            <tbody id="permissionsTableBody">
+                                <!-- Permissions rows will be rendered here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </main>
