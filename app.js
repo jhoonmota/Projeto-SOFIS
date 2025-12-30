@@ -71,57 +71,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.loadGroupPermissions = loadGroupPermissions;
 
     window.switchManagementView = function (view) {
-        // Main view containers
         const userGrid = document.getElementById('userGrid');
         const permissionsView = document.getElementById('permissionsView');
-
-        // Navigation buttons
-        const showUsersBtn = document.getElementById('showUsersBtn');
-        const showPermissionsBtn = document.getElementById('showPermissionsBtn');
-
-        // Primary action buttons
         const addUserBtn = document.getElementById('addUserBtn');
         const savePermissionsBtn = document.getElementById('savePermissionsBtn');
-
-        // Contextual header controls
+        const showUsersBtn = document.getElementById('showUsersBtn');
+        const showPermissionsBtn = document.getElementById('showPermissionsBtn');
         const userSearchWrapper = document.getElementById('userSearchWrapper');
         const roleSelectorWrapper = document.getElementById('roleSelectorWrapper');
 
         if (view === 'users') {
-            // Content
             userGrid.classList.remove('hidden');
             permissionsView.classList.add('hidden');
-
-            // Context Header
-            if (userSearchWrapper) userSearchWrapper.classList.remove('hidden');
-            if (roleSelectorWrapper) roleSelectorWrapper.classList.add('hidden');
-
-            // Actions
             addUserBtn.classList.remove('hidden');
             savePermissionsBtn.classList.add('hidden');
-
-            // Nav Toggle
             showUsersBtn.classList.add('active');
             showPermissionsBtn.classList.remove('active');
-
+            if (userSearchWrapper) userSearchWrapper.classList.remove('hidden');
+            if (roleSelectorWrapper) roleSelectorWrapper.classList.add('hidden');
             loadUsers();
         } else {
-            // Content
             userGrid.classList.add('hidden');
             permissionsView.classList.remove('hidden');
-
-            // Context Header
-            if (userSearchWrapper) userSearchWrapper.classList.add('hidden');
-            if (roleSelectorWrapper) roleSelectorWrapper.classList.remove('hidden');
-
-            // Actions
             addUserBtn.classList.add('hidden');
             savePermissionsBtn.classList.remove('hidden');
-
-            // Nav Toggle
             showUsersBtn.classList.remove('active');
             showPermissionsBtn.classList.add('active');
-
+            if (userSearchWrapper) userSearchWrapper.classList.add('hidden');
+            if (roleSelectorWrapper) roleSelectorWrapper.classList.remove('hidden');
             loadGroupPermissions();
         }
     };
@@ -134,12 +111,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.filterPermissionsByRole = function (role, btn) {
         window.currentPermissionsRole = role;
-
-        // Update button UI
-        const buttons = document.querySelectorAll('.role-toggle-btn');
+        const buttons = document.querySelectorAll('.role-tab-btn');
         buttons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-
         renderGroupPermissions();
     };
 
@@ -165,15 +139,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const tr = document.createElement('tr');
             const moduleLabel = modules[perm.module] || perm.module;
-            const roleClass = perm.role === 'Administrador' ? 'role-admin' : (perm.role === 'Analista' ? 'role-analyst' : 'role-tech');
+            const roleBadgeClass = perm.role === 'Administrador' ? 'badge-admin' : (perm.role === 'Analista' ? 'badge-analyst' : 'badge-tech');
 
             tr.innerHTML = `
-                <td class="module-cell">${moduleLabel}</td>
-                <td><span class="user-card-role ${roleClass}">${perm.role}</span></td>
-                <td><input type="checkbox" class="perm-check" ${perm.can_view ? 'checked' : ''} onchange="window.updatePermissionLocal(${mainIndex}, 'can_view', this.checked)"></td>
-                <td><input type="checkbox" class="perm-check" ${perm.can_create ? 'checked' : ''} onchange="window.updatePermissionLocal(${mainIndex}, 'can_create', this.checked)"></td>
-                <td><input type="checkbox" class="perm-check" ${perm.can_edit ? 'checked' : ''} onchange="window.updatePermissionLocal(${mainIndex}, 'can_edit', this.checked)"></td>
-                <td><input type="checkbox" class="perm-check" ${perm.can_delete ? 'checked' : ''} onchange="window.updatePermissionLocal(${mainIndex}, 'can_delete', this.checked)"></td>
+                <td class="module-name">${moduleLabel}</td>
+                <td><span class="card-role-badge ${roleBadgeClass}">${perm.role}</span></td>
+                <td><input type="checkbox" class="mgmt-checkbox" ${perm.can_view ? 'checked' : ''} onchange="window.updatePermissionLocal(${mainIndex}, 'can_view', this.checked)"></td>
+                <td><input type="checkbox" class="mgmt-checkbox" ${perm.can_create ? 'checked' : ''} onchange="window.updatePermissionLocal(${mainIndex}, 'can_create', this.checked)"></td>
+                <td><input type="checkbox" class="mgmt-checkbox" ${perm.can_edit ? 'checked' : ''} onchange="window.updatePermissionLocal(${mainIndex}, 'can_edit', this.checked)"></td>
+                <td><input type="checkbox" class="mgmt-checkbox" ${perm.can_delete ? 'checked' : ''} onchange="window.updatePermissionLocal(${mainIndex}, 'can_delete', this.checked)"></td>
             `;
             tableBody.appendChild(tr);
         });
@@ -3395,9 +3369,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (filteredUsers.length === 0) {
             userGrid.innerHTML = `
-                <div class="management-empty" style="grid-column: 1 / -1;">
-                    <i class="fa-solid fa-users-slash"></i>
-                    <h3 style="color: var(--text-primary);">Nenhum usuário encontrado</h3>
+                <div class="management-empty" style="grid-column: 1 / -1; padding: 4rem 2rem; text-align: center; background: rgba(0,0,0,0.2); border-radius: 20px; border: 1px dashed var(--mgmt-border);">
+                    <i class="fa-solid fa-users-slash" style="font-size: 3rem; color: var(--mgmt-accent); opacity: 0.5; margin-bottom: 1.5rem; display: block;"></i>
+                    <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">Nenhum usuário encontrado</h3>
                     <p style="color: var(--text-secondary);">${searchQuery ? 'Tente uma busca diferente.' : 'Cadastre um novo usuário para começar.'}</p>
                 </div>
             `;
@@ -3406,31 +3380,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         filteredUsers.forEach(user => {
             const card = document.createElement('div');
-            card.className = 'user-card';
+            card.className = 'user-card-premium';
 
-            const roleClass = user.role === 'Administrador' ? 'role-admin' : (user.role === 'Analista' ? 'role-analyst' : 'role-tech');
+            const roleBadgeClass = user.role === 'Administrador' ? 'badge-admin' : (user.role === 'Analista' ? 'badge-analyst' : 'badge-tech');
 
             card.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                    <div class="user-card-names">
-                        <h2 class="user-card-name" style="font-size: 1rem; margin-bottom: 2px;">${escapeHtml(user.full_name || 'Usuário')}</h2>
-                        <span class="user-card-username" style="font-size: 0.8rem; color: var(--text-secondary);">@${escapeHtml(user.username)}</span>
+                <div class="card-top">
+                    <div class="card-identity">
+                        <h3>${escapeHtml(user.full_name || 'Usuário')}</h3>
+                        <span>@${escapeHtml(user.username)}</span>
                     </div>
-                    <div style="display: flex; gap: 6px;">
-                        <button class="btn-user-action" style="width: 32px; height: 32px; font-size: 0.85rem;" onclick="window.openUserModal('${user.id}')" title="Editar">
-                            <i class="fa-solid fa-pencil"></i>
+                    <div class="card-btns">
+                        <button class="card-btn-icon" onclick="window.openUserModal('${user.id}')" title="Editar">
+                            <i class="fa-solid fa-pen-to-square"></i>
                         </button>
                         ${user.username !== 'admin' ? `
-                        <button class="btn-user-action delete" style="width: 32px; height: 32px; font-size: 0.85rem;" onclick="window.deleteUser('${user.id}', '${user.username}')" title="Excluir">
-                            <i class="fa-solid fa-trash-can"></i>
+                        <button class="card-btn-icon delete" onclick="window.deleteUser('${user.id}', '${user.username}')" title="Excluir">
+                            <i class="fa-solid fa-trash"></i>
                         </button>` : ''}
                     </div>
                 </div>
                 
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05);">
-                    <span class="user-card-role ${roleClass}">${user.role || 'Técnico'}</span>
-                    <span style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7; display: flex; align-items: center; gap: 4px;">
-                        <i class="fa-solid fa-calendar-day" style="font-size: 0.7rem;"></i> ${user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : '-'}
+                <div class="card-footer">
+                    <span class="card-role-badge ${roleBadgeClass}">${user.role || 'Técnico'}</span>
+                    <span style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.6; display: flex; align-items: center; gap: 5px;">
+                        <i class="fa-solid fa-clock-rotate-left" style="font-size: 0.7rem;"></i>
+                        ${user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : '-'}
                     </span>
                 </div>
             `;

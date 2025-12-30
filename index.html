@@ -138,83 +138,74 @@
 
         <!-- Users Tab Content -->
         <main id="usersTab" class="tab-content">
-            <div id="user-management-header">
-                <!-- Left: Contextual Controls -->
-                <div class="header-left">
-                    <!-- Unit: Search (Users Mode) -->
-                    <div id="userSearchWrapper" class="management-control-unit">
-                        <div class="search-input-group">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" id="userSearchInput" placeholder="Buscar usuários..."
-                                oninput="window.handleUserSearch()">
-                        </div>
+            <!-- Premium Toolbar -->
+            <div class="mgmt-toolbar">
+                <!-- Navigation Segmented Control -->
+                <div class="mgmt-nav-group">
+                    <button id="showUsersBtn" class="nav-toggle-btn active"
+                        onclick="window.switchManagementView('users')">
+                        <i class="fa-solid fa-user-group"></i> Usuários
+                    </button>
+                    <button id="showPermissionsBtn" class="nav-toggle-btn"
+                        onclick="window.switchManagementView('permissions')">
+                        <i class="fa-solid fa-shield-halved"></i> Permissões
+                    </button>
+                </div>
+
+                <!-- Contextual Center Area -->
+                <div class="mgmt-contextual-controls">
+                    <!-- Search Control Unit -->
+                    <div id="userSearchWrapper" class="mgmt-search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="userSearchInput" placeholder="Pesquisar por nome ou usuário..."
+                            oninput="window.handleUserSearch()">
                     </div>
 
-                    <!-- Unit: Role Filter (Permissions Mode) -->
-                    <div id="roleSelectorWrapper" class="management-control-unit hidden">
-                        <div class="role-selector-toggle">
-                            <button class="role-toggle-btn active"
-                                onclick="window.filterPermissionsByRole('Administrador', this)">Administrador</button>
-                            <button class="role-toggle-btn"
-                                onclick="window.filterPermissionsByRole('Analista', this)">Analista</button>
-                            <button class="role-toggle-btn"
-                                onclick="window.filterPermissionsByRole('Técnico', this)">Técnico</button>
-                        </div>
+                    <!-- Role Filter Control Unit -->
+                    <div id="roleSelectorWrapper" class="mgmt-role-toggle hidden">
+                        <button class="role-tab-btn active"
+                            onclick="window.filterPermissionsByRole('Administrador', this)">Administrador</button>
+                        <button class="role-tab-btn"
+                            onclick="window.filterPermissionsByRole('Analista', this)">Analista</button>
+                        <button class="role-tab-btn"
+                            onclick="window.filterPermissionsByRole('Técnico', this)">Técnico</button>
                     </div>
                 </div>
 
-                <!-- Right: Navigation and Primary Actions -->
-                <div class="header-right">
-                    <div class="view-management-toggle">
-                        <button id="showUsersBtn" class="toggle-nav-btn active"
-                            onclick="window.switchManagementView('users')">
-                            <i class="fa-solid fa-user-group"></i> Usuários
-                        </button>
-                        <button id="showPermissionsBtn" class="toggle-nav-btn"
-                            onclick="window.switchManagementView('permissions')">
-                            <i class="fa-solid fa-shield-halved"></i> Permissões
-                        </button>
-                    </div>
-
-                    <div class="action-buttons">
-                        <button id="addUserBtn" class="btn-primary main-action" onclick="window.openUserModal()">
-                            <i class="fa-solid fa-user-plus"></i> Novo
-                        </button>
-                        <button id="savePermissionsBtn" class="btn-primary main-action hidden"
-                            onclick="window.saveGroupPermissions()"
-                            style="background: var(--success); border-color: var(--success);">
-                            <i class="fa-solid fa-save"></i> Salvar
-                        </button>
-                    </div>
+                <!-- Primary Actions Area -->
+                <div class="mgmt-actions">
+                    <button id="addUserBtn" class="mgmt-btn-primary add" onclick="window.openUserModal()">
+                        <i class="fa-solid fa-user-plus"></i> Novo Usuário
+                    </button>
+                    <button id="savePermissionsBtn" class="mgmt-btn-primary save hidden"
+                        onclick="window.saveGroupPermissions()">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar Alterações
+                    </button>
                 </div>
             </div>
 
-            <!-- Users Grid View -->
-            <div id="userGrid" class="user-grid">
-                <!-- User cards will be rendered here -->
+            <!-- Content Area: Users Grid -->
+            <div id="userGrid" class="user-cards-view">
+                <!-- Rendered by JS -->
             </div>
 
-            <!-- Permissions Management Table -->
-            <div id="permissionsView" class="hidden">
-                <div class="permissions-container">
-                    <div class="permissions-table-wrapper">
-                        <table class="permissions-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 30%;">Módulo</th>
-                                    <th style="width: 20%;">Grupo</th>
-                                    <th style="text-align: center;">Ver</th>
-                                    <th style="text-align: center;">Criar</th>
-                                    <th style="text-align: center;">Editar</th>
-                                    <th style="text-align: center;">Excluir</th>
-                                </tr>
-                            </thead>
-                            <tbody id="permissionsTableBody">
-                                <!-- Permissions rows will be rendered here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <!-- Content Area: Permissions View -->
+            <div id="permissionsView" class="permissions-view-premium hidden">
+                <table class="mgmt-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">Módulo</th>
+                            <th style="width: 20%;">Grupo Requisitado</th>
+                            <th style="text-align: center; width: 12%;">Visualizar</th>
+                            <th style="text-align: center; width: 12%;">Criar</th>
+                            <th style="text-align: center; width: 12%;">Editar</th>
+                            <th style="text-align: center; width: 12%;">Excluir</th>
+                        </tr>
+                    </thead>
+                    <tbody id="permissionsTableBody">
+                        <!-- Rendered by JS -->
+                    </tbody>
+                </table>
             </div>
         </main>
 
