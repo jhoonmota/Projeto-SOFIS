@@ -186,8 +186,12 @@
                         .maybeSingle();
 
                     if (error) {
-                        console.error('Erro de conexão com Supabase:', error);
-                        showToast('Erro de conexão. Verifique sua internet.', 'error');
+                        console.error('❌ Erro de conexão com Supabase:', {
+                            mensagem: error.message,
+                            detalhes: error.details,
+                            dica: error.hint
+                        });
+                        showToast(`Erro de conexão: ${error.message}`, 'error');
                         return;
                     }
 
