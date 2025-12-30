@@ -164,8 +164,8 @@
 
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const username = usernameInput.value;
-                const password = passwordInput.value;
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value.trim();
 
                 if (!username || !password) {
                     showToast('Preencha os campos.', 'error');
@@ -179,10 +179,11 @@
                         return;
                     }
 
+                    // Use ilike for case-insensitive username matching
                     const { data, error } = await window.supabaseClient
                         .from('users')
                         .select('*')
-                        .eq('username', username)
+                        .ilike('username', username)
                         .eq('password', password)
                         .single();
 
