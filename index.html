@@ -139,11 +139,26 @@
         <!-- Users Tab Content -->
         <main id="usersTab" class="tab-content">
             <div id="user-management-bar">
-                <!-- Search Bar (Replaces Title) -->
-                <div class="management-search-container" id="userSearchWrapper">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="userSearchInput" class="management-search-input"
-                        placeholder="Buscar usuários por nome ou login..." oninput="window.handleUserSearch()">
+                <!-- Contextual Header Control (Search or Role Filter) -->
+                <div style="flex: 1; display: flex; align-items: center;">
+                    <!-- Search Bar (Visible in Users Mode) -->
+                    <div class="management-search-container" id="userSearchWrapper">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="userSearchInput" class="management-search-input"
+                            placeholder="Buscar usuários por nome ou login..." oninput="window.handleUserSearch()">
+                    </div>
+
+                    <!-- Role Selector (Visible in Permissions Mode) -->
+                    <div id="roleSelectorWrapper" class="hidden" style="width: 100%;">
+                        <div class="role-selector-toggle">
+                            <button class="role-toggle-btn active"
+                                onclick="window.filterPermissionsByRole('Administrador', this)">Administrador</button>
+                            <button class="role-toggle-btn"
+                                onclick="window.filterPermissionsByRole('Analista', this)">Analista</button>
+                            <button class="role-toggle-btn"
+                                onclick="window.filterPermissionsByRole('Técnico', this)">Técnico</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="header-actions">
@@ -177,16 +192,6 @@
 
             <!-- Permissions Management Table -->
             <div id="permissionsView" class="hidden">
-                <div style="display: flex; justify-content: center; margin-bottom: 20px;">
-                    <div class="role-selector-toggle">
-                        <button class="role-toggle-btn active"
-                            onclick="window.filterPermissionsByRole('Administrador', this)">Administrador</button>
-                        <button class="role-toggle-btn"
-                            onclick="window.filterPermissionsByRole('Analista', this)">Analista</button>
-                        <button class="role-toggle-btn"
-                            onclick="window.filterPermissionsByRole('Técnico', this)">Técnico</button>
-                    </div>
-                </div>
                 <div class="permissions-container">
                     <div class="permissions-table-wrapper">
                         <table class="permissions-table">
