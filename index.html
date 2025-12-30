@@ -43,6 +43,9 @@
             <button class="tab-btn" data-tab="versions">
                 Controle de Versões
             </button>
+            <button class="tab-btn hidden" id="usersTabBtn" data-tab="users">
+                Gerenciamento de Usuários
+            </button>
         </div>
 
         <!-- Contacts Tab Content -->
@@ -129,6 +132,35 @@
 
             <div id="versionList" class="version-grid">
                 <!-- Version cards will be rendered here -->
+            </div>
+        </main>
+
+        <!-- Users Tab Content -->
+        <main id="usersTab" class="tab-content">
+            <div id="user-management-bar" style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+                <div style="flex: 1;">
+                    <h2 style="color: var(--text-primary); margin: 0;"><i class="fa-solid fa-users-gear"
+                            style="color: var(--accent);"></i> Gerenciamento de Usuários e Acessos</h2>
+                </div>
+                <button id="addUserBtn" class="btn-primary" onclick="window.openUserModal()">
+                    <i class="fa-solid fa-user-plus"></i> Novo Usuário
+                </button>
+            </div>
+
+            <div class="user-list-container">
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Usuário</th>
+                            <th>Nome Completo</th>
+                            <th>Grupo de Acesso</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <!-- Users will be rendered here -->
+                    </tbody>
+                </table>
             </div>
         </main>
 
@@ -872,6 +904,45 @@
                 <div class="modal-actions">
                     <button type="button" class="btn-secondary"
                         onclick="document.getElementById('quickRenameModal').classList.add('hidden')">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Management Modal -->
+    <div id="userModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2 id="userModalTitle">Novo Usuário</h2>
+                <button type="button" class="btn-icon" onclick="window.closeUserModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="userForm">
+                <input type="hidden" id="manageUserId">
+                <div class="form-group">
+                    <label for="manageUsername">Usuário</label>
+                    <input type="text" id="manageUsername" required placeholder="Ex: joao.silva">
+                </div>
+                <div class="form-group" id="passwordGroup">
+                    <label for="managePassword">Senha</label>
+                    <input type="text" id="managePassword" required placeholder="Digite a senha">
+                </div>
+                <div class="form-group">
+                    <label for="manageFullName">Nome Completo</label>
+                    <input type="text" id="manageFullName" required placeholder="Ex: João Silva">
+                </div>
+                <div class="form-group">
+                    <label for="manageRole">Grupo de Acesso</label>
+                    <select id="manageRole" required>
+                        <option value="Técnico">Técnico</option>
+                        <option value="Analista">Analista</option>
+                        <option value="Administrador">Administrador</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="window.closeUserModal()">Cancelar</button>
                     <button type="submit" class="btn-primary">Salvar</button>
                 </div>
             </form>

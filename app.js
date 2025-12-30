@@ -73,6 +73,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         userDisplay.innerHTML = `<i class="fa-solid fa-user"></i> ${currentUser.username}`;
     }
 
+    const usersTabBtn = document.getElementById('usersTabBtn');
+    if (usersTabBtn && currentUser.role === 'Administrador') {
+        usersTabBtn.classList.remove('hidden');
+    }
+
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             if (confirm('Deseja realmente sair do sistema?')) {
@@ -2904,6 +2909,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (tabId === 'versions' && window.loadVersionControls) {
                 window.loadVersionControls();
             }
+            if (tabId === 'users' && typeof loadUsers === 'function') {
+                loadUsers();
+            }
         });
     });
 
@@ -3098,4 +3106,157 @@ document.addEventListener('DOMContentLoaded', async () => {
             showToast(`Erro: Cliente não encontrado (ID: ${id})`, 'error');
         }
     };
+
+    // ===================================
+    // USER MANAGEMENT LOGIC
+    // ===================================
+    window.allUsers = [];
+    const userForm = document.getElementById('userForm');
+    const userTableBody = document.getElementById('userTableBody');
+    const userModal = document.getElementById('userModal');
+    const userModalTitle = document.getElementById('userModalTitle');
+
+    window.openUserModal = function (userId = null) {
+        const manageUserId = document.getElementById('manageUserId');
+        const manageUsername = document.getElementById('manageUsername');
+        const managePassword = document.getElementById('managePassword');
+        const manageFullName = document.getElementById('manageFullName');
+        const manageRole = document.getElementById('manageRole');
+        const passwordGroup = document.getElementById('passwordGroup');
+
+        if (!userForm) return;
+        userForm.reset();
+        manageUserId.value = '';
+        passwordGroup.style.display = 'block';
+        userModalTitle.textContent = 'Novo Usuário';
+
+        if (userId) {
+            // Edit mode
+            const user = window.allUsers.find(u => u.id === userId);
+            if (user) {
+                manageUserId.value = user.id;
+                manageUsername.value = user.username;
+                managePassword.value = user.password;
+                manageFullName.value = user.full_name;
+                manageRole.value = user.role || 'Técnico';
+                userModalTitle.textContent = 'Editar Usuário';
+            }
+        }
+
+        userModal.classList.remove('hidden');
+    };
+
+    window.closeUserModal = function () {
+        if (userModal) userModal.classList.add('hidden');
+    };
+
+    async function loadUsers() {
+        if (!window.supabaseClient) return;
+        const { data, error } = await window.supabaseClient
+            .from('users')
+            .select('*')
+            .order('username');
+
+        if (error) {
+            console.error('Error loading users:', error);
+            showToast('Erro ao carregar usuários.', 'error');
+            return;
+        }
+
+        window.allUsers = data;
+        renderUsers();
+    }
+
+    function renderUsers() {
+        if (!userTableBody) return;
+        userTableBody.innerHTML = '';
+
+        window.allUsers.forEach(user => {
+            const tr = document.createElement('tr');
+
+            const roleClass = user.role === 'Administrador' ? 'role-admin' : (user.role === 'Analista' ? 'role-analyst' : 'role-tech');
+
+            tr.innerHTML = `
+                <td>${escapeHtml(user.username)}</td>
+                <td>${escapeHtml(user.full_name)}</td>
+                <td><span class="role-badge ${roleClass}">${user.role || 'Técnico'}</span></td>
+                <td>
+                    <div class="user-actions">
+                        <button class="btn-icon" onclick="window.openUserModal('${user.id}')" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button class="btn-icon btn-delete-user" onclick="window.deleteUser('${user.id}', '${user.username}')" title="Excluir">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            userTableBody.appendChild(tr);
+        });
+    }
+
+    window.deleteUser = async function (id, username) {
+        if (username === 'admin') {
+            showToast('⚠️ O usuário principal (admin) não pode ser excluído.', 'error');
+            return;
+        }
+
+        if (confirm(`Tem certeza que deseja excluir o usuário "${username}"?`)) {
+            const { error } = await window.supabaseClient
+                .from('users')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                console.error('Error deleting user:', error);
+                showToast('Erro ao excluir usuário.', 'error');
+            } else {
+                showToast('Usuário excluído com sucesso!');
+                loadUsers();
+                if (window.registerAuditLog) {
+                    await registerAuditLog('EXCLUSÃO', 'Exclusão de Usuário', `Usuário: ${username}`);
+                }
+            }
+        }
+    };
+
+    if (userForm) {
+        userForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('manageUserId').value;
+            const payload = {
+                username: document.getElementById('manageUsername').value.trim(),
+                password: document.getElementById('managePassword').value.trim(),
+                full_name: document.getElementById('manageFullName').value.trim(),
+                role: document.getElementById('manageRole').value
+            };
+
+            if (!payload.username || !payload.password) {
+                showToast('⚠️ Usuário e senha são obrigatórios.', 'error');
+                return;
+            }
+
+            let result;
+            if (id) {
+                result = await window.supabaseClient.from('users').update(payload).eq('id', id);
+            } else {
+                result = await window.supabaseClient.from('users').insert([payload]);
+            }
+
+            if (result.error) {
+                console.error('Error saving user:', result.error);
+                showToast('Erro ao salvar usuário.', 'error');
+            } else {
+                showToast('Usuário salvo com sucesso!');
+                window.closeUserModal();
+                loadUsers();
+                if (window.registerAuditLog) {
+                    await registerAuditLog(id ? 'EDIÇÃO' : 'CRIAÇÃO', id ? 'Edição de Usuário' : 'Novo Usuário', `Usuário: ${payload.username}`);
+                }
+            }
+        });
+    }
+
+    // Export internal functions if needed
+    window.loadUsers = loadUsers;
 });
