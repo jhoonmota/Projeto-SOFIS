@@ -138,22 +138,15 @@
 
         <!-- Users Tab Content -->
         <main id="usersTab" class="tab-content">
-            <div id="user-management-bar"
-                style="display: flex; gap: 15px; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div
-                        style="background: var(--accent); width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(245, 158, 11, 0.2);">
-                        <i class="fa-solid fa-users-gear" style="color: white; font-size: 1.4rem;"></i>
-                    </div>
-                    <div>
-                        <h2 style="color: var(--text-primary); margin: 0; font-size: 1.5rem;">Gerenciamento de Acessos
-                        </h2>
-                        <p style="color: var(--text-secondary); margin: 0; font-size: 0.85rem;">Gerencie usuários e
-                            regras de permissão do sistema</p>
-                    </div>
+            <div id="user-management-bar">
+                <!-- Search Bar (Replaces Title) -->
+                <div class="management-search-container" id="userSearchWrapper">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="userSearchInput" class="management-search-input"
+                        placeholder="Buscar usuários por nome ou login..." oninput="window.handleUserSearch()">
                 </div>
 
-                <div class="header-actions" style="display: flex; gap: 12px; align-items: center;">
+                <div class="header-actions">
                     <div class="management-toggle">
                         <button id="showUsersBtn" class="management-toggle-btn active"
                             onclick="window.switchManagementView('users')">
@@ -166,13 +159,13 @@
                     </div>
 
                     <button id="addUserBtn" class="btn-primary" onclick="window.openUserModal()"
-                        style="height: 42px; border-radius: 12px; font-weight: 600;">
-                        <i class="fa-solid fa-user-plus"></i> Novo Usuário
+                        style="height: 40px; border-radius: 10px; font-weight: 600;">
+                        <i class="fa-solid fa-user-plus"></i> Novo
                     </button>
 
                     <button id="savePermissionsBtn" class="btn-primary hidden" onclick="window.saveGroupPermissions()"
-                        style="height: 42px; border-radius: 12px; font-weight: 600; background: var(--success); border-color: var(--success);">
-                        <i class="fa-solid fa-save"></i> Salvar Alterações
+                        style="height: 40px; border-radius: 10px; font-weight: 600; background: var(--success); border-color: var(--success);">
+                        <i class="fa-solid fa-save"></i> Salvar
                     </button>
                 </div>
             </div>

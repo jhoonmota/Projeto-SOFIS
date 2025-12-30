@@ -77,6 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const savePermissionsBtn = document.getElementById('savePermissionsBtn');
         const showUsersBtn = document.getElementById('showUsersBtn');
         const showPermissionsBtn = document.getElementById('showPermissionsBtn');
+        const userSearchWrapper = document.getElementById('userSearchWrapper');
 
         if (view === 'users') {
             userGrid.classList.remove('hidden');
@@ -85,6 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             savePermissionsBtn.classList.add('hidden');
             showUsersBtn.classList.add('active');
             showPermissionsBtn.classList.remove('active');
+            if (userSearchWrapper) userSearchWrapper.style.visibility = 'visible';
             loadUsers();
         } else {
             userGrid.classList.add('hidden');
@@ -93,8 +95,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             savePermissionsBtn.classList.remove('hidden');
             showUsersBtn.classList.remove('active');
             showPermissionsBtn.classList.add('active');
+            if (userSearchWrapper) userSearchWrapper.style.visibility = 'hidden';
             loadGroupPermissions();
         }
+    };
+
+    window.handleUserSearch = function () {
+        renderUsers(); // renderUsers will handle the filtering internally
     };
 
     window.currentPermissionsRole = 'Administrador';
@@ -3353,18 +3360,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!userGrid) return;
         userGrid.innerHTML = '';
 
-        if (window.allUsers.length === 0) {
+        const searchQuery = (document.getElementById('userSearchInput')?.value || '').toLowerCase().trim();
+        const filteredUsers = window.allUsers.filter(user => {
+            const fullName = (user.full_name || '').toLowerCase();
+            const username = (user.username || '').toLowerCase();
+            return fullName.includes(searchQuery) || username.includes(searchQuery);
+        });
+
+        if (filteredUsers.length === 0) {
             userGrid.innerHTML = `
                 <div class="management-empty" style="grid-column: 1 / -1;">
                     <i class="fa-solid fa-users-slash"></i>
                     <h3 style="color: var(--text-primary);">Nenhum usuário encontrado</h3>
-                    <p style="color: var(--text-secondary);">Cadastre um novo usuário para começar.</p>
+                    <p style="color: var(--text-secondary);">${searchQuery ? 'Tente uma busca diferente.' : 'Cadastre um novo usuário para começar.'}</p>
                 </div>
             `;
             return;
         }
 
-        window.allUsers.forEach(user => {
+        filteredUsers.forEach(user => {
             const card = document.createElement('div');
             card.className = 'user-card';
 
@@ -3373,23 +3387,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             card.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                     <div class="user-card-names">
-                        <h3 class="user-card-name">${escapeHtml(user.full_name || 'Usuário')}</h3>
-                        <span class="user-card-username">@${escapeHtml(user.username)}</span>
+                        <h2 class="user-card-name" style="font-size: 1rem; margin-bottom: 2px;">${escapeHtml(user.full_name || 'Usuário')}</h2>
+                        <span class="user-card-username" style="font-size: 0.8rem; color: var(--text-secondary);">@${escapeHtml(user.username)}</span>
                     </div>
-                    <div style="display: flex; gap: 4px;">
-                        <button class="btn-user-action" style="width: 28px; height: 28px; font-size: 0.8rem;" onclick="window.openUserModal('${user.id}')">
+                    <div style="display: flex; gap: 6px;">
+                        <button class="btn-user-action" style="width: 32px; height: 32px; font-size: 0.85rem;" onclick="window.openUserModal('${user.id}')" title="Editar">
                             <i class="fa-solid fa-pencil"></i>
                         </button>
                         ${user.username !== 'admin' ? `
-                        <button class="btn-user-action delete" style="width: 28px; height: 28px; font-size: 0.8rem;" onclick="window.deleteUser('${user.id}', '${user.username}')">
+                        <button class="btn-user-action delete" style="width: 32px; height: 32px; font-size: 0.85rem;" onclick="window.deleteUser('${user.id}', '${user.username}')" title="Excluir">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>` : ''}
                     </div>
                 </div>
                 
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05);">
                     <span class="user-card-role ${roleClass}">${user.role || 'Técnico'}</span>
-                    <span style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7;">
+                    <span style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7; display: flex; align-items: center; gap: 4px;">
                         <i class="fa-solid fa-calendar-day" style="font-size: 0.7rem;"></i> ${user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : '-'}
                     </span>
                 </div>

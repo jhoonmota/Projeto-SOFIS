@@ -17,12 +17,51 @@
 
 #user-management-bar {
     background: var(--card-bg);
-    padding: 1.5rem;
+    padding: 1rem 1.5rem;
     border-radius: var(--radius);
     border: 1px solid var(--border);
-    margin-bottom: 2rem !important;
+    margin-bottom: 1.5rem !important;
     box-shadow: var(--card-shadow);
     backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Search Bar Styles */
+.management-search-container {
+    flex: 1;
+    position: relative;
+    max-width: 400px;
+}
+
+.management-search-container i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+
+.management-search-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 15px 10px 40px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.management-search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
 }
 
 /* Modern Tab Toggle */
