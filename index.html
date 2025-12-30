@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="server-styles.css?v=2.5">
     <link rel="stylesheet" href="credential-styles.css?v=2.5">
     <link rel="stylesheet" href="version-control-styles.css?v=6.1">
+    <link rel="stylesheet" href="user-management.css?v=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -142,25 +143,49 @@
                     <h2 style="color: var(--text-primary); margin: 0;"><i class="fa-solid fa-users-gear"
                             style="color: var(--accent);"></i> Gerenciamento de Usuários e Acessos</h2>
                 </div>
-                <button id="addUserBtn" class="btn-primary" onclick="window.openUserModal()">
-                    <i class="fa-solid fa-user-plus"></i> Novo Usuário
-                </button>
+                <div class="header-actions" style="display: flex; gap: 10px;">
+                    <div class="view-toggle"
+                        style="background: var(--card-bg); padding: 5px; border-radius: var(--radius); display: flex; gap: 5px; border: 1px solid var(--border);">
+                        <button id="showUsersBtn" class="btn-sm active" onclick="window.switchManagementView('users')"
+                            style="padding: 5px 15px; border-radius: 8px;">Usuários</button>
+                        <button id="showPermissionsBtn" class="btn-sm"
+                            onclick="window.switchManagementView('permissions')"
+                            style="padding: 5px 15px; border-radius: 8px;">Permissões de Grupos</button>
+                    </div>
+                    <button id="addUserBtn" class="btn-primary" onclick="window.openUserModal()">
+                        <i class="fa-solid fa-user-plus"></i> Novo Usuário
+                    </button>
+                    <button id="savePermissionsBtn" class="btn-primary hidden" onclick="window.saveGroupPermissions()">
+                        <i class="fa-solid fa-save"></i> Salvar Permissões
+                    </button>
+                </div>
             </div>
 
-            <div class="user-list-container">
-                <table class="user-table">
-                    <thead>
-                        <tr>
-                            <th>Usuário</th>
-                            <th>Nome Completo</th>
-                            <th>Grupo de Acesso</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="userTableBody">
-                        <!-- Users will be rendered here -->
-                    </tbody>
-                </table>
+            <!-- Users Grid View -->
+            <div id="userGrid" class="user-grid">
+                <!-- User cards will be rendered here -->
+            </div>
+
+            <!-- Permissions Management Table -->
+            <div id="permissionsView" class="hidden" style="margin-top: 20px;">
+                <div class="user-list-container"
+                    style="background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden;">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Módulo</th>
+                                <th>Grupo de Acesso</th>
+                                <th style="text-align: center;">Visualizar</th>
+                                <th style="text-align: center;">Criar</th>
+                                <th style="text-align: center;">Editar</th>
+                                <th style="text-align: center;">Excluir</th>
+                            </tr>
+                        </thead>
+                        <tbody id="permissionsTableBody">
+                            <!-- Permissions rows will be rendered here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </main>
 

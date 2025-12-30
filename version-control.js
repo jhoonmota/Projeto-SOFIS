@@ -177,8 +177,7 @@
                                 </div>
                                 <!-- Actions Group: Icons (Aligned Right) -->
                                 <div class="version-actions-group">
-
-                                    <button class="btn-edit-version-small" onclick="window.editVersion('${v.id}')" title="Editar">
+                                    <button class="btn-edit-version-small ${!window.hasPermission('versoes', 'edit') ? 'hidden' : ''}" onclick="window.editVersion('${v.id}')" title="Editar">
                                         <i class="fa-solid fa-pencil"></i>
                                     </button>
                                 </div>
@@ -201,7 +200,7 @@
                     <button class="btn-card-action" onclick="window.openClientVersionsHistory('${group.id}')" title="Ver Histórico">
                         <i class="fa-solid fa-rotate"></i>
                     </button>
-                    <button class="btn-card-action" onclick="window.prefillClientVersion('${group.id}', '${utils.escapeHtml(group.name)}')" title="Adicionar Sistema">
+                    <button class="btn-card-action ${!window.hasPermission('versoes', 'edit') ? 'hidden' : ''}" onclick="window.prefillClientVersion('${group.id}', '${utils.escapeHtml(group.name)}')" title="Adicionar Sistema">
                         <i class="fa-solid fa-plus-circle"></i>
                     </button>
                     
@@ -231,6 +230,22 @@
 
     async function handleVersionSubmit(e) {
         if (e && e.preventDefault) e.preventDefault();
+
+        // Permission Check
+        const idField = document.getElementById('versionId');
+        const isEdit = idField && idField.value;
+        if (isEdit) {
+            if (!window.hasPermission('versoes', 'edit')) {
+                if (window.showToast) window.showToast('⚠️ Sem permissão para editar.', 'error');
+                return;
+            }
+        } else {
+            if (!window.hasPermission('versoes', 'create')) {
+                if (window.showToast) window.showToast('⚠️ Sem permissão para criar.', 'error');
+                return;
+            }
+        }
+
         if (sofis_isSaving) return;
         sofis_isSaving = true;
 

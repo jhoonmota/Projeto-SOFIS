@@ -27,6 +27,136 @@ document.addEventListener('DOMContentLoaded', async () => {
     let regularCollapsed = JSON.parse(localStorage.getItem('sofis_regular_collapsed')) || false;
     let currentView = localStorage.getItem('sofis_view_mode') || 'list'; // 'list' or 'grid'
 
+    // ===================================
+    // PERMISSION MANAGEMENT LOGIC
+    // ===================================
+    window.groupPermissions = [];
+
+    window.hasPermission = function (module, action) {
+        const user = JSON.parse(localStorage.getItem('sofis_user') || '{}');
+        if (!user.role) return false;
+
+        // Admin always has all permissions for safety (can be changed if desired)
+        if (user.role === 'Administrador') return true;
+
+        const perm = window.groupPermissions.find(p => p.role === user.role && p.module === module);
+        if (!perm) return false;
+
+        switch (action) {
+            case 'view': return perm.can_view;
+            case 'create': return perm.can_create;
+            case 'edit': return perm.can_edit;
+            case 'delete': return perm.can_delete;
+            default: return false;
+        }
+    };
+
+    async function loadGroupPermissions() {
+        if (!window.supabaseClient) return;
+        const { data, error } = await window.supabaseClient
+            .from('role_permissions')
+            .select('*')
+            .order('module', { ascending: true })
+            .order('role', { ascending: true });
+
+        if (error) {
+            console.error('Error loading permissions:', error);
+            // Don't show toast on initial load if it fails silently/offline
+            return;
+        }
+
+        window.groupPermissions = data;
+        if (typeof renderGroupPermissions === 'function') renderGroupPermissions();
+    }
+    window.loadGroupPermissions = loadGroupPermissions;
+
+    window.switchManagementView = function (view) {
+        const userGrid = document.getElementById('userGrid');
+        const permissionsView = document.getElementById('permissionsView');
+        const addUserBtn = document.getElementById('addUserBtn');
+        const savePermissionsBtn = document.getElementById('savePermissionsBtn');
+        const showUsersBtn = document.getElementById('showUsersBtn');
+        const showPermissionsBtn = document.getElementById('showPermissionsBtn');
+
+        if (view === 'users') {
+            userGrid.classList.remove('hidden');
+            permissionsView.classList.add('hidden');
+            addUserBtn.classList.remove('hidden');
+            savePermissionsBtn.classList.add('hidden');
+            showUsersBtn.classList.add('active');
+            showPermissionsBtn.classList.remove('active');
+            loadUsers();
+        } else {
+            userGrid.classList.add('hidden');
+            permissionsView.classList.remove('hidden');
+            addUserBtn.classList.add('hidden');
+            savePermissionsBtn.classList.remove('hidden');
+            showUsersBtn.classList.remove('active');
+            showPermissionsBtn.classList.add('active');
+            loadGroupPermissions();
+        }
+    };
+
+    function renderGroupPermissions() {
+        const tableBody = document.getElementById('permissionsTableBody');
+        if (!tableBody) return;
+        tableBody.innerHTML = '';
+
+        const modules = {
+            'clientes': 'Clientes e Contatos',
+            'infraestrutura': 'Infraestrutura (Servidores/VPNs/URLs)',
+            'versoes': 'Controle de Versões',
+            'auditoria': 'Logs e Atividades',
+            'usuarios': 'Gestão de Usuários'
+        };
+
+        window.groupPermissions.forEach((perm, index) => {
+            const tr = document.createElement('tr');
+            const moduleLabel = modules[perm.module] || perm.module;
+
+            const roleClass = perm.role === 'Administrador' ? 'role-admin' : (perm.role === 'Analista' ? 'role-analyst' : 'role-tech');
+
+            tr.innerHTML = `
+                <td style="font-weight: 600;">${moduleLabel}</td>
+                <td><span class="role-badge ${roleClass}">${perm.role}</span></td>
+                <td style="text-align: center;"><input type="checkbox" ${perm.can_view ? 'checked' : ''} onchange="window.updatePermissionLocal(${index}, 'can_view', this.checked)"></td>
+                <td style="text-align: center;"><input type="checkbox" ${perm.can_create ? 'checked' : ''} onchange="window.updatePermissionLocal(${index}, 'can_create', this.checked)"></td>
+                <td style="text-align: center;"><input type="checkbox" ${perm.can_edit ? 'checked' : ''} onchange="window.updatePermissionLocal(${index}, 'can_edit', this.checked)"></td>
+                <td style="text-align: center;"><input type="checkbox" ${perm.can_delete ? 'checked' : ''} onchange="window.updatePermissionLocal(${index}, 'can_delete', this.checked)"></td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    }
+
+    window.updatePermissionLocal = function (index, field, value) {
+        if (window.groupPermissions[index]) {
+            window.groupPermissions[index][field] = value;
+        }
+    };
+
+    window.saveGroupPermissions = async function () {
+        if (!window.supabaseClient) return;
+
+        showToast('Salvando permissões...', 'info');
+
+        try {
+            const { error } = await window.supabaseClient
+                .from('role_permissions')
+                .upsert(window.groupPermissions);
+
+            if (error) throw error;
+
+            showToast('Permissões atualizadas com sucesso!');
+
+            if (window.registerAuditLog) {
+                await registerAuditLog('EDIÇÃO', 'Configuração de Permissões de Grupo', 'As permissões dos grupos de acesso foram atualizadas.');
+            }
+        } catch (err) {
+            console.error('Error saving permissions:', err);
+            showToast('Erro ao salvar permissões.', 'error');
+        }
+    };
+
     // --- Audit Log Helper ---
     async function registerAuditLog(opType, action, details = '', oldVal = null, newVal = null) {
         const user = JSON.parse(localStorage.getItem('sofis_user') || '{}');
@@ -55,6 +185,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const modal = document.getElementById('modal');
     const form = document.getElementById('clientForm');
     const addBtn = document.getElementById('addClientBtn');
+    if (addBtn && !window.hasPermission('clientes', 'create')) {
+        addBtn.classList.add('hidden');
+    }
     const cancelBtn = document.getElementById('cancelBtn');
     const closeBtn = document.getElementById('closeModal');
     const searchInput = document.getElementById('searchInput');
@@ -897,10 +1030,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                              <i class="fa-solid fa-link"></i>
                              ${hasUrls ? `<span class="btn-badge">${urlCount}</span>` : ''}
                          </button>
-                         <button class="btn-icon btn-edit-client" onclick="window.openClientInteraction('${client.id}', '${escapeHtml(client.name)}'); event.stopPropagation();" title="Editar Cliente" style="color: var(--text-secondary);">
+                         <button class="btn-icon btn-edit-client ${!window.hasPermission('clientes', 'edit') ? 'hidden' : ''}" onclick="window.openClientInteraction('${client.id}', '${escapeHtml(client.name)}'); event.stopPropagation();" title="Editar Cliente" style="color: var(--text-secondary);">
                              <i class="fa-solid fa-pencil"></i>
                          </button>
-                         <button class="btn-icon btn-danger btn-delete-client" onclick="deleteClient('${client.id}'); event.stopPropagation();" title="Excluir">
+                         <button class="btn-icon btn-danger btn-delete-client ${!window.hasPermission('clientes', 'delete') ? 'hidden' : ''}" onclick="deleteClient('${client.id}'); event.stopPropagation();" title="Excluir">
                              <i class="fa-solid fa-trash"></i>
                          </button>
                      </div>
@@ -1126,6 +1259,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function handleFormSubmit(e) {
         e.preventDefault();
         const mode = form.dataset.mode;
+
+        // Permission Check
+        if (mode === 'addContact' || !editingId) {
+            if (!window.hasPermission('clientes', 'create')) {
+                showToast('⚠️ Você não tem permissão para criar registros.', 'error');
+                return;
+            }
+        } else {
+            if (!window.hasPermission('clientes', 'edit')) {
+                showToast('⚠️ Você não tem permissão para editar registros.', 'error');
+                return;
+            }
+        }
+
         const editingContactIndex = contactList.dataset.editingContactIndex;
 
         // Validate Client Name
@@ -1416,6 +1563,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     async function deleteClient(id) {
+        if (!window.hasPermission('clientes', 'delete')) {
+            showToast('⚠️ Você não tem permissão para excluir clientes.', 'error');
+            return;
+        }
         const client = clients.find(c => c.id === id);
         if (!client) return;
 
@@ -2694,7 +2845,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     window.toggleRegularSection = toggleRegularSection;
 
-    // Initial render
+    // Initial load
+    if (typeof loadGroupPermissions === 'function') {
+        await loadGroupPermissions();
+    }
     applyClientFilter();
     updateFilterCounts();
 
@@ -2893,6 +3047,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         btn.addEventListener('click', () => {
             const tabId = btn.dataset.tab;
 
+            // Security Check: Only Administrators can access the users tab
+            if (tabId === 'users' && currentUser.role !== 'Administrador') {
+                showToast('Acesso negado: Somente administradores podem acessar esta área.', 'error');
+                return;
+            }
+
             // Update buttons
             tabBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -2911,6 +3071,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (tabId === 'users' && typeof loadUsers === 'function') {
                 loadUsers();
+                if (typeof loadGroupPermissions === 'function') {
+                    loadGroupPermissions();
+                }
             }
         });
     });
@@ -3168,30 +3331,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function renderUsers() {
-        if (!userTableBody) return;
-        userTableBody.innerHTML = '';
+        const userGrid = document.getElementById('userGrid');
+        if (!userGrid) return;
+        userGrid.innerHTML = '';
 
         window.allUsers.forEach(user => {
-            const tr = document.createElement('tr');
+            const card = document.createElement('div');
+            card.className = 'user-card';
 
-            const roleClass = user.role === 'Administrador' ? 'role-admin' : (user.role === 'Analista' ? 'role-analyst' : 'role-tech');
+            const roleClass = user.role === 'Administrador' ? 'role-admin-modern' : (user.role === 'Analista' ? 'role-analyst-modern' : 'role-tech-modern');
+            const initials = user.full_name ? user.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U';
 
-            tr.innerHTML = `
-                <td>${escapeHtml(user.username)}</td>
-                <td>${escapeHtml(user.full_name)}</td>
-                <td><span class="role-badge ${roleClass}">${user.role || 'Técnico'}</span></td>
-                <td>
-                    <div class="user-actions">
-                        <button class="btn-icon" onclick="window.openUserModal('${user.id}')" title="Editar">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button class="btn-icon btn-delete-user" onclick="window.deleteUser('${user.id}', '${user.username}')" title="Excluir">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
+            card.innerHTML = `
+                <div class="user-card-header">
+                    <div class="user-avatar-info">
+                        <div class="user-avatar-circle">${initials}</div>
+                        <div class="user-main-info">
+                            <h3>${escapeHtml(user.full_name || 'Usuário')}</h3>
+                            <span>@${escapeHtml(user.username)}</span>
+                        </div>
                     </div>
-                </td>
+                </div>
+                <div class="user-card-body">
+                    <div class="user-info-row">
+                        <div class="user-info-label">
+                            <i class="fa-solid fa-shield-halved"></i> Perfil
+                        </div>
+                        <span class="role-badge-modern ${roleClass}">${user.role || 'Técnico'}</span>
+                    </div>
+                    <div class="user-info-row">
+                        <div class="user-info-label">
+                            <i class="fa-solid fa-clock"></i> Cadastro
+                        </div>
+                        <div class="user-info-value">${user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : '-'}</div>
+                    </div>
+                </div>
+                <div class="user-card-actions">
+                    <button class="btn-icon" onclick="window.openUserModal('${user.id}')" title="Editar">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    ${user.username !== 'admin' ? `
+                    <button class="btn-icon btn-delete-user" onclick="window.deleteUser('${user.id}', '${user.username}')" title="Excluir">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>` : ''}
+                </div>
             `;
-            userTableBody.appendChild(tr);
+            userGrid.appendChild(card);
         });
     }
 
@@ -3259,4 +3444,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Export internal functions if needed
     window.loadUsers = loadUsers;
+
+    window.loadGroupPermissions = loadGroupPermissions;
 });
