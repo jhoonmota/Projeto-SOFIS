@@ -71,41 +71,56 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.loadGroupPermissions = loadGroupPermissions;
 
     window.switchManagementView = function (view) {
+        // Main view containers
         const userGrid = document.getElementById('userGrid');
         const permissionsView = document.getElementById('permissionsView');
-        const addUserBtn = document.getElementById('addUserBtn');
-        const savePermissionsBtn = document.getElementById('savePermissionsBtn');
+
+        // Navigation buttons
         const showUsersBtn = document.getElementById('showUsersBtn');
         const showPermissionsBtn = document.getElementById('showPermissionsBtn');
+
+        // Primary action buttons
+        const addUserBtn = document.getElementById('addUserBtn');
+        const savePermissionsBtn = document.getElementById('savePermissionsBtn');
+
+        // Contextual header controls
         const userSearchWrapper = document.getElementById('userSearchWrapper');
         const roleSelectorWrapper = document.getElementById('roleSelectorWrapper');
 
         if (view === 'users') {
-            // Show Users context
+            // Content
             userGrid.classList.remove('hidden');
-            addUserBtn.classList.remove('hidden');
-            showUsersBtn.classList.add('active');
-            if (userSearchWrapper) userSearchWrapper.style.display = 'block';
+            permissionsView.classList.add('hidden');
+
+            // Context Header
+            if (userSearchWrapper) userSearchWrapper.classList.remove('hidden');
             if (roleSelectorWrapper) roleSelectorWrapper.classList.add('hidden');
 
-            // Hide Permissions context
-            permissionsView.classList.add('hidden');
+            // Actions
+            addUserBtn.classList.remove('hidden');
             savePermissionsBtn.classList.add('hidden');
+
+            // Nav Toggle
+            showUsersBtn.classList.add('active');
             showPermissionsBtn.classList.remove('active');
 
             loadUsers();
         } else {
-            // Show Permissions context
+            // Content
+            userGrid.classList.add('hidden');
             permissionsView.classList.remove('hidden');
-            savePermissionsBtn.classList.remove('hidden');
-            showPermissionsBtn.classList.add('active');
+
+            // Context Header
+            if (userSearchWrapper) userSearchWrapper.classList.add('hidden');
             if (roleSelectorWrapper) roleSelectorWrapper.classList.remove('hidden');
 
-            // Hide Users context
-            userGrid.classList.add('hidden');
+            // Actions
             addUserBtn.classList.add('hidden');
+            savePermissionsBtn.classList.remove('hidden');
+
+            // Nav Toggle
             showUsersBtn.classList.remove('active');
-            if (userSearchWrapper) userSearchWrapper.style.display = 'none';
+            showPermissionsBtn.classList.add('active');
 
             loadGroupPermissions();
         }

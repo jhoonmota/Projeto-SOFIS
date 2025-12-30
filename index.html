@@ -138,18 +138,20 @@
 
         <!-- Users Tab Content -->
         <main id="usersTab" class="tab-content">
-            <div id="user-management-bar">
-                <!-- Contextual Header Control (Search or Role Filter) -->
-                <div style="flex: 1; display: flex; align-items: center;">
-                    <!-- Search Bar (Visible in Users Mode) -->
-                    <div class="management-search-container" id="userSearchWrapper">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="userSearchInput" class="management-search-input"
-                            placeholder="Buscar usuários por nome ou login..." oninput="window.handleUserSearch()">
+            <div id="user-management-header">
+                <!-- Left: Contextual Controls -->
+                <div class="header-left">
+                    <!-- Unit: Search (Users Mode) -->
+                    <div id="userSearchWrapper" class="management-control-unit">
+                        <div class="search-input-group">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="userSearchInput" placeholder="Buscar usuários..."
+                                oninput="window.handleUserSearch()">
+                        </div>
                     </div>
 
-                    <!-- Role Selector (Visible in Permissions Mode) -->
-                    <div id="roleSelectorWrapper" class="hidden" style="width: 100%;">
+                    <!-- Unit: Role Filter (Permissions Mode) -->
+                    <div id="roleSelectorWrapper" class="management-control-unit hidden">
                         <div class="role-selector-toggle">
                             <button class="role-toggle-btn active"
                                 onclick="window.filterPermissionsByRole('Administrador', this)">Administrador</button>
@@ -161,27 +163,29 @@
                     </div>
                 </div>
 
-                <div class="header-actions">
-                    <div class="management-toggle">
-                        <button id="showUsersBtn" class="management-toggle-btn active"
+                <!-- Right: Navigation and Primary Actions -->
+                <div class="header-right">
+                    <div class="view-management-toggle">
+                        <button id="showUsersBtn" class="toggle-nav-btn active"
                             onclick="window.switchManagementView('users')">
                             <i class="fa-solid fa-user-group"></i> Usuários
                         </button>
-                        <button id="showPermissionsBtn" class="management-toggle-btn"
+                        <button id="showPermissionsBtn" class="toggle-nav-btn"
                             onclick="window.switchManagementView('permissions')">
                             <i class="fa-solid fa-shield-halved"></i> Permissões
                         </button>
                     </div>
 
-                    <button id="addUserBtn" class="btn-primary" onclick="window.openUserModal()"
-                        style="height: 40px; border-radius: 10px; font-weight: 600;">
-                        <i class="fa-solid fa-user-plus"></i> Novo
-                    </button>
-
-                    <button id="savePermissionsBtn" class="btn-primary hidden" onclick="window.saveGroupPermissions()"
-                        style="height: 40px; border-radius: 10px; font-weight: 600; background: var(--success); border-color: var(--success);">
-                        <i class="fa-solid fa-save"></i> Salvar
-                    </button>
+                    <div class="action-buttons">
+                        <button id="addUserBtn" class="btn-primary main-action" onclick="window.openUserModal()">
+                            <i class="fa-solid fa-user-plus"></i> Novo
+                        </button>
+                        <button id="savePermissionsBtn" class="btn-primary main-action hidden"
+                            onclick="window.saveGroupPermissions()"
+                            style="background: var(--success); border-color: var(--success);">
+                            <i class="fa-solid fa-save"></i> Salvar
+                        </button>
+                    </div>
                 </div>
             </div>
 
