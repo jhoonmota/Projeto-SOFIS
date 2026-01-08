@@ -318,7 +318,8 @@ button.btn-icon.btn-danger:hover {
 }
 
 .btn-primary-danger {
-    background: linear-gradient(135deg, #FF3D00, #D50000);
+    background: linear-gradient(135deg, #FF3D00, #ff1744);
+    /* More vibrant red-orange */
     color: #ffffff;
     padding: 10px 20px;
     border-radius: var(--radius);
@@ -327,16 +328,37 @@ button.btn-icon.btn-danger:hover {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    box-shadow: 0 4px 12px rgba(255, 61, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 61, 0, 0.35);
+    /* Stronger shadow */
     transition: all 0.3s ease;
     border: none;
 }
 
 .btn-primary-danger:hover {
     background: linear-gradient(135deg, #FF5252, #FF1744);
-    color: #ffffff;
-    box-shadow: 0 6px 16px rgba(255, 61, 0, 0.4);
+    box-shadow: 0 6px 20px rgba(255, 61, 0, 0.5);
     transform: translateY(-2px);
+}
+
+.btn-success-primary {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-success-primary:hover {
+    background: linear-gradient(135deg, #34d399, #10b981);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
 }
 
 /* Alert Box Style (Matches Reference Image) */

@@ -1154,7 +1154,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             nameContainer.innerHTML = `
                 <span style="${nameStyle}">${escapeHtml(client.name)}</span>
                 ${client.notes ? `<i class="fa-solid fa-bell client-note-indicator" style="margin-left: 10px; cursor: pointer;" onclick="window.openClientGeneralNotes('${client.id}'); event.stopPropagation();" title="Possui observações importantes"></i>` : ''}
-                ${client.inactiveContract ? `<i class="fa-solid fa-circle-info" style="color: #FF3D00; font-size: 1.1rem; margin-left: 10px; cursor: pointer;" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes"></i>` : ''}
+                ${client.inactiveContract ? `<i class="fa-solid fa-circle-info" style="color: #FF3D00; font-size: 1.1rem; margin-left: 10px; cursor: pointer; animation: pulse-red 2s infinite;" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes"></i>` : ''}
             `;
         }
 
@@ -1280,7 +1280,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="client-name-row" title="Nome do Cliente" style="display: flex; align-items: center;">
                             <span style="${client.inactiveContract ? 'color: #e0e0e0; font-weight: 600;' : 'font-weight: 600;'}">${escapeHtml(client.name)}</span>
                             ${client.notes ? `<i class="fa-solid fa-bell client-note-indicator" title="Possui observações importantes" style="margin-left: 15px; cursor: pointer;" onclick="window.openClientGeneralNotes('${client.id}'); event.stopPropagation();"></i>` : ''}
-                            ${client.inactiveContract ? `<i class="fa-solid fa-circle-info" style="color: #FF3D00; font-size: 1.1rem; margin-left: 10px; cursor: pointer;" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes"></i>` : ''}
+                            ${client.inactiveContract ? `<i class="fa-solid fa-circle-info" style="color: #FF3D00; font-size: 1.1rem; margin-left: 10px; cursor: pointer; animation: pulse-red 2s infinite;" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes"></i>` : ''}
                         </div>
                         ${client.updatedAt && canViewLogs ? `
                             <div class="client-updated-info clickable" onclick="openClientHistory('${client.id}'); event.stopPropagation();" title="Ver Histórico de Alterações" style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 2px; font-weight: normal; display: flex; align-items: center; gap: 4px; cursor: pointer; width: fit-content;">
@@ -3800,32 +3800,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.triggerInactiveContract = function () {
         const interactionModal = document.getElementById('clientInteractionModal');
-        const inactiveModal = document.getElementById('inactiveContractModal');
-        const clientNameSpan = document.getElementById('inactiveContractClientName');
-        const clientIdInput = document.getElementById('inactiveContractClientId');
-        const dateInput = document.getElementById('inactiveContractDate');
-        const notesInput = document.getElementById('inactiveContractNotes');
-
         if (interactionModal) interactionModal.classList.add('hidden');
 
-        if (inactiveModal && clientIdInput && clientNameSpan) {
-            const client = clients.find(c => c.id === interactionClientId);
-            if (client) {
-                clientIdInput.value = interactionClientId;
-                clientNameSpan.textContent = interactionClientName;
-
-                // Se já existe um contrato inativo, preencher os campos
-                if (client.inactiveContract) {
-                    dateInput.value = client.inactiveContract.date || '';
-                    notesInput.value = client.inactiveContract.notes || '';
-                } else {
-                    dateInput.value = '';
-                    notesInput.value = '';
-                }
-
-                inactiveModal.classList.remove('hidden');
-                setTimeout(() => dateInput.focus(), 100);
-            }
+        if (interactionClientId) {
+            window.openInactiveContractDetails(interactionClientId);
         }
     };
 
@@ -3883,21 +3861,61 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.openInactiveContractDetails = function (clientId) {
         const client = clients.find(c => c.id === clientId);
-        if (!client || !client.inactiveContract) return;
+        if (!client) return;
 
         const inactiveModal = document.getElementById('inactiveContractModal');
         const clientNameSpan = document.getElementById('inactiveContractClientName');
         const clientIdInput = document.getElementById('inactiveContractClientId');
         const dateInput = document.getElementById('inactiveContractDate');
         const notesInput = document.getElementById('inactiveContractNotes');
+        const reactivateBtn = document.getElementById('reactivateContractBtn');
 
         if (inactiveModal) {
             clientIdInput.value = clientId;
             clientNameSpan.textContent = client.name;
-            dateInput.value = client.inactiveContract.date || '';
-            notesInput.value = client.inactiveContract.notes || '';
+
+            if (client.inactiveContract) {
+                dateInput.value = client.inactiveContract.date || '';
+                notesInput.value = client.inactiveContract.notes || '';
+                if (reactivateBtn) reactivateBtn.classList.remove('hidden');
+            } else {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.value = today;
+                notesInput.value = '';
+                if (reactivateBtn) reactivateBtn.classList.add('hidden');
+            }
 
             inactiveModal.classList.remove('hidden');
+        }
+    };
+
+    window.reactivateContract = async function () {
+        if (!confirm('Deseja realmente reativar este contrato? O cliente voltará ao status ativo.')) return;
+
+        const clientId = document.getElementById('inactiveContractClientId').value;
+        const client = clients.find(c => c.id === clientId);
+        if (!client) return;
+
+        try {
+            const oldData = client.inactiveContract;
+            client.inactiveContract = null; // Clear inactive status
+
+            await saveToLocal(clientId); // Persist
+
+            // Audit Log
+            if (typeof registerAuditLog === 'function') {
+                await registerAuditLog('Reativar Contrato', `Cliente: ${client.name}`, clientId, oldData, null);
+            }
+
+            showToast('✅ Contrato reativado com sucesso!', 'success');
+            document.getElementById('inactiveContractModal').classList.add('hidden');
+
+            // Update UI
+            const row = document.getElementById(`client-row-${clientId}`);
+            if (row) updateClientRow(row, client);
+        } catch (error) {
+            console.error('Erro ao reativar contrato:', error);
+            showToast('❌ Erro ao reativar contrato.', 'error');
         }
     };
 });

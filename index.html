@@ -1178,7 +1178,11 @@
                         onclick="document.getElementById('inactiveContractModal').classList.add('hidden')">
                         <i class="fa-solid fa-xmark"></i> Cancelar
                     </button>
-                    <button type="submit" class="btn-primary-danger" style="flex: 1;">
+                    <button type="button" id="reactivateContractBtn" class="btn-success-primary hidden"
+                        onclick="window.reactivateContract()" style="flex: 1;">
+                        <i class="fa-solid fa-rotate-left"></i> Ativar Contrato
+                    </button>
+                    <button type="submit" id="saveInactiveContractBtn" class="btn-primary-danger" style="flex: 1;">
                         <i class="fa-solid fa-floppy-disk"></i> Salvar
                     </button>
                 </div>
