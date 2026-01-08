@@ -2950,3 +2950,21 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
     display: block;
     width: fit-content;
 }
+
+@keyframes pulse-icon-red {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.15);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.inactive-icon-pulse {
+    animation: pulse-icon-red 2s infinite ease-in-out;
+}

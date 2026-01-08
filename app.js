@@ -1154,7 +1154,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             nameContainer.innerHTML = `
                 <span style="${nameStyle}">${escapeHtml(client.name)}</span>
                 ${client.notes ? `<i class="fa-solid fa-bell client-note-indicator" style="margin-left: 10px; cursor: pointer;" onclick="window.openClientGeneralNotes('${client.id}'); event.stopPropagation();" title="Possui observações importantes"></i>` : ''}
-                ${client.inactiveContract ? `<div class="inactive-icon-container" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes"><i class="fa-solid fa-circle-info" style="color: #FF3D00; font-size: 1.1rem; animation: pulse-red 2s infinite;"></i></div>` : ''}
+                ${client.inactiveContract ? `<div class="inactive-icon-container" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes"><i class="fa-solid fa-circle-info inactive-icon-pulse" style="color: #FF3D00; font-size: 1.1rem;"></i></div>` : ''}
             `;
         }
 
@@ -1280,7 +1280,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="client-name-row" title="Nome do Cliente" style="display: flex; align-items: center;">
                             <span style="${client.inactiveContract ? 'color: #e0e0e0; font-weight: 600;' : 'font-weight: 600;'}">${escapeHtml(client.name)}</span>
                             ${client.notes ? `<i class="fa-solid fa-bell client-note-indicator" title="Possui observações importantes" style="margin-left: 15px; cursor: pointer;" onclick="window.openClientGeneralNotes('${client.id}'); event.stopPropagation();"></i>` : ''}
-                            ${client.inactiveContract ? `<div class="inactive-icon-container" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes"><i class="fa-solid fa-circle-info" style="color: #FF3D00; font-size: 1.1rem; animation: pulse-red 2s infinite;"></i></div>` : ''}
+                            ${client.inactiveContract ? `<div class="inactive-icon-container" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes"><i class="fa-solid fa-circle-info inactive-icon-pulse" style="color: #FF3D00; font-size: 1.1rem;"></i></div>` : ''}
                         </div>
                         ${client.updatedAt && canViewLogs ? `
                             <div class="client-updated-info clickable" onclick="openClientHistory('${client.id}'); event.stopPropagation();" title="Ver Histórico de Alterações" style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 2px; font-weight: normal; display: flex; align-items: center; gap: 4px; cursor: pointer; width: fit-content;">
