@@ -296,6 +296,49 @@ button.btn-icon.btn-danger:hover {
     background: rgba(239, 68, 68, 0.1);
 }
 
+.btn-danger-outlined {
+    background: transparent;
+    color: var(--danger);
+    padding: 10px 20px;
+    border: 1px solid var(--danger);
+    border-radius: var(--radius);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-danger-outlined:hover {
+    background: var(--danger);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(255, 61, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-primary-danger {
+    background: linear-gradient(135deg, var(--danger), #b71c1c);
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-primary-danger:hover {
+    background: linear-gradient(135deg, #b71c1c, #991b1b);
+    color: #ffffff;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
 .modal-actions {
     display: flex;
     justify-content: flex-end;

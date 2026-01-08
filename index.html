@@ -7,14 +7,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sofis - Gerenciamento de Clientes</title>
     <link rel="icon" type="image/x-icon" href="sofis.com.br-favicon.ico">
-    <link rel="stylesheet" href="style.css?v=9.6">
+    <link rel="stylesheet" href="style.css?v=9.7">
     <link rel="stylesheet" href="server-styles.css?v=2.6">
     <link rel="stylesheet" href="credential-styles.css?v=2.5">
     <link rel="stylesheet" href="version-control-styles.css?v=6.4">
     <link rel="stylesheet" href="user-management-styles.css?v=2.1">
     <link rel="stylesheet" href="pulse-dashboard.css?v=2.0">
     <link rel="stylesheet" href="form-fixes.css?v=1.0">
-    <link rel="stylesheet" href="inactive-contract-styles.css?v=1.0">
+    <link rel="stylesheet" href="inactive-contract-styles.css?v=1.1">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -24,6 +24,30 @@
             window.location.href = 'login.html';
         }
     </script>
+    <style>
+        /* Force apply styles to bypass cache */
+        .btn-danger-outlined {
+            background: transparent !important;
+            color: #ff3d00 !important;
+            /* using var(--danger) equivalent */
+            padding: 10px 20px;
+            border: 1px solid #ff3d00 !important;
+            border-radius: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: none !important;
+        }
+
+        .btn-danger-outlined:hover {
+            background: rgba(255, 61, 0, 0.1) !important;
+            box-shadow: 0 4px 12px rgba(255, 61, 0, 0.2) !important;
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 
 <body>
@@ -1067,8 +1091,7 @@
                     <button class="btn-secondary" onclick="window.triggerClientNotes()">
                         <i class="fa-solid fa-comment-dots"></i> Observação
                     </button>
-                    <button class="btn-danger" onclick="window.triggerInactiveContract()"
-                        style="background: linear-gradient(135deg, #dc2626, #991b1b);">
+                    <button class="btn-danger-outlined" onclick="window.triggerInactiveContract()">
                         <i class="fa-solid fa-ban"></i> Contrato Inativo
                     </button>
                 </div>
@@ -1157,8 +1180,7 @@
                         onclick="document.getElementById('inactiveContractModal').classList.add('hidden')">
                         <i class="fa-solid fa-xmark"></i> Cancelar
                     </button>
-                    <button type="submit" class="btn-primary"
-                        style="flex: 1; background: linear-gradient(135deg, #dc2626, #991b1b);">
+                    <button type="submit" class="btn-primary-danger" style="flex: 1;">
                         <i class="fa-solid fa-floppy-disk"></i> Salvar
                     </button>
                 </div>
