@@ -411,12 +411,35 @@ button.btn-icon.btn-danger:hover {
     /* Slightly dim the name to indicate inactive but readable */
 }
 
+/* Inactive Icon Container (Badge background) */
+.inactive-icon-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 61, 0, 0.25);
+    /* Fundo avermelhado visível sempre */
+    border: 1px solid rgba(255, 61, 0, 0.3);
+    border-radius: 6px;
+    padding: 4px;
+    width: 28px;
+    height: 28px;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.inactive-icon-container:hover {
+    background-color: rgba(255, 61, 0, 0.4);
+    transform: scale(1.05);
+}
+
 .inactive-badge-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 24px;
     height: 24px;
+    /* ... rest of existing code ... */
     background: rgba(255, 61, 0, 0.15);
     color: #FF3D00;
     border-radius: 50%;
