@@ -378,7 +378,9 @@ button.btn-icon.btn-danger:hover {
 .client-row.inactive-contract,
 .client-card.inactive-contract {
     background: linear-gradient(to right, #2b2424, rgba(43, 36, 36, 0.8)) !important;
-    border-left: 3px solid #FF3D00 !important;
+    border: 2px solid #D50000 !important;
+    border-left-width: 5px !important;
+    box-shadow: 0 0 15px rgba(213, 0, 0, 0.15) !important;
 }
 
 .client-row.inactive-contract .client-name-row,
