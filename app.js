@@ -571,7 +571,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         isFavorite: c.is_favorite,
                         notes: c.notes,
                         webLaudo: c.web_laudo,
-                        inactiveContract: c.inactive_contract,
                         contacts: await Promise.all((c.contacts || []).map(async con => ({
                             name: con.name,
                             phones: await Promise.all((con.phones || []).map(async p => await Security.decrypt(p))),

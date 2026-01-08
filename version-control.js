@@ -1582,10 +1582,23 @@
                  `;
             });
 
+            // Determinar qual logo usar baseado no sistema
+            let logoHtml = '';
+            if (sys === 'CellVida') {
+                logoHtml = '<img src="cellvida-logo.jpg" alt="CellVida" style="height: 32px; width: auto; object-fit: contain; display: block;">';
+            } else if (sys === 'Hemote Plus' || sys === 'Hemote Web') {
+                logoHtml = '<img src="hemote-logo.jpg" alt="Hemote" style="height: 32px; width: auto; object-fit: contain; display: block;">';
+            } else if (sys === 'Monetário') {
+                logoHtml = '<img src="monetario-logo.jpg" alt="Monetário" style="height: 32px; width: auto; object-fit: contain; display: block;">';
+            }
+
             const cardHtml = `
                 <div class="version-card">
                     <div class="v-card-header">
-                        <div class="v-card-title" style="color: ${sysColor}">${sys}</div>
+                        <div class="v-card-title" style="color: ${sysColor}; display: flex; align-items: center; gap: 8px;">
+                            ${logoHtml}
+                            <span>${sys}</span>
+                        </div>
                         <i class="fa-solid fa-layer-group" style="color: ${sysColor} opacity: 0.5;"></i>
                     </div>
                     <div class="v-list">
