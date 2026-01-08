@@ -597,7 +597,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                             bootstrap: u.bootstrap,
                             execUpdate: u.exec_update,
                             notes: u.notes
-                        }))
+                        })),
+                        inactiveContract: c.inactive_contract || null
                     })));
 
                     // Load user favorites and apply
@@ -1138,8 +1139,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             nameContainer.onclick = null; // Remove interaction from name click
             nameContainer.style.cursor = 'default';
             nameContainer.classList.remove('clickable');
+            // Aplicar estilo vermelho se contrato inativo
+            const nameStyle = client.inactiveContract ? 'color: #dc2626; font-weight: 700;' : 'font-weight: 600;';
+
             nameContainer.innerHTML = `
-                ${escapeHtml(client.name)}
+                ${client.inactiveContract ? `<i class="fa-solid fa-circle" style="color: #dc2626; font-size: 0.5rem; margin-right: 8px; cursor: pointer; animation: pulse-red 2s infinite;" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes"></i>` : ''}
+                <span style="${nameStyle}">${escapeHtml(client.name)}</span>
                 ${client.notes ? `<i class="fa-solid fa-bell client-note-indicator" style="margin-left: 15px; cursor: pointer;" onclick="window.openClientGeneralNotes('${client.id}'); event.stopPropagation();" title="Possui observações importantes"></i>` : ''}
             `;
         }
@@ -1264,7 +1269,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </button>
                     <div class="client-name-container" style="display: flex; flex-direction: column; justify-content: flex-start;">
                         <div class="client-name-row" title="Nome do Cliente" style="display: flex; align-items: center;">
-                            <span style="font-weight: 600;">${escapeHtml(client.name)}</span>
+                            ${client.inactiveContract ? `<i class="fa-solid fa-circle" style="color: #dc2626; font-size: 0.5rem; margin-right: 8px; cursor: pointer; animation: pulse-red 2s infinite;" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes"></i>` : ''}
+                            <span style="${client.inactiveContract ? 'color: #dc2626; font-weight: 700;' : 'font-weight: 600;'}">${escapeHtml(client.name)}</span>
                             ${client.notes ? `<i class="fa-solid fa-bell client-note-indicator" title="Possui observações importantes" style="margin-left: 15px; cursor: pointer;" onclick="window.openClientGeneralNotes('${client.id}'); event.stopPropagation();"></i>` : ''}
                         </div>
                         ${client.updatedAt && canViewLogs ? `
@@ -3776,6 +3782,113 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } else {
             showToast(`Erro: Cliente não encontrado (ID: ${id})`, 'error');
+        }
+    };
+
+    // ===================================
+    // INACTIVE CONTRACT MANAGEMENT
+    // ===================================
+
+    window.triggerInactiveContract = function () {
+        const interactionModal = document.getElementById('clientInteractionModal');
+        const inactiveModal = document.getElementById('inactiveContractModal');
+        const clientNameSpan = document.getElementById('inactiveContractClientName');
+        const clientIdInput = document.getElementById('inactiveContractClientId');
+        const dateInput = document.getElementById('inactiveContractDate');
+        const notesInput = document.getElementById('inactiveContractNotes');
+
+        if (interactionModal) interactionModal.classList.add('hidden');
+
+        if (inactiveModal && clientIdInput && clientNameSpan) {
+            const client = clients.find(c => c.id === interactionClientId);
+            if (client) {
+                clientIdInput.value = interactionClientId;
+                clientNameSpan.textContent = interactionClientName;
+
+                // Se já existe um contrato inativo, preencher os campos
+                if (client.inactiveContract) {
+                    dateInput.value = client.inactiveContract.date || '';
+                    notesInput.value = client.inactiveContract.notes || '';
+                } else {
+                    dateInput.value = '';
+                    notesInput.value = '';
+                }
+
+                inactiveModal.classList.remove('hidden');
+                setTimeout(() => dateInput.focus(), 100);
+            }
+        }
+    };
+
+    window.submitInactiveContract = async function () {
+        const clientId = document.getElementById('inactiveContractClientId').value;
+        const date = document.getElementById('inactiveContractDate').value;
+        const notes = document.getElementById('inactiveContractNotes').value.trim();
+
+        if (!date) {
+            showToast('⚠️ A data de inativação é obrigatória!', 'error');
+            return;
+        }
+
+        const client = clients.find(c => c.id === clientId);
+        if (!client) {
+            showToast('❌ Cliente não encontrado!', 'error');
+            return;
+        }
+
+        const oldValue = client.inactiveContract ? JSON.parse(JSON.stringify(client.inactiveContract)) : null;
+
+        // Salvar dados do contrato inativo
+        client.inactiveContract = {
+            date: date,
+            notes: notes,
+            setAt: new Date().toISOString()
+        };
+
+        try {
+            // Fechar modal
+            document.getElementById('inactiveContractModal').classList.add('hidden');
+
+            // Salvar no banco
+            await saveToLocal(client.id);
+
+            // Atualizar a visualização
+            applyClientFilter();
+
+            showToast('✅ Status de contrato inativo salvo com sucesso!', 'success');
+
+            // Registrar auditoria
+            const actionText = oldValue ? 'Atualização de Contrato Inativo' : 'Marcação de Contrato Inativo';
+            await registerAuditLog(
+                'EDIÇÃO',
+                actionText,
+                `Cliente: ${client.name}, Data: ${new Date(date).toLocaleDateString('pt-BR')}`,
+                oldValue,
+                client.inactiveContract
+            );
+        } catch (err) {
+            console.error('Erro ao salvar contrato inativo:', err);
+            showToast('❌ Erro ao salvar. Tente novamente.', 'error');
+        }
+    };
+
+    window.openInactiveContractDetails = function (clientId) {
+        const client = clients.find(c => c.id === clientId);
+        if (!client || !client.inactiveContract) return;
+
+        const inactiveModal = document.getElementById('inactiveContractModal');
+        const clientNameSpan = document.getElementById('inactiveContractClientName');
+        const clientIdInput = document.getElementById('inactiveContractClientId');
+        const dateInput = document.getElementById('inactiveContractDate');
+        const notesInput = document.getElementById('inactiveContractNotes');
+
+        if (inactiveModal) {
+            clientIdInput.value = clientId;
+            clientNameSpan.textContent = client.name;
+            dateInput.value = client.inactiveContract.date || '';
+            notesInput.value = client.inactiveContract.notes || '';
+
+            inactiveModal.classList.remove('hidden');
         }
     };
 });

@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="user-management-styles.css?v=2.1">
     <link rel="stylesheet" href="pulse-dashboard.css?v=2.0">
     <link rel="stylesheet" href="form-fixes.css?v=1.0">
+    <link rel="stylesheet" href="inactive-contract-styles.css?v=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1059,12 +1060,16 @@
             </div>
             <div class="modal-body" style="display: flex; flex-direction: column; gap: 15px; padding: 20px 0;">
                 <p style="text-align: center; color: var(--text-secondary);">O que você deseja fazer?</p>
-                <div style="display: flex; gap: 15px; justify-content: center;">
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
                     <button class="btn-primary" onclick="window.triggerRenameClient()">
                         <i class="fa-solid fa-pen"></i> Alterar Nome
                     </button>
                     <button class="btn-secondary" onclick="window.triggerClientNotes()">
                         <i class="fa-solid fa-comment-dots"></i> Observação
+                    </button>
+                    <button class="btn-danger" onclick="window.triggerInactiveContract()"
+                        style="background: linear-gradient(135deg, #dc2626, #991b1b);">
+                        <i class="fa-solid fa-ban"></i> Contrato Inativo
                     </button>
                 </div>
             </div>
@@ -1095,6 +1100,72 @@
             </form>
         </div>
     </div>
+
+    <!-- Inactive Contract Modal -->
+    <div id="inactiveContractModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div
+                        style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #dc2626, #991b1b); display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-ban" style="font-size: 1.5rem; color: white;"></i>
+                    </div>
+                    <div>
+                        <h2 style="margin: 0;">Contrato Inativo</h2>
+                        <span id="inactiveContractClientName"
+                            style="font-size: 0.9rem; color: var(--text-secondary);"></span>
+                    </div>
+                </div>
+                <button type="button" class="btn-icon"
+                    onclick="document.getElementById('inactiveContractModal').classList.add('hidden')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="inactiveContractForm" onsubmit="event.preventDefault(); window.submitInactiveContract();">
+                <div class="modal-body" style="padding: 25px 20px;">
+                    <div class="form-group">
+                        <label for="inactiveContractDate">
+                            <i class="fa-solid fa-calendar-xmark" style="color: var(--danger); margin-right: 8px;"></i>
+                            Data da Inativação <span class="required">*</span>
+                        </label>
+                        <input type="date" id="inactiveContractDate" required>
+                        <input type="hidden" id="inactiveContractClientId">
+                    </div>
+                    <div class="form-group">
+                        <label for="inactiveContractNotes">
+                            <i class="fa-solid fa-comment-dots" style="color: var(--accent); margin-right: 8px;"></i>
+                            Observação
+                        </label>
+                        <textarea id="inactiveContractNotes" rows="4"
+                            placeholder="Motivo da inativação, detalhes adicionais..."></textarea>
+                    </div>
+                    <div
+                        style="background: rgba(220, 38, 38, 0.1); border-left: 4px solid var(--danger); padding: 15px; border-radius: 8px; margin-top: 15px;">
+                        <div style="display: flex; align-items: start; gap: 10px;">
+                            <i class="fa-solid fa-circle-info" style="color: var(--danger); margin-top: 3px;"></i>
+                            <div style="flex: 1;">
+                                <p style="margin: 0; font-size: 0.9rem; color: var(--text-primary); line-height: 1.5;">
+                                    <strong>Atenção:</strong> Ao marcar como inativo, o cliente será destacado em
+                                    vermelho na lista e terá um indicador visual.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions" style="gap: 12px; padding-top: 20px; border-top: 1px solid var(--border);">
+                    <button type="button" class="btn-secondary btn-cancel" style="flex: 1;"
+                        onclick="document.getElementById('inactiveContractModal').classList.add('hidden')">
+                        <i class="fa-solid fa-xmark"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary"
+                        style="flex: 1; background: linear-gradient(135deg, #dc2626, #991b1b);">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 
     <!-- User Management Modal -->
     <div id="userModal" class="modal hidden">
