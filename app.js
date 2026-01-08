@@ -1492,7 +1492,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             name: client.name,
             is_favorite: !!client.isFavorite,
             notes: client.notes || '',
-            web_laudo: client.webLaudo || ''
+            web_laudo: client.webLaudo || '',
+            inactive_contract: client.inactiveContract
         };
 
         try {
