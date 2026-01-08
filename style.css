@@ -399,21 +399,19 @@ button.btn-icon.btn-danger:hover {
 /* Inactive Client Row/Card Styling */
 div.client-row.inactive-contract,
 div.client-card.inactive-contract {
-    background-color: rgba(74, 15, 15, 0.95) !important;
-    background: linear-gradient(to right, #501010, #2b0a0a) !important;
-    /* Reddish dark background */
-    border: 3px solid #FF1744 !important;
-    /* Vibrant Red Border */
+    background-color: rgba(60, 10, 10, 0.95) !important;
+    background: linear-gradient(to right, #4a0d0d, #2b0a0a) !important;
+    border: 3px solid #D50000 !important;
     border-left-width: 6px !important;
-    box-shadow: 0 0 15px rgba(255, 23, 68, 0.25) !important;
+    box-shadow: 0 0 15px rgba(213, 0, 0, 0.25) !important;
     transition: all 0.3s ease;
 }
 
 div.client-row.inactive-contract:hover,
 div.client-card.inactive-contract:hover {
-    border-color: #FF1744 !important;
-    background: linear-gradient(to right, #601515, #360c0c) !important;
-    box-shadow: 0 0 25px rgba(255, 23, 68, 0.4) !important;
+    border-color: #D50000 !important;
+    background: linear-gradient(to right, #5c1414, #360c0c) !important;
+    box-shadow: 0 0 25px rgba(213, 0, 0, 0.4) !important;
     transform: translateY(-2px);
 }
 
@@ -428,7 +426,7 @@ div.client-card.inactive-contract:hover {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(255, 61, 0, 0.25);
+    background-color: rgba(213, 0, 0, 0.25);
     /* Fundo avermelhado visível sempre */
     border: none;
     border-radius: 6px;
@@ -441,7 +439,7 @@ div.client-card.inactive-contract:hover {
 }
 
 .inactive-icon-container:hover {
-    background-color: rgba(255, 61, 0, 0.4);
+    background-color: rgba(213, 0, 0, 0.4);
     transform: scale(1.05);
 }
 
