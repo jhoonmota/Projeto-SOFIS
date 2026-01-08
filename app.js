@@ -1122,8 +1122,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Update favorite status
         row.className = `client-row ${client.isFavorite ? 'favorite' : ''}`;
 
+        // Handle Inactive Contract Styling for the Row
+        if (client.inactiveContract) {
+            row.classList.add('inactive-contract');
+        } else {
+            row.classList.remove('inactive-contract');
+        }
+
         // Update favorite button
         const starBtn = row.querySelector('.btn-star');
+        // ... (existing starBtn logic remains implicity, I need to preserve code context if I don't include it in ReplacementContent, but I am replacing the block)
         if (starBtn) {
             starBtn.className = `btn-icon btn-star ${client.isFavorite ? 'favorite-active' : ''}`;
             starBtn.title = client.isFavorite ? 'Remover Favorito' : 'Favoritar';
@@ -1139,11 +1147,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             nameContainer.onclick = null; // Remove interaction from name click
             nameContainer.style.cursor = 'default';
             nameContainer.classList.remove('clickable');
-            // Aplicar estilo vermelho se contrato inativo
-            const nameStyle = client.inactiveContract ? 'color: #dc2626; font-weight: 700;' : 'font-weight: 600;';
+
+            // Name style (dimmed if inactive)
+            const nameStyle = client.inactiveContract ? 'color: #e0e0e0; font-weight: 600;' : 'font-weight: 600;';
 
             nameContainer.innerHTML = `
-                ${client.inactiveContract ? `<i class="fa-solid fa-circle" style="color: #dc2626; font-size: 0.5rem; margin-right: 8px; cursor: pointer; animation: pulse-red 2s infinite;" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes"></i>` : ''}
+                ${client.inactiveContract ? `<i class="fa-solid fa-circle-info" style="color: #FF3D00; font-size: 1.1rem; margin-right: 8px; cursor: pointer;" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes"></i>` : ''}
                 <span style="${nameStyle}">${escapeHtml(client.name)}</span>
                 ${client.notes ? `<i class="fa-solid fa-bell client-note-indicator" style="margin-left: 15px; cursor: pointer;" onclick="window.openClientGeneralNotes('${client.id}'); event.stopPropagation();" title="Possui observações importantes"></i>` : ''}
             `;
@@ -1234,7 +1243,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Helper function to create a client row
     function createClientRow(client) {
         const row = document.createElement('div');
-        row.className = `client-row ${client.isFavorite ? 'favorite' : ''}`;
+        row.className = `client-row ${client.isFavorite ? 'favorite' : ''} ${client.inactiveContract ? 'inactive-contract' : ''}`;
         row.id = `client-row-${client.id}`;
 
         // Permissions
@@ -1269,8 +1278,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </button>
                     <div class="client-name-container" style="display: flex; flex-direction: column; justify-content: flex-start;">
                         <div class="client-name-row" title="Nome do Cliente" style="display: flex; align-items: center;">
-                            ${client.inactiveContract ? `<i class="fa-solid fa-circle" style="color: #dc2626; font-size: 0.5rem; margin-right: 8px; cursor: pointer; animation: pulse-red 2s infinite;" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes"></i>` : ''}
-                            <span style="${client.inactiveContract ? 'color: #dc2626; font-weight: 700;' : 'font-weight: 600;'}">${escapeHtml(client.name)}</span>
+                            ${client.inactiveContract ? `<i class="fa-solid fa-circle-info" style="color: #FF3D00; font-size: 1.1rem; margin-right: 8px; cursor: pointer;" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes"></i>` : ''}
+                            <span style="${client.inactiveContract ? 'color: #e0e0e0; font-weight: 600;' : 'font-weight: 600;'}">${escapeHtml(client.name)}</span>
                             ${client.notes ? `<i class="fa-solid fa-bell client-note-indicator" title="Possui observações importantes" style="margin-left: 15px; cursor: pointer;" onclick="window.openClientGeneralNotes('${client.id}'); event.stopPropagation();"></i>` : ''}
                         </div>
                         ${client.updatedAt && canViewLogs ? `

@@ -1135,8 +1135,7 @@
                     </div>
                     <div>
                         <h2 style="margin: 0;">Contrato Inativo</h2>
-                        <span id="inactiveContractClientName"
-                            style="font-size: 0.9rem; color: var(--text-secondary);"></span>
+                        <span id="inactiveContractClientName" class="modal-subtitle"></span>
                     </div>
                 </div>
                 <button type="button" class="btn-icon"
@@ -1162,15 +1161,14 @@
                         <textarea id="inactiveContractNotes" rows="4"
                             placeholder="Motivo da inativação, detalhes adicionais..."></textarea>
                     </div>
-                    <div
-                        style="background: rgba(220, 38, 38, 0.1); border-left: 4px solid var(--danger); padding: 15px; border-radius: 8px; margin-top: 15px;">
-                        <div style="display: flex; align-items: start; gap: 10px;">
-                            <i class="fa-solid fa-circle-info" style="color: var(--danger); margin-top: 3px;"></i>
-                            <div style="flex: 1;">
-                                <p style="margin: 0; font-size: 0.9rem; color: var(--text-primary); line-height: 1.5;">
-                                    <strong>Atenção:</strong> Ao marcar como inativo, o cliente será destacado em
-                                    vermelho na lista e terá um indicador visual.
-                                </p>
+
+                    <div class="inactive-alert-box">
+                        <i class="fa-solid fa-circle-info icon-info-circle"></i>
+                        <div>
+                            <div class="inactive-alert-title">Atenção:</div>
+                            <div class="inactive-alert-text">
+                                Ao marcar como inativo, o cliente será destacado em vermelho na lista e terá um
+                                indicador visual.
                             </div>
                         </div>
                     </div>
