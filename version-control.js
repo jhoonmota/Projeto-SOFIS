@@ -158,13 +158,20 @@
                 }
             });
 
-            // Sort by Favorite then Client Name
+            // Sort by Inactive Contract, then Favorite, then Client Name
             Object.values(grouped).sort((a, b) => {
                 const isFavA = window.userFavorites && window.userFavorites.has(a.id);
                 const isFavB = window.userFavorites && window.userFavorites.has(b.id);
 
+                // Inactive contracts come first
+                if (a.inactiveContract && !b.inactiveContract) return -1;
+                if (!a.inactiveContract && b.inactiveContract) return 1;
+
+                // Then favorites
                 if (isFavA && !isFavB) return -1;
                 if (!isFavA && isFavB) return 1;
+
+                // Then alphabetically
                 return a.name.localeCompare(b.name);
             }).forEach(group => {
                 // Convert Map back to array for rendering
@@ -1120,6 +1127,147 @@
         if (pulseRefreshInterval) {
             clearInterval(pulseRefreshInterval);
             pulseRefreshInterval = null;
+        }
+    };
+
+    window.printDashboard = async function () {
+        try {
+            // Show loading toast
+            window.showToast?.('Gerando relatório do dashboard...', 'info');
+
+            // Wait LONGER for chart to be fully rendered
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Get current dashboard data
+            const totalClients = document.getElementById('kpiTotalClients')?.innerText || '0';
+            const mostPopularSystem = document.getElementById('kpiMostPopularSystem')?.innerText || '-';
+
+            // Get versions data from version-card elements
+            const versionsContainer = document.getElementById('versionsListContainer');
+            let versionsHTML = '';
+            if (versionsContainer) {
+                const versionCards = versionsContainer.querySelectorAll('.version-card');
+
+                versionCards.forEach(card => {
+                    const systemName = card.querySelector('.v-card-title span')?.innerText || '';
+                    const versionItems = card.querySelectorAll('.v-item');
+
+                    if (versionItems.length > 0 && systemName) {
+                        versionsHTML += `<div style="margin-bottom: 25px; break-inside: avoid;">`;
+                        versionsHTML += `<h4 style="color: #7c4dff; margin-bottom: 10px; font-size: 1rem; font-weight: 600;">${systemName}</h4>`;
+                        versionsHTML += `<table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 15px;">`;
+                        versionsHTML += `<thead><tr style="background: #f2f2f2;"><th style="padding: 10px; border: 1px solid #ddd; text-align: left; width: 30%;">Versão</th><th style="padding: 10px; border: 1px solid #ddd; text-align: left; width: 70%;">Cliente</th></tr></thead><tbody>`;
+
+                        versionItems.forEach(item => {
+                            const version = item.querySelector('.v-version-text')?.innerText || '';
+                            const client = item.querySelector('.v-clients-list')?.innerText || '';
+                            if (version && client) {
+                                versionsHTML += `<tr><td style="padding: 10px; border: 1px solid #ddd; font-weight: 500;">${version}</td><td style="padding: 10px; border: 1px solid #ddd;">${client}</td></tr>`;
+                            }
+                        });
+
+                        versionsHTML += `</tbody></table></div>`;
+                    }
+                });
+            }
+
+            // Get system distribution data from the chart
+            let systemDistHTML = '';
+
+            // Get table data from Chart.js
+            const dashboardModal = document.getElementById('pulseDashboardModal');
+            const chartCanvas = dashboardModal ? dashboardModal.querySelector('#systemDistChart') : null;
+
+            if (chartCanvas && window.Chart) {
+                try {
+                    const chartInstance = Chart.getChart(chartCanvas);
+                    if (chartInstance && chartInstance.data) {
+                        systemDistHTML = '<table style="width: 60%; margin: 20px auto; border-collapse: collapse; font-size: 0.85rem;"><thead><tr style="background: #f2f2f2;"><th style="padding: 10px; border: 1px solid #ddd; text-align: left; width: 70%;">Sistema</th><th style="padding: 10px; border: 1px solid #ddd; text-align: center; width: 30%;">Clientes</th></tr></thead><tbody>';
+
+                        const labels = chartInstance.data.labels || [];
+                        const data = chartInstance.data.datasets[0]?.data || [];
+
+                        labels.forEach((label, index) => {
+                            const value = data[index] || 0;
+                            systemDistHTML += `<tr><td style="padding: 10px; border: 1px solid #ddd;">${label}</td><td style="padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: 600;">${value}</td></tr>`;
+                        });
+
+                        systemDistHTML += '</tbody></table>';
+                    }
+                } catch (e) {
+                    console.error('Error extracting chart data:', e);
+                }
+            }
+
+            // Create print window
+            console.log('📊 Final check - systemDistHTML length:', systemDistHTML.length);
+
+            const printWindow = window.open('', '_blank');
+
+            const content = `
+                <!DOCTYPE html>
+                <html lang="pt-BR">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Dashboard Pulse - Relatório - Sofis</title>
+                    <style>
+                        @media print {
+                            body { margin: 10px; }
+                            button { display: none; }
+                        }
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; color: #333; }
+                        h1 { color: #7c4dff; text-align: center; margin-bottom: 5px; font-size: 1.8rem; }
+                        .subtitle { text-align: center; color: #6b7280; margin-bottom: 30px; font-size: 0.9rem; }
+                        .meta { text-align: center; color: #7f8c8d; margin-bottom: 30px; font-size: 0.9rem; line-height: 1.5; }
+                        .kpi-section { display: flex; gap: 20px; margin-bottom: 30px; }
+                        .kpi-box { flex: 1; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; text-align: center; background: #f8f9fb; }
+                        .kpi-box h3 { margin: 0 0 5px 0; font-size: 0.8rem; color: #6b7280; text-transform: uppercase; }
+                        .kpi-box .value { font-size: 2rem; font-weight: 700; color: #111827; margin: 10px 0; }
+                        .section-title { color: #2c3e50; font-size: 1.2rem; margin: 30px 0 15px 0; padding-bottom: 8px; border-bottom: 2px solid #7c4dff; }
+                        .footer { text-align: center; font-size: 0.8rem; color: #95a5a6; margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Dashboard Pulse</h1>
+                    <div class="subtitle">Visão Geral Inteligente em Tempo Real</div>
+                    <div class="meta">
+                        Gerado em: ${new Date().toLocaleString('pt-BR')}
+                    </div>
+                    
+                    <div class="kpi-section">
+                        <div class="kpi-box">
+                            <h3>Total de Clientes</h3>
+                            <div class="value">${totalClients}</div>
+                        </div>
+                        <div class="kpi-box">
+                            <h3>Sistemas Mais Utilizados</h3>
+                            <div class="value" style="font-size: 1.2rem;">${mostPopularSystem}</div>
+                        </div>
+                    </div>
+
+                    ${versionsHTML ? `<h2 class="section-title">Distribuição de Versões</h2>${versionsHTML}` : ''}
+                    
+                    ${systemDistHTML ? `<h2 class="section-title">Distribuição por Sistema</h2>` : ''}
+                    ${systemDistHTML}
+                    
+                    <div class="footer">Sofis - Sistema de Gerenciamento de Clientes</div>
+                    <script>
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                            }, 500);
+                        }
+                    </script>
+                </body>
+                </html>
+            `;
+
+            printWindow.document.write(content);
+            printWindow.document.close();
+
+        } catch (err) {
+            console.error('Erro ao gerar relatório do dashboard:', err);
+            window.showToast?.('Erro ao gerar relatório.', 'danger');
         }
     };
 

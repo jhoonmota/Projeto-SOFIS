@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="version-control-styles.css?v=6.5">
     <link rel="stylesheet" href="user-management-styles.css?v=2.2">
     <link rel="stylesheet" href="pulse-dashboard.css?v=2.1">
+    <link rel="stylesheet" href="dashboard-print.css?v=1.0">
     <link rel="stylesheet" href="form-fixes.css?v=1.1">
     <link rel="stylesheet" href="inactive-contract-styles.css?v=1.4">
     <link rel="stylesheet" href="system-logos.css?v=1.4">
@@ -1272,6 +1273,10 @@
                         <div class="live-dot"></div>
                         <span>Live</span>
                     </div>
+
+                    <button class="btn-icon-large" onclick="window.printDashboard()" title="Imprimir Dashboard">
+                        <i class="fa-solid fa-print"></i>
+                    </button>
 
                     <button class="btn-icon-large" onclick="window.closePulseDashboard()">
                         <i class="fa-solid fa-xmark"></i>

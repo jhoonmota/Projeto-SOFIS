@@ -933,8 +933,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         clientList.querySelectorAll('.skeleton-row').forEach(skeleton => skeleton.remove());
 
         // Separate favorites from regular clients (normalized)
-        const favoriteClients = clientsToRender.filter(c => !!c.isFavorite).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-        const regularClients = clientsToRender.filter(c => !c.isFavorite).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        // Sort: inactive contracts first, then alphabetically
+        const sortClients = (clients) => {
+            return clients.sort((a, b) => {
+                // Inactive contracts come first
+                if (a.inactiveContract && !b.inactiveContract) return -1;
+                if (!a.inactiveContract && b.inactiveContract) return 1;
+                // Then sort alphabetically
+                return (a.name || "").localeCompare(b.name || "");
+            });
+        };
+
+        const favoriteClients = sortClients(clientsToRender.filter(c => !!c.isFavorite));
+        const regularClients = sortClients(clientsToRender.filter(c => !c.isFavorite));
 
         // Get existing client rows
         const existingRows = {};
@@ -3929,9 +3940,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             showToast('✅ Contrato reativado com sucesso!', 'success');
             document.getElementById('inactiveContractModal').classList.add('hidden');
 
-            // Update UI
-            const row = document.getElementById(`client-row-${clientId}`);
-            if (row) updateClientRow(row, client);
+            // Update UI and reorder list
+            renderClients(clients);
         } catch (error) {
             console.error('Erro ao reativar contrato:', error);
             showToast('❌ Erro ao reativar contrato.', 'error');
