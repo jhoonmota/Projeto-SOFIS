@@ -69,8 +69,7 @@
 
             const { data, error } = await window.supabaseClient
                 .from('version_controls')
-                .select(`*, clients (id, name)`)
-                .select(`*, clients (id, name)`)
+                .select(`*, clients (id, name, inactive_contract)`)
                 .order('updated_at', { ascending: false }); // Primary: User's Date of Update
 
             if (error) throw error;
@@ -145,7 +144,8 @@
                 // Use clients.id as fallback if client_id is missing/null, ensuring we have a valid reference
                 const cId = v.client_id || v.clients?.id;
 
-                if (!grouped[name]) grouped[name] = { id: cId, name, versionsMap: {} };
+                const inactiveContract = v.clients?.inactive_contract;
+                if (!grouped[name]) grouped[name] = { id: cId, name, inactiveContract, versionsMap: {} };
 
                 // Keep only the most recent version for each [system + environment] combination
                 // Note: filtered array is already sorted by updated_at desc.
@@ -211,6 +211,17 @@
             const status = utils.getStatus(v.updated_at);
             const timeInfo = utils.getTimeInfo(v.updated_at);
 
+            // Lógica de Logo
+            let logoHtml = '';
+            const sysName = (v.system || '').trim();
+            if (sysName === 'CellVida') {
+                logoHtml = '<img src="cellvida-logo.jpg" alt="CellVida" class="system-card-logo">';
+            } else if (['Hemote Plus', 'Hemote Web', 'Hemote'].includes(sysName)) {
+                logoHtml = '<img src="hemote-logo.jpg" alt="Hemote" class="system-card-logo">';
+            } else if (sysName === 'Monetário') {
+                logoHtml = '<img src="monetario-logo.jpg" alt="Monetário" class="system-card-logo">';
+            }
+
             return `
                 <div class="version-item-row status-${status}" data-environment="${v.environment}" style="${v.environment !== activeFilter ? 'display:none;' : ''}">
                     <div class="version-row-main">
@@ -252,14 +263,20 @@
                             </div>
                         </div>
                     </div>
+                    ${logoHtml}
                 </div>
             `;
         }).join('');
 
+        const inactiveClass = group.inactiveContract ? 'inactive-contract-version-header' : '';
+        const inactiveIcon = group.inactiveContract ?
+            `<span class="inactive-info-icon" title="Contrato Inativo desde ${utils.formatDate(group.inactiveContract.date)}">i</span>` : '';
+
         card.innerHTML = `
-                <div class="client-group-header status-${overallStatus}">
+                <div class="client-group-header status-${overallStatus} ${inactiveClass}">
                     <div class="client-group-title">
                         <h3 style="cursor:default" title="Nome do Cliente">${utils.escapeHtml(group.name)}</h3>
+                        ${inactiveIcon}
                     </div>
                 <div class="client-header-actions">
                     <!-- Card Level Filter -->

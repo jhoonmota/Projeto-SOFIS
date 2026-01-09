@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="pulse-dashboard.css?v=2.1">
     <link rel="stylesheet" href="form-fixes.css?v=1.1">
     <link rel="stylesheet" href="inactive-contract-styles.css?v=1.4">
+    <link rel="stylesheet" href="system-logos.css?v=1.4">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1079,22 +1080,28 @@
     <div id="clientInteractionModal" class="modal hidden">
         <div class="modal-content" style="max-width: 450px;">
             <div class="modal-header">
-                <h2 id="clientInteractionTitle">Opções do Cliente</h2>
+                <h2 id="clientInteractionTitle" style="color: var(--accent); font-weight: bold;">Opções do Cliente</h2>
                 <button type="button" class="btn-icon"
                     onclick="document.getElementById('clientInteractionModal').classList.add('hidden')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body" style="display: flex; flex-direction: column; gap: 15px; padding: 20px 0;">
-                <p style="text-align: center; color: var(--text-secondary);">O que você deseja fazer?</p>
+            <div class="modal-body" style="display: flex; flex-direction: column; gap: 25px; padding: 25px 15px;">
+                <p style="text-align: center; color: var(--text-secondary); font-size: 1.15rem; margin-bottom: 5px;">O
+                    que você deseja fazer?</p>
                 <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                    <button class="btn-primary" onclick="window.triggerRenameClient()">
+                    <button class="btn-primary" onclick="window.triggerRenameClient()"
+                        style="min-width: 140px; padding: 12px 20px;">
                         <i class="fa-solid fa-pen"></i> Alterar Nome
                     </button>
-                    <button class="btn-secondary" onclick="window.triggerClientNotes()">
+                    <button class="btn-secondary" onclick="window.triggerClientNotes()"
+                        style="min-width: 140px; padding: 12px 20px;">
                         <i class="fa-solid fa-comment-dots"></i> Observação
                     </button>
-                    <button class="btn-danger-outlined" onclick="window.triggerInactiveContract()">
+                    <div style="width: 100%; height: 5px;"></div>
+                    <!-- Spacer para forçar quebra visual se necessário ou apenas dar respiro -->
+                    <button class="btn-danger-outlined" onclick="window.triggerInactiveContract()"
+                        style="width: 80%; justify-content: center; padding: 12px 20px;">
                         <i class="fa-solid fa-ban"></i> Contrato Inativo
                     </button>
                 </div>

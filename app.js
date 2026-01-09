@@ -1154,7 +1154,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             nameContainer.innerHTML = `
                 <span style="${nameStyle}">${escapeHtml(client.name)}</span>
                 ${client.notes ? `<i class="fa-solid fa-bell client-note-indicator" style="margin-left: 10px; cursor: pointer;" onclick="window.openClientGeneralNotes('${client.id}'); event.stopPropagation();" title="Possui observações importantes"></i>` : ''}
-                ${client.inactiveContract ? `<div class="inactive-icon-container" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes"><i class="fa-solid fa-circle-info inactive-icon-pulse" style="color: #FF3D00; font-size: 1.1rem;"></i></div>` : ''}
+                ${client.inactiveContract ? `<span class="inactive-info-icon" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes">i</span>` : ''}
             `;
         }
 
@@ -1280,7 +1280,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="client-name-row" title="Nome do Cliente" style="display: flex; align-items: center;">
                             <span style="${client.inactiveContract ? 'color: #e0e0e0; font-weight: 600;' : 'font-weight: 600;'}">${escapeHtml(client.name)}</span>
                             ${client.notes ? `<i class="fa-solid fa-bell client-note-indicator" title="Possui observações importantes" style="margin-left: 15px; cursor: pointer;" onclick="window.openClientGeneralNotes('${client.id}'); event.stopPropagation();"></i>` : ''}
-                            ${client.inactiveContract ? `<div class="inactive-icon-container" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes"><i class="fa-solid fa-circle-info inactive-icon-pulse" style="color: #FF3D00; font-size: 1.1rem;"></i></div>` : ''}
+                            ${client.inactiveContract ? `<span class="inactive-info-icon" onclick="window.openInactiveContractDetails('${client.id}'); event.stopPropagation();" title="Contrato Inativo - Clique para ver detalhes">i</span>` : ''}
                         </div>
                         ${client.updatedAt && canViewLogs ? `
                             <div class="client-updated-info clickable" onclick="openClientHistory('${client.id}'); event.stopPropagation();" title="Ver Histórico de Alterações" style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 2px; font-weight: normal; display: flex; align-items: center; gap: 4px; cursor: pointer; width: fit-content;">
@@ -3880,8 +3880,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 notesInput.value = client.inactiveContract.notes || '';
                 if (reactivateBtn) reactivateBtn.classList.remove('hidden');
             } else {
-                const today = new Date().toISOString().split('T')[0];
-                dateInput.value = today;
+                // Fix timezone issue: use local date string in YYYY-MM-DD format
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const localDate = `${year}-${month}-${day}`;
+
+                dateInput.value = localDate;
                 notesInput.value = '';
                 if (reactivateBtn) reactivateBtn.classList.add('hidden');
             }
@@ -3891,7 +3897,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     window.reactivateContract = async function () {
-        if (!confirm('Deseja realmente reativar este contrato? O cliente voltará ao status ativo.')) return;
+        const confirmed = await showConfirm(
+            'O cliente voltará ao status ativo e o indicador de contrato inativo será removido.',
+            'Reativar Contrato',
+            'fa-check-circle'
+        );
+        if (!confirmed) return;
 
         const clientId = document.getElementById('inactiveContractClientId').value;
         const client = clients.find(c => c.id === clientId);
@@ -3903,9 +3914,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             await saveToLocal(clientId); // Persist
 
-            // Audit Log
+            // Audit Log - Registrar reativação
             if (typeof registerAuditLog === 'function') {
-                await registerAuditLog('Reativar Contrato', `Cliente: ${client.name}`, clientId, oldData, null);
+                const reactivationDate = new Date().toLocaleDateString('pt-BR');
+                await registerAuditLog(
+                    'EDIÇÃO',
+                    'Reativação de Contrato',
+                    `Cliente: ${client.name}, Data: ${reactivationDate}`,
+                    oldData,
+                    null
+                );
             }
 
             showToast('✅ Contrato reativado com sucesso!', 'success');

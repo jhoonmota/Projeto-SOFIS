@@ -1,0 +1,25 @@
+/* Estilos para logos dos sistemas nos cards de versão */
+.version-item-row {
+    position: relative;
+    /* Necessário para posicionamento absoluto da logo */
+}
+
+.system-card-logo {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    height: 28px;
+    /* Tamanho final ajustado para não sobrepor */
+    width: auto;
+    object-fit: contain;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 1;
+    /* Opacidade total */
+    background: white;
+    /* Fundo branco explícito */
+    border-radius: 4px;
+    padding: 2px;
+    /* Pequeno respiro */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
