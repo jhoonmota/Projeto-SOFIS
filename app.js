@@ -3616,7 +3616,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else if (tabId === 'management' && window.loadManagementTab) {
             window.loadManagementTab();
         }
+
+        updateTabSlider();
     }
+
+    // Sliding Indicator Function
+    function updateTabSlider() {
+        const activeTab = document.querySelector('.tab-btn.active');
+        const slider = document.querySelector('.tab-slider');
+
+        if (activeTab && slider) {
+            slider.style.width = `${activeTab.offsetWidth}px`;
+            slider.style.left = `${activeTab.offsetLeft}px`;
+        }
+    }
+
+    // Initialize slider on load and resize
+    window.addEventListener('load', updateTabSlider);
+    window.addEventListener('resize', updateTabSlider);
+    // Initial call in case load already fired
+    setTimeout(updateTabSlider, 100);
 
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
