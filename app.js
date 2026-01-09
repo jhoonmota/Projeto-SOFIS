@@ -3589,30 +3589,58 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
+    function activateTab(tabId) {
+        // Update buttons
+        tabBtns.forEach(b => {
+            if (b.dataset.tab === tabId) {
+                b.classList.add('active');
+            } else {
+                b.classList.remove('active');
+            }
+        });
+
+        // Update content sections
+        tabContents.forEach(content => {
+            content.classList.remove('active');
+            if (content.id === `${tabId}Tab`) {
+                content.classList.add('active');
+            }
+        });
+
+        // Save state
+        localStorage.setItem('sofis_active_tab', tabId);
+
+        // Load tab specific data
+        if (tabId === 'versions' && window.loadVersionControls) {
+            window.loadVersionControls();
+        } else if (tabId === 'management' && window.loadManagementTab) {
+            window.loadManagementTab();
+        }
+    }
+
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const tabId = btn.dataset.tab;
-
-            // Update buttons
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            // Update content sections
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-                if (content.id === `${tabId}Tab`) {
-                    content.classList.add('active');
-                }
-            });
-
-            // Load tab specific data
-            if (tabId === 'versions' && window.loadVersionControls) {
-                window.loadVersionControls();
-            } else if (tabId === 'management' && window.loadManagementTab) {
-                window.loadManagementTab();
-            }
+            activateTab(tabId);
         });
     });
+
+    // Restore saved tab or default to contacts
+    const savedTab = localStorage.getItem('sofis_active_tab');
+    if (savedTab) {
+        // Only activate if it's not the default 'contacts' tab (which is already active by default HTML)
+        // or if we simply want to enforce consistency
+        if (savedTab !== 'contacts') {
+            // We need to wait for other scripts to load if we are restoring specific tabs immediately?
+            // Since this is at the end of app.js, functions should be available or hoisted if defined here.
+            // However, loadVersionControls might be in version-control.js.
+            // Assuming version-control.js is loaded, it should be fine.
+            // Giving a small delay just in case for cross-file dependency if not fully ready,
+            // but usually DOMContentLoaded is better.
+            // For now, let's call it directly.
+            activateTab(savedTab);
+        }
+    }
 
     // ===================================
     // VERSION CONTROL INTEGRATION
