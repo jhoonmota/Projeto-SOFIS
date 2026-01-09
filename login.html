@@ -17,22 +17,43 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background:
-                radial-gradient(circle at 0% 0%, rgba(255, 160, 0, 0.05) 0%, transparent 40%),
-                linear-gradient(135deg, #384c56 0%, #232d32 100%);
             margin: 0;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background-image: url('login-bg-new.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(6px);
+            z-index: -1;
+            /* Dark overlay for readability */
+            box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.3);
         }
 
         .login-container {
-            background-color: var(--card-bg);
+            /* Glassmorphism Effect */
+            background-color: rgba(66, 84, 93, 0.65);
+            /* Semi-transparent version of system card-bg */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             padding: 40px;
             border-radius: var(--radius);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
             width: 100%;
             max-width: 450px;
             text-align: center;
-            border: 1px solid var(--border);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            /* Subtle border for glass look */
         }
 
         .login-logo {
@@ -94,6 +115,24 @@
             justify-content: flex-start;
             gap: 10px;
         }
+
+        .login-form input {
+            background: rgba(30, 40, 45, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            padding: 12px;
+            border-radius: 8px;
+            width: 100%;
+            outline: none;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .login-form input:focus {
+            background: rgba(20, 30, 35, 0.8);
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(255, 160, 0, 0.15);
+        }
     </style>
 </head>
 
@@ -102,7 +141,7 @@
         <img src="logo.png" alt="Sofis Logo" class="login-logo">
         <p class="login-subtitle">Gerenciamento de Clientes</p>
         <span class="login-build" id="loginBuildNumber">Build: ...</span>
-        <h1 class="login-title">Acesso ao Sistema</h1>
+        <h1 class="login-title">Bem-vindo ao Sistema</h1>
 
         <form id="loginForm" class="login-form">
             <div class="form-group">
