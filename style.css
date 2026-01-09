@@ -399,20 +399,31 @@ button.btn-icon.btn-danger:hover {
 /* Inactive Client Row/Card Styling */
 div.client-row.inactive-contract,
 div.client-card.inactive-contract {
-    background-color: rgba(60, 10, 10, 0.95) !important;
-    background: linear-gradient(to right, #4a0d0d, #2b0a0a) !important;
-    border: 3px solid #D50000 !important;
-    border-left-width: 6px !important;
-    box-shadow: 0 0 15px rgba(213, 0, 0, 0.25) !important;
+    background: linear-gradient(135deg, #6b1a1a 0%, #4a1010 100%) !important;
+    border: 1px solid rgba(213, 0, 0, 0.4) !important;
+    border-left-width: 4px !important;
+    border-left-color: #D50000 !important;
+    box-shadow: 0 2px 8px rgba(213, 0, 0, 0.3) !important;
     transition: all 0.3s ease;
+}
+
+/* Header do card inativo também precisa ser vermelho */
+div.client-row.inactive-contract .client-row-header {
+    background: linear-gradient(135deg, #6b1a1a 0%, #4a1010 100%) !important;
 }
 
 div.client-row.inactive-contract:hover,
 div.client-card.inactive-contract:hover {
-    border-color: #D50000 !important;
-    background: linear-gradient(to right, #5c1414, #360c0c) !important;
-    box-shadow: 0 0 25px rgba(213, 0, 0, 0.4) !important;
+    background: linear-gradient(135deg, #7d2020 0%, #5a1414 100%) !important;
+    border-color: rgba(213, 0, 0, 0.6) !important;
+    border-left-color: #FF3D00 !important;
+    box-shadow: 0 4px 12px rgba(213, 0, 0, 0.4) !important;
     transform: translateY(-2px);
+}
+
+/* Header do card inativo no hover */
+div.client-row.inactive-contract:hover .client-row-header {
+    background: linear-gradient(135deg, #7d2020 0%, #5a1414 100%) !important;
 }
 
 .client-row.inactive-contract .client-name-row,
